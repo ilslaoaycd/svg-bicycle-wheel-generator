@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SVG Bicycle Wheel Generator ESM Demo</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #f8fafc; color: #172033; }
+    main { max-width: 920px; margin: 32px auto; padding: 0 20px; }
+    #preview svg { width: 100%; height: auto; background: white; border: 1px solid #d9e2ec; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>SVG Bicycle Wheel Generator</h1>
+    <div id="preview"></div>
+  </main>
+  <script type="module">
+    import { renderWheelFaceSvg } from '../../dist/index.mjs';
+
+    document.querySelector('#preview').innerHTML = renderWheelFaceSvg({
+      view: 'both',
+      style: 'technical',
+      wheel: { spokeCount: 32, erd: 601, rimDepth: 28, rimWidth: 25 },
+      hub: { old: 142, leftFlangeDia: 58, rightFlangeDia: 52, leftFlangeCenter: 36.6, rightFlangeCenter: 23.3 },
+      lacing: { leftCross: 3, rightCross: 3 }
+    });
+  </script>
+</body>
+</html>

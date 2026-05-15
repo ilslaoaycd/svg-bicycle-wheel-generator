@@ -1,0 +1,62 @@
+{
+  "name": "svg-bicycle-wheel-generator",
+  "version": "1.0.0",
+  "description": "Pure JavaScript SVG generator for bicycle wheels, hubs, spoke lacing, and spoke calculation previews.",
+  "homepage": "https://github.com/ilslaoaycd/svg-bicycle-wheel-generator#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ilslaoaycd/svg-bicycle-wheel-generator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ilslaoaycd/svg-bicycle-wheel-generator/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "browser": "./dist/bicycle-wheel-svg.global.js",
+  "exports": {
+    ".": {
+      "browser": "./dist/bicycle-wheel-svg.global.js",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "examples/svg",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "examples": "node scripts/generate-examples.mjs",
+    "pretest": "npm run build && npm run examples",
+    "test": "node --test",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "svg",
+    "bicycle",
+    "bike",
+    "wheel",
+    "spoke",
+    "hub",
+    "rim",
+    "generator"
+  ],
+  "author": "Isaac Lloyd",
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.25.4"
+  },
+  "peerDependencies": {
+    "svg-bicycle-drivetrain-generator": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "svg-bicycle-drivetrain-generator": {
+      "optional": true
+    }
+  }
+}
