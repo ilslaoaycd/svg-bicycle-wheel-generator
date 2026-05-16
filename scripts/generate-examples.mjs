@@ -4,53 +4,45 @@ import { renderHubFaceSvg, renderHubSideSvg, renderWheelFaceSvg, renderWheelSide
 await mkdir('examples/svg', { recursive: true });
 
 const rearWheel = {
-  wheel: { erd: 601, outerDiameter: 622, rimDepth: 28, rimWidth: 25, spokeCount: 32 },
+  wheel: { outerDia: 634, erd: 601, rimWidth: 25, rimOffset: 0, spokeCount: 32, valveType: 'presta' },
   hub: {
-    old: 142,
+    hubPosition: 'rear',
+    brakeType: '6bolt',
+    hubType: 'jbend',
+    showHubHoles: 'visible',
     leftFlangeDia: 58,
     rightFlangeDia: 52,
     leftFlangeCenter: 36.6,
-    rightFlangeCenter: 23.3,
-    spokeHoleDia: 2.6,
-    shellDiameter: 36
+    rightFlangeCenter: 23.3
   },
-  lacing: { leftCross: 3, rightCross: 3 }
+  lacing: { crossPattern: 3 },
+  style: { spokeColor: 'color', nippleStyle: 'nipples', nippleColor: 'silver', spokeLayering: '3d' }
 };
 
 const frontRadial = {
-  wheel: { erd: 600, outerDiameter: 622, rimDepth: 32, rimWidth: 27, spokeCount: 24 },
+  wheel: { outerDia: 596, erd: 560, rimWidth: 30, rimOffset: 0, spokeCount: 24, valveType: 'schrader' },
   hub: {
-    old: 100,
+    hubPosition: 'front',
+    brakeType: 'centerlock',
+    hubType: 'straightpull',
+    showHubHoles: 'hidden',
     leftFlangeDia: 42,
     rightFlangeDia: 42,
     leftFlangeCenter: 34,
-    rightFlangeCenter: 34,
-    spokeHoleDia: 2.6,
-    shellDiameter: 30
+    rightFlangeCenter: 34
   },
-  lacing: { leftCross: 0, rightCross: 0, leftPattern: 'radial', rightPattern: 'radial' }
-};
-
-const fakeCassetteRenderer = ({ cogs }) => {
-  const rings = cogs.slice().reverse().map((cog, index) => {
-    const r = 26 + (index * 5.5);
-    return `<circle cx="160" cy="160" r="${r}" fill="none" stroke="#64748b" stroke-width="3" opacity=".55"><title>${cog}T</title></circle>`;
-  }).join('');
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320">${rings}</svg>`;
+  lacing: { crossPattern: 0 },
+  style: { spokeColor: 'silver', nippleStyle: 'nipples', nippleColor: 'black', spokeLayering: '3d' }
 };
 
 const examples = {
-  'wheel-32h-3x-both.svg': renderWheelFaceSvg({ ...rearWheel, view: 'both', style: 'technical' }),
-  'wheel-rear-drive-cassette.svg': renderWheelFaceSvg({
-    ...rearWheel,
-    view: 'right',
-    style: 'productPreview',
-    cassette: { enabled: true, renderer: fakeCassetteRenderer }
-  }),
-  'wheel-front-radial.svg': renderWheelFaceSvg({ ...frontRadial, view: 'both', style: 'blueprint' }),
-  'wheel-side-profile.svg': renderWheelSideSvg({ ...rearWheel, style: 'technical' }),
-  'hub-face.svg': renderHubFaceSvg({ ...rearWheel, style: 'debug' }),
-  'hub-side.svg': renderHubSideSvg({ ...rearWheel, style: 'technical' })
+  'wheel-rear-left-3x.svg': renderWheelFaceSvg({ ...rearWheel, view: { wheelFaceSide: 'left' } }),
+  'wheel-rear-drive-hg.svg': renderWheelFaceSvg({ ...rearWheel, view: { wheelFaceSide: 'right' } }),
+  'wheel-front-straightpull.svg': renderWheelFaceSvg({ ...frontRadial, view: { wheelFaceSide: 'left' } }),
+  'wheel-side-projection.svg': renderWheelSideSvg(rearWheel),
+  'wheel-side-cross-section.svg': renderWheelSideSvg({ ...rearWheel, style: { ...rearWheel.style, spokeLayering: 'flat' } }),
+  'hub-face-centerlock.svg': renderHubFaceSvg({ ...frontRadial, view: { hubFaceSide: 'left' } }),
+  'hub-side-rear.svg': renderHubSideSvg(rearWheel)
 };
 
 await Promise.all(Object.entries(examples).map(([file, svg]) => writeFile(`examples/svg/${file}`, `${svg}\n`, 'utf8')));

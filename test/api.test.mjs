@@ -9,16 +9,16 @@ import {
   WheelSideSVGGenerator,
   calculateSpokeLength,
   calculateWheelBuild,
+  lacingMap,
   renderHubFaceSvg,
   renderHubSideSvg,
   renderWheelFaceSvg,
   renderWheelSideSvg,
-  renderWheelSvg,
-  stylePresets
+  renderWheelSvg
 } from '../src/index.js';
 
 describe('public API', () => {
-  test('exports facade, classes, functions, and presets', () => {
+  test('exports facade, render functions, classes, and math helpers', () => {
     assert.equal(typeof BicycleWheelSVG, 'function');
     assert.equal(typeof HubSVGGenerator, 'function');
     assert.equal(typeof WheelFaceSVGGenerator, 'function');
@@ -30,43 +30,18 @@ describe('public API', () => {
     assert.equal(typeof renderHubSideSvg, 'function');
     assert.equal(typeof calculateSpokeLength, 'function');
     assert.equal(typeof calculateWheelBuild, 'function');
-    assert.ok(stylePresets.technical);
-    assert.ok(stylePresets.debug);
+    assert.equal(typeof lacingMap, 'function');
   });
 
   test('facade renders every view as SVG strings', () => {
     const generator = new BicycleWheelSVG();
 
-    assert.match(generator.wheel({ style: 'technical' }), /^<svg /);
-    assert.match(generator.wheelFace({ style: 'blueprint' }), /^<svg /);
-    assert.match(generator.wheelSide({ style: 'technical' }), /^<svg /);
-    assert.match(generator.hubFace({ style: 'debug' }), /^<svg /);
-    assert.match(generator.hubSide({ style: 'productPreview' }), /^<svg /);
-    assert.equal(generator.spokeBuild().roundedLeft, 292.3);
-  });
-
-  test('drive and non-drive filters alter visible spoke classes', () => {
-    const leftOnly = renderWheelFaceSvg({ view: 'left' });
-    const rightOnly = renderWheelFaceSvg({ view: 'right' });
-
-    assert.match(leftOnly, /wheel-spoke left pulling"/);
-    assert.match(leftOnly, /wheel-spoke right pulling muted"/);
-    assert.match(rightOnly, /wheel-spoke right pulling"/);
-    assert.match(rightOnly, /wheel-spoke left pulling muted"/);
-  });
-
-  test('optional cassette mode works without drivetrain dependency', () => {
-    const placeholder = renderWheelFaceSvg({ cassette: { enabled: true } });
-    const rendered = renderWheelFaceSvg({
-      cassette: {
-        enabled: true,
-        renderer: ({ cogs }) => `<svg viewBox="0 0 10 10"><text>${cogs.length}</text></svg>`
-      }
-    });
-
-    assert.match(placeholder, /wheel-cassette-placeholder/);
-    assert.match(rendered, /wheel-cassette-slot/);
-    assert.match(rendered, />12<\/text>/);
+    assert.match(generator.wheel(), /^<svg /);
+    assert.match(generator.wheelFace({ view: { wheelFaceSide: 'right' } }), /^<svg /);
+    assert.match(generator.wheelSide(), /^<svg /);
+    assert.match(generator.hubFace(), /^<svg /);
+    assert.match(generator.hubSide(), /^<svg /);
+    assert.equal(generator.spokeBuild().roundedLeft, 291.6);
   });
 
   test('CommonJS bundle can be required', () => {
@@ -74,16 +49,15 @@ describe('public API', () => {
     const api = require('../dist/index.cjs');
 
     assert.equal(typeof api.renderWheelFaceSvg, 'function');
-    assert.match(api.renderHubSideSvg({ style: 'technical' }), /^<svg /);
+    assert.match(api.renderHubSideSvg(), /^<svg /);
   });
 
   test('runtime source avoids Node and DOM globals', async () => {
     const files = [
       'src/index.js',
       'src/math.js',
-      'src/presets.js',
+      'src/paths.js',
       'src/svg.js',
-      'src/wheelGeometry.js',
       'src/wheelFaceSvgGenerator.js',
       'src/wheelSideSvgGenerator.js',
       'src/hubSvgGenerator.js'
@@ -96,14 +70,14 @@ describe('public API', () => {
     }));
   });
 
-  test('sample SVG files are present and include expected groups', async () => {
-    const wheel = await readFile('examples/svg/wheel-32h-3x-both.svg', 'utf8');
-    const cassette = await readFile('examples/svg/wheel-rear-drive-cassette.svg', 'utf8');
-    const hub = await readFile('examples/svg/hub-side.svg', 'utf8');
+  test('generated examples include expected visualizer groups', async () => {
+    const face = await readFile('examples/svg/wheel-rear-drive-hg.svg', 'utf8');
+    const side = await readFile('examples/svg/wheel-side-projection.svg', 'utf8');
+    const hub = await readFile('examples/svg/hub-face-centerlock.svg', 'utf8');
 
-    assert.match(wheel, /wheel-spokes-group/);
-    assert.match(wheel, /wheel-valve-group/);
-    assert.match(cassette, /wheel-cassette-slot/);
-    assert.match(hub, /OLD 142\.0mm/);
+    assert.match(face, /hub-cylinder-freehub/);
+    assert.match(face, /wheel-front-spokes/);
+    assert.match(side, /hub-side-group/);
+    assert.match(hub, /hub-brake-mount/);
   });
 });

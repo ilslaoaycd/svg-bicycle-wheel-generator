@@ -3,27 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SVG Bicycle Wheel Generator ESM Demo</title>
+  <title>SVG Bicycle Wheel Generator ESM</title>
   <style>
-    body { margin: 0; font-family: system-ui, sans-serif; background: #f8fafc; color: #172033; }
-    main { max-width: 920px; margin: 32px auto; padding: 0 20px; }
-    #preview svg { width: 100%; height: auto; background: white; border: 1px solid #d9e2ec; }
+    body { margin: 0; padding: 24px; font-family: system-ui, sans-serif; background: #f8f9fa; }
+    #wheel { max-width: 760px; margin: 0 auto; background: white; border: 1px solid #dee2e6; }
   </style>
 </head>
 <body>
-  <main>
-    <h1>SVG Bicycle Wheel Generator</h1>
-    <div id="preview"></div>
-  </main>
+  <div id="wheel"></div>
   <script type="module">
-    import { renderWheelFaceSvg } from '../../dist/index.mjs';
+    import { renderWheelFaceSvg } from '../../src/index.js';
 
-    document.querySelector('#preview').innerHTML = renderWheelFaceSvg({
-      view: 'both',
-      style: 'technical',
-      wheel: { spokeCount: 32, erd: 601, rimDepth: 28, rimWidth: 25 },
-      hub: { old: 142, leftFlangeDia: 58, rightFlangeDia: 52, leftFlangeCenter: 36.6, rightFlangeCenter: 23.3 },
-      lacing: { leftCross: 3, rightCross: 3 }
+    document.querySelector('#wheel').innerHTML = renderWheelFaceSvg({
+      view: { wheelFaceSide: 'right' },
+      wheel: { valveType: 'presta' },
+      hub: { hubPosition: 'rear', brakeType: '6bolt' }
     });
   </script>
 </body>

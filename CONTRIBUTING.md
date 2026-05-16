@@ -1,15 +1,20 @@
 # Contributing
 
-This package is intentionally small: runtime code should be plain JavaScript
-that returns SVG strings and avoids DOM, Node, filesystem, or network APIs.
+Thanks for helping improve the SVG Bicycle Wheel Generator.
 
-Useful commands:
+## Development
 
 ```bash
 npm install
-npm run build
-npm run examples
 npm test
 ```
 
-Regenerate committed example SVGs after changing geometry, styling, or presets.
+The test command builds the package, regenerates the checked-in SVG examples,
+and runs the Node.js test suite.
+
+## Guidelines
+
+- Keep runtime code DOM-free and Node-free so it works in browsers, bundlers,
+  server renderers, and script tags.
+- Prefer pure geometry helpers that return SVG strings.
+- Update examples and tests when public rendering behavior changes.

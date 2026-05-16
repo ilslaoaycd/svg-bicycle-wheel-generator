@@ -8,7 +8,6 @@ import {
   rimHolePositions,
   validateWheelBuild
 } from './math.js';
-import { resolveStylePreset, stylePresets } from './presets.js';
 import { WheelFaceSVGGenerator } from './wheelFaceSvgGenerator.js';
 import { WheelSideSVGGenerator } from './wheelSideSvgGenerator.js';
 
@@ -27,8 +26,8 @@ export class BicycleWheelSVG {
       wheel: { ...(this.config.wheel || {}), ...(options.wheel || {}) },
       hub: { ...(this.config.hub || {}), ...(options.hub || {}) },
       lacing: { ...(this.config.lacing || {}), ...(options.lacing || {}) },
-      styleConfig: { ...(this.config.styleConfig || {}), ...(options.styleConfig || {}) },
-      cassette: { ...(this.config.cassette || {}), ...(options.cassette || {}) }
+      view: { ...(this.config.view || {}), ...(typeof options.view === 'object' ? options.view : {}) },
+      style: { ...(this.config.style || {}), ...(typeof options.style === 'object' ? options.style : {}) }
     });
   }
 
@@ -86,9 +85,7 @@ export {
   hubHolePositions,
   lacingMap,
   normalizeOptions,
-  resolveStylePreset,
   rimHolePositions,
-  stylePresets,
   validateWheelBuild
 };
 
