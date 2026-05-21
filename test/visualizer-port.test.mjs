@@ -37,9 +37,11 @@ describe('visualizer port behavior', () => {
     });
 
     assert.match(face, /hub-flange-left/);
-    assert.match(face, /stroke-dasharray="2 2"/);
+    assert.match(face, /hub-centerlock-dashed-ring/);
+    assert.match(face, /stroke-dasharray="1 1"/);
     assert.match(face, /width="8"/);
-    assert.match(hub, /hub-brake-mount/);
+    assert.match(hub, /hub-centerlock-solid-ring/);
+    assert.match(hub, /hub-centerlock-dashed-ring/);
   });
 
   test('renders marker valve text and flat side cross-section', () => {

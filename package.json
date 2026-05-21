@@ -26,12 +26,15 @@
     "dist",
     "src",
     "examples/svg",
+    "examples/png",
+    "examples/hub-comparison.md",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
     "build": "node scripts/build.mjs",
     "examples": "node scripts/generate-examples.mjs",
+    "hub:tuner": "node scripts/serve-hub-tuner.mjs",
     "pretest": "npm run build && npm run examples",
     "test": "node --test",
     "prepare": "npm run build"

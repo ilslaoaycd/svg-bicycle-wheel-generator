@@ -2,15 +2,59 @@ import { hubHolePositions, lacingMap, normalizeOptions, rimHolePositions } from 
 import {
   circle,
   create6BoltPath,
-  createCenterlockPath,
   createHGFreehubFacePath,
   createJBendFlangePath,
+  createMicrosplineFreehubFacePath,
   createStraightPullFlangePath,
+  createXDFreehubFacePath,
   path,
   renderValve,
   spokeNipple
 } from './paths.js';
 import { line, svgDocument, tag, visualizerStyle } from './svg.js';
+
+function renderCenterlockFaceRings(cx, cy) {
+  return [
+    circle(cx, cy, 17, {
+      class: 'hub-centerlock-solid-ring',
+      fill: 'none',
+      stroke: '#212529',
+      'stroke-width': 1
+    }),
+    circle(cx, cy, 17.5, {
+      class: 'hub-centerlock-dashed-ring',
+      fill: 'none',
+      stroke: '#212529',
+      'stroke-width': 1,
+      'stroke-dasharray': '1 1'
+    })
+  ].join('');
+}
+
+function renderFreehubFace(cx, cy, config) {
+  if (config.hub.freehubType === 'microspline') {
+    return path(createMicrosplineFreehubFacePath(cx, cy), { class: 'hub-cylinder-freehub hub-freehub-microspline-face' });
+  }
+  if (config.hub.freehubType === 'xd') {
+    return [
+      path(createXDFreehubFacePath(cx, cy), { class: 'hub-cylinder-freehub hub-freehub-xd-face' }),
+      circle(cx, cy, 13.5, {
+        class: 'hub-freehub-xd-middle-ring',
+        fill: 'none',
+        stroke: '#212529',
+        'stroke-width': 1,
+        'stroke-dasharray': '1 1'
+      }),
+      circle(cx, cy, 11.5, {
+        class: 'hub-freehub-xd-center-ring',
+        fill: 'none',
+        stroke: '#212529',
+        'stroke-width': 1
+      })
+    ].join('');
+  }
+  return path(createHGFreehubFacePath(cx, cy), { class: 'hub-cylinder-freehub hub-freehub-hg-face' });
+}
 
 export class WheelFaceSVGGenerator {
   render(options = {}) {
@@ -53,7 +97,7 @@ export class WheelFaceSVGGenerator {
 
     const hubContent = [];
     if (!isLeftView && config.hub.brakeType === '6bolt') hubContent.push(path(create6BoltPath(center, center), { class: 'hub-brake-mount' }));
-    if (!isLeftView && config.hub.brakeType === 'centerlock') hubContent.push(path(createCenterlockPath(center, center), { class: 'hub-brake-mount' }));
+    else if (!isLeftView && config.hub.brakeType === 'centerlock') hubContent.push(renderCenterlockFaceRings(center, center));
 
     if (config.hub.hubType === 'straightpull') {
       hubContent.push(path(createStraightPullFlangePath(center, center, backRadius, backHoles), { class: 'hub-flange-right' }));
@@ -72,14 +116,10 @@ export class WheelFaceSVGGenerator {
     }
 
     if (config.hub.hubPosition === 'rear' && !isLeftView) {
-      hubContent.push(path(createHGFreehubFacePath(center, center), { class: 'hub-cylinder-freehub' }));
+      hubContent.push(renderFreehubFace(center, center, config));
     }
     if (isLeftView && config.hub.brakeType === '6bolt') hubContent.push(path(create6BoltPath(center, center), { class: 'hub-brake-mount' }));
-    if (isLeftView && config.hub.brakeType === 'centerlock') {
-      hubContent.push(path(createCenterlockPath(center, center), { class: 'hub-brake-mount' }));
-      hubContent.push(circle(center, center, 18, { fill: 'none', stroke: '#6c757d', 'stroke-width': 4, 'stroke-dasharray': '2 2' }));
-      hubContent.push(circle(center, center, 16, { fill: 'none', stroke: '#212529', 'stroke-width': 1 }));
-    }
+    else if (isLeftView && config.hub.brakeType === 'centerlock') hubContent.push(renderCenterlockFaceRings(center, center));
     hubContent.push(circle(center, center, 9, { fill: 'none', stroke: '#212529', 'stroke-width': 6 }));
 
     const rim = tag('g', { id: 'rimGroup' }, [

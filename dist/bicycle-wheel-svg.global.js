@@ -21,6 +21,7 @@ var BicycleWheelSVG = (() => {
   var index_exports = {};
   __export(index_exports, {
     BicycleWheelSVG: () => BicycleWheelSVG,
+    HUB_PRESETS: () => HUB_PRESETS,
     HubSVGGenerator: () => HubSVGGenerator,
     WheelFaceSVGGenerator: () => WheelFaceSVGGenerator,
     WheelSideSVGGenerator: () => WheelSideSVGGenerator,
@@ -29,6 +30,7 @@ var BicycleWheelSVG = (() => {
     default: () => index_default,
     hubHolePositions: () => hubHolePositions,
     lacingMap: () => lacingMap,
+    normalizeFreehubType: () => normalizeFreehubType,
     normalizeOptions: () => normalizeOptions,
     renderHubFaceSvg: () => renderHubFaceSvg,
     renderHubSideSvg: () => renderHubSideSvg,
@@ -53,11 +55,142 @@ var BicycleWheelSVG = (() => {
     brakeType: "6bolt",
     hubType: "jbend",
     showHubHoles: "visible",
+    builtInDimension: 142,
     leftFlangeDia: 58,
     rightFlangeDia: 52,
     leftFlangeCenter: 36.6,
     rightFlangeCenter: 23.3,
-    spokeHoleDia: 2.6
+    spokeHoleDia: 2.6,
+    brandStyle: "generic",
+    shellStyle: "tapered",
+    shellWaistDia: 24,
+    shellBodyDia: 31,
+    flangeThickness: 4,
+    endcapLength: 8,
+    endcapDia: 18,
+    freehubLength: 36,
+    freehubDia: 35,
+    freehubType: "hg",
+    brakeMountWidth: 5,
+    brakeMountDia: 44,
+    flangeCutoutStyle: "none",
+    flangeStickOut: 4,
+    centerShellDia: 25,
+    curveDrama: 0.35
+  };
+  var HUB_PRESETS = {
+    "dt-swiss-350-mtb-boost-rear-6bolt": {
+      name: "DT Swiss 350 MTB Boost Rear 6-Bolt",
+      hubPosition: "rear",
+      brakeType: "6bolt",
+      hubType: "jbend",
+      builtInDimension: 148,
+      leftFlangeDia: 60,
+      rightFlangeDia: 50.5,
+      leftFlangeCenter: 36.6,
+      rightFlangeCenter: 23.4,
+      spokeHoleDia: 2.6,
+      brandStyle: "dt-swiss",
+      shellStyle: "smooth-taper",
+      shellWaistDia: 23,
+      shellBodyDia: 32,
+      flangeThickness: 4,
+      endcapLength: 8,
+      endcapDia: 19,
+      freehubLength: 37,
+      freehubDia: 34,
+      freehubType: "xd",
+      brakeMountWidth: 5,
+      brakeMountDia: 44,
+      flangeCutoutStyle: "lightening-slots",
+      flangeStickOut: 4,
+      centerShellDia: 25,
+      curveDrama: 0.32
+    },
+    "dt-swiss-240-exp-boost-rear-centerlock": {
+      name: "DT Swiss 240 EXP Boost Rear Center Lock",
+      hubPosition: "rear",
+      brakeType: "centerlock",
+      hubType: "jbend",
+      builtInDimension: 148,
+      leftFlangeDia: 50.4,
+      rightFlangeDia: 50.4,
+      leftFlangeCenter: 37.3,
+      rightFlangeCenter: 22.6,
+      spokeHoleDia: 2.5,
+      brandStyle: "dt-swiss",
+      shellStyle: "smooth-taper",
+      shellWaistDia: 22,
+      shellBodyDia: 30,
+      flangeThickness: 3.5,
+      endcapLength: 8,
+      endcapDia: 18,
+      freehubLength: 37,
+      freehubDia: 33,
+      freehubType: "hg",
+      brakeMountWidth: 5,
+      brakeMountDia: 42,
+      flangeCutoutStyle: "lightening-slots",
+      flangeStickOut: 4,
+      centerShellDia: 24,
+      curveDrama: 0.3
+    },
+    "industry-nine-hydra2-boost-rear-6bolt": {
+      name: "Industry Nine Hydra2 Classic 12x148 Rear 6-Bolt",
+      hubPosition: "rear",
+      brakeType: "6bolt",
+      hubType: "jbend",
+      builtInDimension: 148,
+      leftFlangeDia: 59.5,
+      rightFlangeDia: 62,
+      leftFlangeCenter: 36.9,
+      rightFlangeCenter: 23.7,
+      spokeHoleDia: 2.6,
+      brandStyle: "industry-nine",
+      shellStyle: "fluted",
+      shellWaistDia: 25,
+      shellBodyDia: 34,
+      flangeThickness: 5,
+      endcapLength: 8,
+      endcapDia: 19,
+      freehubLength: 37,
+      freehubDia: 36,
+      freehubType: "xd",
+      brakeMountWidth: 5,
+      brakeMountDia: 46,
+      flangeCutoutStyle: "scalloped",
+      flangeStickOut: 5,
+      centerShellDia: 28,
+      curveDrama: 0.42
+    },
+    "industry-nine-solix-road-rear-centerlock": {
+      name: "Industry Nine Solix CL Road Rear",
+      hubPosition: "rear",
+      brakeType: "centerlock",
+      hubType: "jbend",
+      builtInDimension: 142,
+      leftFlangeDia: 41,
+      rightFlangeDia: 53,
+      leftFlangeCenter: 33,
+      rightFlangeCenter: 19,
+      spokeHoleDia: 2.5,
+      brandStyle: "industry-nine",
+      shellStyle: "fluted",
+      shellWaistDia: 23,
+      shellBodyDia: 31,
+      flangeThickness: 4.5,
+      endcapLength: 7,
+      endcapDia: 18,
+      freehubLength: 37,
+      freehubDia: 34,
+      freehubType: "xd",
+      brakeMountWidth: 5,
+      brakeMountDia: 42,
+      flangeCutoutStyle: "scalloped",
+      flangeStickOut: 4,
+      centerShellDia: 24,
+      curveDrama: 0.38
+    }
   };
   var DEFAULT_LACING = {
     crossPattern: 3
@@ -83,6 +216,12 @@ var BicycleWheelSVG = (() => {
       angle
     };
   }
+  function normalizeFreehubType(type = "hg") {
+    const normalized = String(type).toLowerCase();
+    if (normalized.includes("micro")) return "microspline";
+    if (normalized.includes("xd")) return "xd";
+    return "hg";
+  }
   function normalizeOptions(options = {}) {
     const flatWheel = {
       outerDia: options.outerDia,
@@ -97,17 +236,43 @@ var BicycleWheelSVG = (() => {
       brakeType: options.brakeType,
       hubType: options.hubType,
       showHubHoles: options.showHubHoles,
+      preset: options.preset,
+      builtInDimension: options.builtInDimension,
       leftFlangeDia: options.leftFlangeDia,
       rightFlangeDia: options.rightFlangeDia,
       leftFlangeCenter: options.leftFlangeCenter,
       rightFlangeCenter: options.rightFlangeCenter,
-      spokeHoleDia: options.spokeHoleDia
+      spokeHoleDia: options.spokeHoleDia,
+      brandStyle: options.brandStyle,
+      shellStyle: options.shellStyle,
+      shellWaistDia: options.shellWaistDia,
+      shellBodyDia: options.shellBodyDia,
+      flangeThickness: options.flangeThickness,
+      endcapLength: options.endcapLength,
+      endcapDia: options.endcapDia,
+      freehubLength: options.freehubLength,
+      freehubDia: options.freehubDia,
+      freehubType: options.freehubType,
+      brakeMountWidth: options.brakeMountWidth,
+      brakeMountDia: options.brakeMountDia,
+      flangeCutoutStyle: options.flangeCutoutStyle,
+      flangeStickOut: options.flangeStickOut,
+      centerShellDia: options.centerShellDia,
+      curveDrama: options.curveDrama
     };
     const compact = (object) => Object.fromEntries(Object.entries(object).filter(([, value]) => value !== void 0));
+    const wheelOptions = { ...compact(flatWheel), ...options.wheel || {} };
+    const hubOptions = { ...compact(flatHub), ...options.hub || {} };
+    const hubPreset = HUB_PRESETS[hubOptions.preset] || {};
     const view = typeof options.view === "string" ? { wheelFaceSide: options.view, hubFaceSide: options.view } : options.view || {};
+    const hub = { ...DEFAULT_HUB, ...hubPreset, ...hubOptions };
+    hub.freehubType = normalizeFreehubType(hub.freehubType);
+    if (hub.brakeType === "rim") {
+      hub.brakeMountWidth = 0;
+    }
     return {
-      wheel: { ...DEFAULT_WHEEL, ...compact(flatWheel), ...options.wheel || {} },
-      hub: { ...DEFAULT_HUB, ...compact(flatHub), ...options.hub || {} },
+      wheel: { ...DEFAULT_WHEEL, ...wheelOptions },
+      hub,
       lacing: { ...DEFAULT_LACING, ...options.lacing || {} },
       view: { ...DEFAULT_VIEW, ...view },
       style: { ...DEFAULT_STYLE, ...typeof options.style === "object" ? options.style : {} }
@@ -226,11 +391,22 @@ var BicycleWheelSVG = (() => {
   function fmt(value) {
     return Number.isFinite(value) ? Number(value.toFixed(3)).toString() : String(value);
   }
+  function roundNumbers(value) {
+    return String(value).replace(/-?(?:\d+\.\d+|\d+\.|\.\d+)(?:e[+-]?\d+)?|-?\d+e[+-]?\d+/gi, (match) => fmt(Number(match)));
+  }
+  function formatPathData(d) {
+    return roundNumbers(d);
+  }
+  function formatAttribute(key, value) {
+    if (typeof value === "number") return fmt(value);
+    if (key === "d" || key === "viewBox" || key === "points" || key === "transform" || key === "stroke-dasharray") return roundNumbers(value);
+    return value;
+  }
   function escapeText(value) {
     return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
   }
   function attrs(attributes = {}) {
-    return Object.entries(attributes).filter(([, value]) => value !== void 0 && value !== null && value !== false).map(([key, value]) => value === true ? key : `${key}="${escapeText(value)}"`).join(" ");
+    return Object.entries(attributes).filter(([, value]) => value !== void 0 && value !== null && value !== false).map(([key, value]) => value === true ? key : `${key}="${escapeText(formatAttribute(key, value))}"`).join(" ");
   }
   function tag(name, attributes = {}, content = "") {
     const attributeText = attrs(attributes);
@@ -247,7 +423,7 @@ var BicycleWheelSVG = (() => {
     return tag("rect", { x: fmt(x), y: fmt(y), width: fmt(width), height: fmt(height), ...attributes }, null);
   }
   function path(d, attributes = {}) {
-    return tag("path", { d, ...attributes }, null);
+    return tag("path", { d: formatPathData(d), ...attributes }, null);
   }
   function svgDocument(width, height, viewBox, content, style = "", attributes = {}) {
     return tag("svg", {
@@ -266,12 +442,29 @@ var BicycleWheelSVG = (() => {
     .rim-body{fill:#343a40;stroke:#212529;stroke-width:1;fill-rule:evenodd}
     .rim-outline{fill:none;stroke:#111;stroke-width:1.5}
     .rim-highlight{fill:none;stroke:rgba(255,255,255,.15);stroke-width:1}
-    .hub-flange-right{fill:#212529;stroke:#111;stroke-width:1;fill-rule:evenodd}
-    .hub-flange-left{fill:#343a40;stroke:#1a1e21;stroke-width:1;fill-rule:evenodd}
-    .hub-brake-mount{fill:#212529;stroke:#111;stroke-width:1;fill-rule:evenodd}
-    .hub-cylinder{fill:#343a40;stroke:#1a1e21;stroke-width:1;fill-rule:evenodd}
-    .hub-cylinder-dark{fill:#212529;stroke:#111;stroke-width:1;fill-rule:evenodd}
-    .hub-cylinder-freehub{fill:#6c757d;stroke:#343a40;stroke-width:1;fill-rule:evenodd}
+    .hub-flange-right{fill:#dce8f3;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
+    .hub-flange-left{fill:#e6eef6;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
+    .hub-brake-mount{fill:#d4e1ec;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
+    .hub-cylinder{fill:#eaf1f8;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
+    .hub-cylinder-dark{fill:#d8e4ef;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
+    .hub-cylinder-freehub{fill:#eef3f8;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
+    .hub-axle{fill:#f8fbfd;stroke:#5d7f9e;stroke-width:.8}
+    .hub-endcap{fill:#e7eef5;stroke:#315c82;stroke-width:1}
+    .hub-axle-tip{fill:#f8fbfd;stroke:#5d7f9e;stroke-width:.8}
+    .hub-shell-body{fill:#eaf1f8;stroke:#1f4b72;stroke-width:1.2}
+    .hub-brand-dt-swiss .hub-shell-body{fill:#edf3f8}
+    .hub-brand-industry-nine .hub-shell-body{fill:#e3edf6}
+    .hub-shell-flute{stroke:#7399ba;stroke-width:.9;stroke-linecap:round;fill:none}
+    .hub-shell-highlight{stroke:#9ab9d4;stroke-width:1;stroke-linecap:round}
+    .hub-bearing-ring{fill:#d2e0ec;stroke:#244b6f;stroke-width:1}
+    .hub-flange-plate{stroke-width:1.1}
+    .hub-flange-cutout{fill:#fff;stroke:#5d7f9e;stroke-width:.7}
+    .hub-spoke-hole-side{fill:#315c82;stroke:none}
+    .hub-bolt-head-side{fill:#fff;stroke:#315c82;stroke-width:.6}
+    .hub-centerlock-side{fill:#dce8f3}
+    .hub-sixbolt-side{fill:#dce8f3}
+    .hub-spline-line,.hub-freehub-spline{stroke:#315c82;stroke-width:1;stroke-linecap:round}
+    .hub-blueprint-line{stroke:#78a9d4;stroke-width:.7;stroke-dasharray:3 3;fill:none;opacity:.9}
     .rim-hole{fill:#111;stroke:#343a40;stroke-width:.5}
     .valve-hole-marker{fill:#dc3545}
     .valve-hole-line{stroke:#dc3545;stroke-width:2.5;stroke-linecap:round}
@@ -294,6 +487,25 @@ var BicycleWheelSVG = (() => {
     const sweep = clockwise ? 1 : 0;
     return `M ${cx} ${cy - r} A ${r} ${r} 0 0 ${sweep} ${cx} ${cy + r} A ${r} ${r} 0 0 ${sweep} ${cx} ${cy - r} Z `;
   }
+  function closedFitSplinePath(points, tension = 0.45) {
+    if (points.length < 3) return "";
+    let d = `M ${points[0].x} ${points[0].y} `;
+    points.forEach((point, index) => {
+      const previous = points[(index - 1 + points.length) % points.length];
+      const next = points[(index + 1) % points.length];
+      const afterNext = points[(index + 2) % points.length];
+      const cp1 = {
+        x: point.x + (next.x - previous.x) * tension / 6,
+        y: point.y + (next.y - previous.y) * tension / 6
+      };
+      const cp2 = {
+        x: next.x - (afterNext.x - point.x) * tension / 6,
+        y: next.y - (afterNext.y - point.y) * tension / 6
+      };
+      d += `C ${cp1.x} ${cp1.y} ${cp2.x} ${cp2.y} ${next.x} ${next.y} `;
+    });
+    return `${d}Z `;
+  }
   function createJBendFlangePath(cx, cy, outerRadius, holes, showHoles) {
     let d = circlePath(cx, cy, outerRadius, true);
     if (showHoles) {
@@ -305,57 +517,46 @@ var BicycleWheelSVG = (() => {
     return d;
   }
   function create6BoltPath(cx, cy) {
-    let d = "";
+    const points = [];
     for (let index = 0; index < 6; index += 1) {
       const angle = index * (Math.PI / 3);
-      const boltCenter = polar(cx, cy, 22, angle);
-      const pRight = polar(boltCenter.x, boltCenter.y, 6, angle + Math.PI / 2);
-      const pLeft = polar(boltCenter.x, boltCenter.y, 6, angle - Math.PI / 2);
-      if (index === 0) d += `M ${pLeft.x} ${pLeft.y} `;
-      else {
-        const valley = polar(cx, cy, 15, angle - Math.PI / 6);
-        d += `Q ${valley.x} ${valley.y} ${pLeft.x} ${pLeft.y} `;
-      }
-      d += `A 6 6 0 0 1 ${pRight.x} ${pRight.y} `;
+      points.push(
+        polar(cx, cy, 16.7, angle - 0.32),
+        polar(cx, cy, 21.3, angle - 0.39),
+        polar(cx, cy, 26, angle - 0.29),
+        polar(cx, cy, 28.6, angle - 0.075),
+        polar(cx, cy, 28.6, angle + 0.075),
+        polar(cx, cy, 26, angle + 0.29),
+        polar(cx, cy, 21.3, angle + 0.39),
+        polar(cx, cy, 16.7, angle + 0.32),
+        polar(cx, cy, 13.8, angle + Math.PI / 6)
+      );
     }
-    const firstBolt = polar(cx, cy, 22, 0);
-    const firstLeft = polar(firstBolt.x, firstBolt.y, 6, -Math.PI / 2);
-    const lastValley = polar(cx, cy, 15, 5 * Math.PI / 3 + Math.PI / 6);
-    d += `Q ${lastValley.x} ${lastValley.y} ${firstLeft.x} ${firstLeft.y} Z `;
+    let d = closedFitSplinePath(points);
     for (let index = 0; index < 6; index += 1) {
       const boltCenter = polar(cx, cy, 22, index * (Math.PI / 3));
-      d += circlePath(boltCenter.x, boltCenter.y, 2.5, false);
+      d += circlePath(boltCenter.x, boltCenter.y, 2.8, false);
     }
     d += circlePath(cx, cy, 6, false);
     return d;
   }
-  function createCenterlockPath(cx, cy) {
-    return `${circlePath(cx, cy, 21, true)}${circlePath(cx, cy, 6, false)}`;
-  }
-  function createHGFreehubFacePath(cx, cy) {
+  function createFreehubSplineFacePath(cx, cy, options = {}) {
     const majorRadius = 17.45;
     const minorRadius = 15.9;
     const chamferDepth = 0.4;
     const chamferRad = 0.025;
-    const standardSpline = 0.42;
-    const narrowSpline = 0.2;
-    const narrowValleyRight = 0.2;
-    const wideValleyLeft = 0.4;
-    const remaining = 2 * Math.PI - (8 * standardSpline + narrowSpline + narrowValleyRight + wideValleyLeft);
-    const standardValley = remaining / 7;
-    const pattern = [
-      [narrowSpline, narrowValleyRight],
-      [standardSpline, standardValley],
-      [standardSpline, standardValley],
-      [standardSpline, standardValley],
-      [standardSpline, standardValley],
-      [standardSpline, standardValley],
-      [standardSpline, standardValley],
-      [standardSpline, standardValley],
-      [standardSpline, wideValleyLeft]
-    ];
+    const toothCount = options.toothCount || 9;
+    const innerRadius = options.innerRadius || 10;
+    const splineScale = options.splineScale || 1;
+    const standardSpline = 2 * Math.PI / toothCount * 0.6 * splineScale;
+    const standardValley = 2 * Math.PI / toothCount - standardSpline;
+    const pattern = Array.from({ length: toothCount }, (_item, index) => {
+      if (toothCount === 9 && index === 0) return [standardSpline * 0.55, standardValley * 0.7];
+      if (toothCount === 9 && index === toothCount - 1) return [standardSpline, standardValley * 1.25];
+      return [standardSpline, standardValley];
+    });
     let d = "";
-    let currentAngle = -Math.PI / 2 - narrowSpline / 2;
+    let currentAngle = -Math.PI / 2 - pattern[0][0] / 2;
     pattern.forEach(([splineWidth, valleyWidth], index) => {
       const start = currentAngle;
       const end = currentAngle + splineWidth;
@@ -372,7 +573,16 @@ var BicycleWheelSVG = (() => {
       d += `A ${minorRadius} ${minorRadius} 0 0 1 ${pNext.x} ${pNext.y} `;
       currentAngle = nextStart;
     });
-    return `${d}Z ${circlePath(cx, cy, 10, false)}`;
+    return `${d}Z ${circlePath(cx, cy, innerRadius, false)}`;
+  }
+  function createHGFreehubFacePath(cx, cy) {
+    return createFreehubSplineFacePath(cx, cy);
+  }
+  function createMicrosplineFreehubFacePath(cx, cy) {
+    return createFreehubSplineFacePath(cx, cy, { toothCount: 18, splineScale: 0.72 });
+  }
+  function createXDFreehubFacePath(cx, cy) {
+    return createFreehubSplineFacePath(cx, cy, { innerRadius: 15 });
   }
   function createStraightPullFlangePath(cx, cy, radius, holes) {
     const arms = Math.floor(holes.length / 2);
@@ -429,31 +639,15 @@ var BicycleWheelSVG = (() => {
     const valley = polar(cx, cy, valleyRadius, last.aInnerRight + (rightAngle - last.aInnerRight) / 2);
     return `${d}Q ${valley.x} ${valley.y} ${first.pIL.x} ${first.pIL.y} Z ${circlePath(cx, cy, 6, false)}`;
   }
-  function createJBendFlangeSidePath(x, cy, flangeDia, spokesPerSide, hubStep, isLeft) {
-    const width = 3;
-    const height = flangeDia + 8;
-    const startY = cy - flangeDia / 2 - 4;
-    let d = `M ${x} ${startY} L ${x + width} ${startY} L ${x + width} ${startY + height} L ${x} ${startY + height} Z `;
-    const radius = flangeDia / 2;
-    const offset = isLeft ? 0 : hubStep / 2;
-    for (let index = 0; index < spokesPerSide; index += 1) {
-      const angle = -Math.PI / 2 + index * hubStep + offset;
-      const holeY = cy + radius * Math.sin(angle);
-      const apparentHeight = Math.max(0.3, 2.2 * Math.abs(Math.cos(angle)));
-      const y = holeY - apparentHeight / 2;
-      d += `M ${x} ${y} L ${x} ${y + apparentHeight} L ${x + width} ${y + apparentHeight} L ${x + width} ${y} Z `;
-    }
-    return d;
-  }
   function renderValve(config, center, innerRadius) {
     const valve = polar(center, center, innerRadius, -Math.PI / 2);
     if (config.wheel.valveType === "presta") {
-      return `<g class="wheel-valve-group" transform="translate(${valve.x} ${valve.y}) rotate(0)">${rect(-3, 0, 6, 48, { fill: "#adb5bd", rx: 1 })}${rect(-5, 0, 10, 3, { fill: "#6c757d", rx: 0.5 })}${rect(-2, 48, 4, 6, { fill: "#ced4da", rx: 0.5 })}</g>`;
+      return `<g class="wheel-valve-group" transform="translate(${fmt(valve.x)} ${fmt(valve.y)}) rotate(0)">${rect(-3, 0, 6, 48, { fill: "#adb5bd", rx: 1 })}${rect(-5, 0, 10, 3, { fill: "#6c757d", rx: 0.5 })}${rect(-2, 48, 4, 6, { fill: "#ced4da", rx: 0.5 })}</g>`;
     }
     if (config.wheel.valveType === "schrader") {
-      return `<g class="wheel-valve-group" transform="translate(${valve.x} ${valve.y}) rotate(0)">${rect(-4, 0, 8, 30, { fill: "#343a40", rx: 1 })}${rect(-5, 0, 10, 3, { fill: "#6c757d", rx: 0.5 })}${rect(-4.5, 22, 9, 8, { fill: "#212529", rx: 1 })}</g>`;
+      return `<g class="wheel-valve-group" transform="translate(${fmt(valve.x)} ${fmt(valve.y)}) rotate(0)">${rect(-4, 0, 8, 30, { fill: "#343a40", rx: 1 })}${rect(-5, 0, 10, 3, { fill: "#6c757d", rx: 0.5 })}${rect(-4.5, 22, 9, 8, { fill: "#212529", rx: 1 })}</g>`;
     }
-    return `<g class="wheel-valve-group" transform="translate(${valve.x} ${valve.y}) rotate(0)"><text class="valve-label" transform="rotate(90)" x="8" y="0" dominant-baseline="middle" text-anchor="start" letter-spacing="2">VALVE</text></g>`;
+    return `<g class="wheel-valve-group" transform="translate(${fmt(valve.x)} ${fmt(valve.y)}) rotate(0)"><text class="valve-label" transform="rotate(90)" x="8" y="0" dominant-baseline="middle" text-anchor="start" letter-spacing="2">VALVE</text></g>`;
   }
   function spokeNipple(hubPoint, rimPoint) {
     const dx = hubPoint.x - rimPoint.x;
@@ -463,84 +657,299 @@ var BicycleWheelSVG = (() => {
   }
 
   // src/hubSvgGenerator.js
-  function renderHubSideGroup(cx, cy, config) {
-    const old = config.hub.hubPosition === "front" ? 100 : 142;
-    const leftFlangeDia = config.hub.leftFlangeDia;
-    const rightFlangeDia = config.hub.rightFlangeDia;
-    const leftCenter = config.hub.leftFlangeCenter;
-    const rightCenter = config.hub.rightFlangeCenter;
-    const leftEndX = cx - old / 2;
-    const rightEndX = cx + old / 2;
-    const leftFlangeX = cx - leftCenter;
-    const rightFlangeX = cx + rightCenter;
-    const leftFlangeTop = cy - leftFlangeDia / 2 + 2;
-    const rightFlangeTop = cy - rightFlangeDia / 2 + 2;
-    const waistTop = cy - 12;
-    const groups = [];
-    groups.push(rect(leftEndX, cy - 5, old, 10, { class: "hub-cylinder-dark" }));
-    groups.push(rect(leftEndX - 4, cy - 9, 8, 18, { class: "hub-cylinder" }));
-    groups.push(rect(rightEndX - 4, cy - 9, 8, 18, { class: "hub-cylinder" }));
-    let leftHardwareX = leftEndX + 6;
-    let rightHardwareX = rightEndX - 6;
-    if (config.hub.brakeType === "6bolt") {
-      groups.push(rect(leftEndX + 6, cy - 22, 6, 44, { class: "hub-brake-mount" }));
-      leftHardwareX += 8;
-    } else if (config.hub.brakeType === "centerlock") {
-      groups.push(rect(leftEndX + 6, cy - 24, 8, 48, { class: "hub-brake-mount" }));
-      for (let y = cy - 16; y < cy + 16; y += 3) {
-        groups.push(line(leftEndX + 7, y, leftEndX + 13, y, { stroke: "#6c757d", "stroke-width": 1 }));
-      }
-      leftHardwareX += 10;
-    }
-    if (config.hub.hubPosition === "rear") {
-      const freehubWidth = rightEndX - 6 - rightHardwareX;
-      groups.push(rect(rightHardwareX, cy - 17.5, freehubWidth, 35, { class: "hub-cylinder-freehub" }));
-      [-12, -7, -2, 3, 8, 13].forEach((offsetY) => {
-        groups.push(line(rightHardwareX + 4, cy + offsetY, rightEndX - 10, cy + offsetY, {
-          stroke: "#343a40",
-          "stroke-width": 1
-        }));
-      });
-      rightHardwareX -= 2;
-    }
-    const shellPath = [
-      `M ${leftHardwareX} ${waistTop}`,
-      `L ${leftFlangeX - 3} ${leftFlangeTop}`,
-      `L ${leftFlangeX + 3} ${leftFlangeTop}`,
-      `L ${leftFlangeX + 8} ${waistTop}`,
-      `L ${rightFlangeX - 8} ${waistTop}`,
-      `L ${rightFlangeX - 3} ${rightFlangeTop}`,
-      `L ${rightFlangeX + 3} ${rightFlangeTop}`,
-      `L ${rightHardwareX} ${waistTop}`,
-      `L ${rightHardwareX} ${cy + 12}`,
-      `L ${rightFlangeX + 3} ${cy + rightFlangeDia / 2 - 2}`,
-      `L ${rightFlangeX - 3} ${cy + rightFlangeDia / 2 - 2}`,
-      `L ${rightFlangeX - 8} ${cy + 12}`,
-      `L ${leftFlangeX + 8} ${cy + 12}`,
-      `L ${leftFlangeX + 3} ${cy + leftFlangeDia / 2 - 2}`,
-      `L ${leftFlangeX - 3} ${cy + leftFlangeDia / 2 - 2}`,
-      `L ${leftHardwareX} ${cy + 12}`,
+  var BLUEPRINT = {
+    axle: { fill: "#f8fbfd", stroke: "#5d7f9e", "stroke-width": 0.8 },
+    endcap: { fill: "#e7eef5", stroke: "#315c82", "stroke-width": 1 },
+    shell: { fill: "#eaf1f8", stroke: "#1f4b72", "stroke-width": 1.2 },
+    flangeLeft: { fill: "#e6eef6", stroke: "#244b6f", "stroke-width": 1.1 },
+    flangeRight: { fill: "#dce8f3", stroke: "#244b6f", "stroke-width": 1.1 },
+    mount: { fill: "#dce8f3", stroke: "#244b6f", "stroke-width": 1 },
+    freehub: { fill: "#eef3f8", stroke: "#244b6f", "stroke-width": 1 },
+    bearing: { fill: "#d2e0ec", stroke: "#244b6f", "stroke-width": 1 },
+    cutout: { fill: "#ffffff", stroke: "#5d7f9e", "stroke-width": 0.7 },
+    hole: { fill: "#315c82", stroke: "none" },
+    line: { fill: "none", stroke: "#78a9d4", "stroke-width": 0.7, "stroke-dasharray": "3 3" },
+    detail: { fill: "none", stroke: "#315c82", "stroke-width": 1, "stroke-linecap": "round" },
+    faceReference: { fill: "none", stroke: "#78a9d4", "stroke-width": 0.7, "stroke-dasharray": "3 3" },
+    faceBearing: { fill: "none", stroke: "#5d7f9e", "stroke-width": 2, "stroke-dasharray": "2 2" }
+  };
+  var REALISTIC = {
+    axle: { fill: "#e8e8e8", stroke: "#1f1f1f", "stroke-width": 0.8 },
+    endcap: { fill: "#8f9498", stroke: "#111111", "stroke-width": 1 },
+    shell: { fill: "#c9cdd0", stroke: "#111111", "stroke-width": 1.2 },
+    flangeLeft: { fill: "#d8dadd", stroke: "#111111", "stroke-width": 1.1 },
+    flangeRight: { fill: "#babfc3", stroke: "#111111", "stroke-width": 1.1 },
+    mount: { fill: "#9fa4a8", stroke: "#111111", "stroke-width": 1 },
+    freehub: { fill: "#d7d9dc", stroke: "#111111", "stroke-width": 1 },
+    bearing: { fill: "#757b80", stroke: "#111111", "stroke-width": 1 },
+    cutout: { fill: "#f8f8f8", stroke: "#222222", "stroke-width": 0.7 },
+    hole: { fill: "#171717", stroke: "none" },
+    line: { fill: "none", stroke: "#1f1f1f", "stroke-width": 0.7, "stroke-dasharray": "3 3", opacity: 0.35 },
+    detail: { fill: "none", stroke: "#222222", "stroke-width": 1, "stroke-linecap": "round" },
+    faceReference: { fill: "none", stroke: "#222222", "stroke-width": 0.7, "stroke-dasharray": "3 3", opacity: 0.35 },
+    faceBearing: { fill: "none", stroke: "#222222", "stroke-width": 2, "stroke-dasharray": "2 2" }
+  };
+  function activeStyle(config) {
+    return config.style.hubRenderStyle === "realistic" ? REALISTIC : BLUEPRINT;
+  }
+  function isBlueprint(config) {
+    return config.style.hubRenderStyle !== "realistic";
+  }
+  function bp(className, style, extra = {}) {
+    return { class: className, ...style, ...extra };
+  }
+  function hubProfileClass(config) {
+    return [
+      "hub-side-group",
+      `hub-brand-${config.hub.brandStyle || "generic"}`,
+      `hub-shell-${config.hub.shellStyle || "tapered"}`,
+      `hub-render-${config.style.hubRenderStyle || "blueprint"}`
+    ].join(" ");
+  }
+  function contiguousPath(x1, x2, cy, r, chamfer = 1.5) {
+    return [
+      `M ${x1 + chamfer} ${cy - r}`,
+      `L ${x2 - chamfer} ${cy - r}`,
+      `L ${x2} ${cy - r + chamfer}`,
+      `L ${x2} ${cy + r - chamfer}`,
+      `L ${x2 - chamfer} ${cy + r}`,
+      `L ${x1 + chamfer} ${cy + r}`,
+      `L ${x1} ${cy + r - chamfer}`,
+      `L ${x1} ${cy - r + chamfer}`,
       "Z"
     ].join(" ");
-    groups.push(path(shellPath, { class: "hub-cylinder" }));
-    const spokesPerSide = config.wheel.spokeCount / 2;
-    const hubStep = 2 * Math.PI / spokesPerSide;
-    if (config.hub.hubType === "jbend") {
-      groups.push(path(createJBendFlangeSidePath(leftFlangeX, cy, leftFlangeDia, spokesPerSide, hubStep, true), {
-        class: "hub-flange-left"
-      }));
-      groups.push(path(createJBendFlangeSidePath(rightFlangeX, cy, rightFlangeDia, spokesPerSide, hubStep, false), {
-        class: "hub-flange-right"
-      }));
-    } else {
-      groups.push(rect(leftFlangeX - 2, cy - leftFlangeDia / 2 - 4, 5, leftFlangeDia + 8, { class: "hub-flange-left" }));
-      groups.push(rect(rightFlangeX - 2, cy - rightFlangeDia / 2 - 4, 5, rightFlangeDia + 8, { class: "hub-flange-right" }));
+  }
+  function endcapPath(x1, x2, cy, r, side, chamfer = 1.5) {
+    if (side === "left") {
+      return [
+        `M ${x1 + chamfer} ${cy - r}`,
+        `L ${x2} ${cy - r}`,
+        `L ${x2} ${cy + r}`,
+        `L ${x1 + chamfer} ${cy + r}`,
+        `L ${x1} ${cy + r - chamfer}`,
+        `L ${x1} ${cy - r + chamfer}`,
+        "Z"
+      ].join(" ");
     }
-    return tag("g", { class: "hub-side-group" }, groups.join(""));
+    return [
+      `M ${x1} ${cy - r}`,
+      `L ${x2 - chamfer} ${cy - r}`,
+      `L ${x2} ${cy - r + chamfer}`,
+      `L ${x2} ${cy + r - chamfer}`,
+      `L ${x2 - chamfer} ${cy + r}`,
+      `L ${x1} ${cy + r}`,
+      "Z"
+    ].join(" ");
+  }
+  function centeredYs(cy, radius, count) {
+    return Array.from({ length: count }, (_, index) => cy - radius + (index + 1) * radius * 2 / (count + 1));
+  }
+  function renderCenterlockFaceRings(cx, cy, style) {
+    return [
+      circle(cx, cy, 17, {
+        class: "hub-centerlock-solid-ring",
+        fill: "none",
+        stroke: style.detail.stroke,
+        "stroke-width": 1
+      }),
+      circle(cx, cy, 17.5, {
+        class: "hub-centerlock-dashed-ring",
+        fill: "none",
+        stroke: style.detail.stroke,
+        "stroke-width": 1,
+        "stroke-dasharray": "1 1"
+      })
+    ].join("");
+  }
+  function renderFreehubFace(cx, cy, config, style) {
+    if (config.hub.freehubType === "microspline") {
+      return path(createMicrosplineFreehubFacePath(cx, cy), bp("hub-cylinder-freehub hub-freehub-microspline-face", style.freehub));
+    }
+    if (config.hub.freehubType === "xd") {
+      return [
+        path(createXDFreehubFacePath(cx, cy), bp("hub-cylinder-freehub hub-freehub-xd-face", style.freehub)),
+        circle(cx, cy, 13.5, {
+          class: "hub-freehub-xd-middle-ring",
+          fill: "none",
+          stroke: style.detail.stroke,
+          "stroke-width": 1,
+          "stroke-dasharray": "1 1"
+        }),
+        circle(cx, cy, 11.5, {
+          class: "hub-freehub-xd-center-ring",
+          fill: "none",
+          stroke: style.detail.stroke,
+          "stroke-width": 1
+        })
+      ].join("");
+    }
+    return path(createHGFreehubFacePath(cx, cy), bp("hub-cylinder-freehub hub-freehub-hg-face", style.freehub));
+  }
+  function renderContiguousHubSideGroup(cx, cy, config) {
+    const style = activeStyle(config);
+    const old = config.hub.builtInDimension || (config.hub.hubPosition === "front" ? 100 : 142);
+    const leftEndX = cx - old / 2;
+    const rightEndX = cx + old / 2;
+    const endcapLength = config.hub.endcapLength || 8;
+    const endcapRadius = (config.hub.endcapDia || 18) / 2;
+    const hasBrakeMount = config.hub.brakeType !== "rim";
+    const brakeWidth = hasBrakeMount ? config.hub.brakeMountWidth ?? 5 : 0;
+    const brakeCoreRadius = hasBrakeMount ? Math.max(15, Math.min(config.hub.brakeMountDia / 2, 18)) : Math.max(12, config.hub.shellBodyDia / 2);
+    const freehubLength = config.hub.hubPosition === "rear" ? config.hub.freehubLength : 0;
+    const freehubRadius = (config.hub.freehubDia || 34) / 2;
+    const leftFlangeX = cx - config.hub.leftFlangeCenter;
+    const rightFlangeX = cx + config.hub.rightFlangeCenter;
+    const flangeThickness = (config.hub.flangeThickness || 4) * (config.hub.hubType === "straightpull" ? 1.5 : 1);
+    const leftFlangeRadius = config.hub.leftFlangeDia / 2;
+    const rightFlangeRadius = config.hub.rightFlangeDia / 2;
+    const shellRadius = Math.max(12, config.hub.shellWaistDia / 2);
+    const freehubType = config.hub.freehubType || "hg";
+    const isXd = freehubType === "xd";
+    const xBrakeStart = leftEndX + endcapLength;
+    const xBrakeEnd = hasBrakeMount ? Math.min(xBrakeStart + brakeWidth, leftFlangeX - flangeThickness / 2 - 2) : xBrakeStart;
+    const xLeftFlange1 = leftFlangeX - flangeThickness / 2;
+    const xLeftFlange2 = leftFlangeX + flangeThickness / 2;
+    const xRightFlange1 = rightFlangeX - flangeThickness / 2;
+    const xRightFlange2 = rightFlangeX + flangeThickness / 2;
+    const xRightEndcapStart = rightEndX - endcapLength;
+    const xFreehubStart = Math.max(xRightEndcapStart - freehubLength, xRightFlange2 + 2);
+    const xdSplineWidth = isXd ? Math.min(7, freehubLength * 0.22) : 0;
+    const xdThreadWidth = isXd ? Math.min(5.5, freehubLength * 0.18) : 0;
+    const xXdSplineEnd = xFreehubStart + xdSplineWidth;
+    const xXdThreadEnd = xXdSplineEnd + xdThreadWidth;
+    const xXdFinalStep = isXd ? Math.max(xXdThreadEnd + 1, xRightEndcapStart - 5) : xRightEndcapStart;
+    const xdSplineRadius = freehubRadius;
+    const xdThreadRadius = freehubRadius - 1;
+    const xdSmoothRadius = freehubRadius - 2;
+    const xdEndRadius = freehubRadius - 3;
+    const flangeStickOut = Math.max(0, config.hub.flangeStickOut || 0);
+    const leftAttachRadius = Math.max(shellRadius, leftFlangeRadius - flangeStickOut);
+    const rightAttachRadius = Math.max(shellRadius, rightFlangeRadius - flangeStickOut);
+    const centerRadius = Math.max(8, (config.hub.centerShellDia || config.hub.shellWaistDia) / 2);
+    const curveDrama = Math.max(0.1, Math.min(1, config.hub.curveDrama || 0.35));
+    const leftSpan = Math.max(1, cx - xLeftFlange2);
+    const rightSpan = Math.max(1, xRightFlange1 - cx);
+    const cpLeftX1 = xLeftFlange2 + leftSpan * curveDrama;
+    const cpLeftX2 = cx - leftSpan * curveDrama;
+    const cpRightX1 = cx + rightSpan * curveDrama;
+    const cpRightX2 = xRightFlange1 - rightSpan * curveDrama;
+    const leftEndcapPath = endcapPath(leftEndX, xBrakeStart, cy, endcapRadius, "left", 1.5);
+    const rightEndcapPath = endcapPath(xRightEndcapStart, rightEndX, cy, endcapRadius, "right", 1.5);
+    const leftFlangePath = contiguousPath(xLeftFlange1, xLeftFlange2, cy, leftFlangeRadius, Math.min(1.2, flangeThickness / 3));
+    const rightFlangePath = contiguousPath(xRightFlange1, xRightFlange2, cy, rightFlangeRadius, Math.min(1.2, flangeThickness / 3));
+    const brakePath = contiguousPath(xBrakeStart, xBrakeEnd, cy, brakeCoreRadius, 1.2);
+    const shellPath = [
+      `M ${xBrakeEnd} ${cy - brakeCoreRadius}`,
+      `C ${xBrakeEnd + 4} ${cy - brakeCoreRadius} ${xLeftFlange1 - 5} ${cy - leftAttachRadius} ${xLeftFlange1} ${cy - leftAttachRadius}`,
+      `L ${xLeftFlange2} ${cy - leftAttachRadius}`,
+      `C ${cpLeftX1} ${cy - leftAttachRadius} ${cpLeftX2} ${cy - centerRadius} ${cx} ${cy - centerRadius}`,
+      `C ${cpRightX1} ${cy - centerRadius} ${cpRightX2} ${cy - rightAttachRadius} ${xRightFlange1} ${cy - rightAttachRadius}`,
+      `L ${xRightFlange2} ${cy - rightAttachRadius}`,
+      `C ${xRightFlange2 + 4} ${cy - rightFlangeRadius} ${xFreehubStart - 4} ${cy - freehubRadius} ${xFreehubStart} ${cy - freehubRadius}`,
+      `L ${xFreehubStart} ${cy + freehubRadius}`,
+      `C ${xFreehubStart - 4} ${cy + freehubRadius} ${xRightFlange2 + 4} ${cy + rightFlangeRadius} ${xRightFlange2} ${cy + rightFlangeRadius}`,
+      `L ${xRightFlange1} ${cy + rightAttachRadius}`,
+      `C ${cpRightX2} ${cy + rightAttachRadius} ${cpRightX1} ${cy + centerRadius} ${cx} ${cy + centerRadius}`,
+      `C ${cpLeftX2} ${cy + centerRadius} ${cpLeftX1} ${cy + leftAttachRadius} ${xLeftFlange2} ${cy + leftAttachRadius}`,
+      `L ${xLeftFlange1} ${cy + leftAttachRadius}`,
+      `C ${xLeftFlange1 - 5} ${cy + leftAttachRadius} ${xBrakeEnd + 4} ${cy + brakeCoreRadius} ${xBrakeEnd} ${cy + brakeCoreRadius}`,
+      "Z"
+    ].join(" ");
+    const freehubPath = isXd ? [
+      `M ${xFreehubStart} ${cy - xdSplineRadius}`,
+      `L ${xXdSplineEnd} ${cy - xdSplineRadius}`,
+      `L ${xXdSplineEnd} ${cy - xdThreadRadius}`,
+      `L ${xXdThreadEnd} ${cy - xdThreadRadius}`,
+      `L ${xXdThreadEnd} ${cy - xdSmoothRadius}`,
+      `L ${xXdFinalStep} ${cy - xdSmoothRadius}`,
+      `L ${xXdFinalStep} ${cy - xdEndRadius}`,
+      `L ${xRightEndcapStart} ${cy - xdEndRadius}`,
+      `L ${xRightEndcapStart} ${cy + xdEndRadius}`,
+      `L ${xXdFinalStep} ${cy + xdEndRadius}`,
+      `L ${xXdFinalStep} ${cy + xdSmoothRadius}`,
+      `L ${xXdThreadEnd} ${cy + xdSmoothRadius}`,
+      `L ${xXdThreadEnd} ${cy + xdThreadRadius}`,
+      `L ${xXdSplineEnd} ${cy + xdThreadRadius}`,
+      `L ${xXdSplineEnd} ${cy + xdSplineRadius}`,
+      `L ${xFreehubStart} ${cy + xdSplineRadius}`,
+      "Z"
+    ].join(" ") : [
+      `M ${xFreehubStart} ${cy - freehubRadius}`,
+      `L ${xRightEndcapStart} ${cy - freehubRadius}`,
+      `L ${xRightEndcapStart} ${cy + freehubRadius}`,
+      `L ${xFreehubStart} ${cy + freehubRadius}`,
+      "Z"
+    ].join(" ");
+    const maskId = `hub-mask-${String(config.hub.preset || "custom").replaceAll(/[^a-z0-9-]/gi, "-")}-${config.style.hubRenderStyle || "blueprint"}`;
+    const components = [
+      path(leftEndcapPath, bp("hub-endcap", style.endcap)),
+      hasBrakeMount ? path(brakePath, bp(`hub-brake-mount hub-${config.hub.brakeType}-side`, style.mount)) : "",
+      path(shellPath, bp("hub-cylinder hub-shell-body", style.shell)),
+      path(leftFlangePath, bp("hub-flange-left hub-flange-plate", style.flangeLeft)),
+      path(rightFlangePath, bp("hub-flange-right hub-flange-plate", style.flangeRight)),
+      path(freehubPath, bp(`hub-cylinder-freehub hub-freehub-${freehubType}`, style.freehub)),
+      path(rightEndcapPath, bp("hub-endcap", style.endcap))
+    ];
+    const details = [];
+    if (config.style.hubRenderStyle === "realistic") {
+      details.push(tag("defs", {}, tag("clipPath", { id: maskId }, [
+        tag("path", { d: leftEndcapPath }, ""),
+        hasBrakeMount ? tag("path", { d: brakePath }, "") : "",
+        tag("path", { d: shellPath }, ""),
+        tag("path", { d: leftFlangePath }, ""),
+        tag("path", { d: rightFlangePath }, ""),
+        tag("path", { d: freehubPath }, ""),
+        tag("path", { d: rightEndcapPath }, "")
+      ].join(""))));
+    }
+    if (config.hub.hubType === "straightpull") {
+      const slotCount = Math.max(1, Math.round(config.wheel.spokeCount / 4));
+      [
+        [xLeftFlange1, xLeftFlange2, leftFlangeRadius],
+        [xRightFlange1, xRightFlange2, rightFlangeRadius]
+      ].forEach(([x1, x2, r]) => {
+        centeredYs(cy, r, slotCount).forEach((y) => {
+          details.push(line(x1 + 0.6, y, x2 - 0.6, y, bp("hub-straightpull-slot-side", style.detail, { opacity: 0.72, "stroke-width": 0.8 })));
+        });
+      });
+    }
+    if (config.hub.brakeType === "6bolt") {
+      centeredYs(cy, brakeCoreRadius, 2).forEach((y) => {
+        details.push(line(xBrakeStart + 0.7, y, xBrakeEnd - 0.7, y, bp("hub-sixbolt-side-line", style.detail, { opacity: 0.65, "stroke-width": 0.75 })));
+      });
+    }
+    if (config.hub.brakeType === "centerlock") {
+      for (let x = xBrakeStart + 1.5; x < xBrakeEnd; x += 1.6) {
+        details.push(line(x, cy - brakeCoreRadius + 1, x, cy + brakeCoreRadius - 1, bp("hub-centerlock-tooth", style.detail, { opacity: 0.55, "stroke-width": 0.55 })));
+      }
+    }
+    if (isXd) {
+      for (let x = xXdSplineEnd + 0.7; x < xXdThreadEnd; x += 1.2) {
+        details.push(line(x, cy - xdThreadRadius + 1, x, cy + xdThreadRadius - 1, bp("hub-freehub-thread-line", style.detail, { opacity: 0.45, "stroke-width": 0.55 })));
+      }
+      centeredYs(cy, xdSplineRadius, 6).forEach((y) => {
+        details.push(line(xFreehubStart + 0.8, y, xXdSplineEnd, y, bp("hub-freehub-spline", style.detail, { opacity: 0.7, "stroke-width": 0.75 })));
+      });
+      details.push(line(xXdFinalStep, cy - xdSmoothRadius, xXdFinalStep, cy + xdSmoothRadius, bp("hub-freehub-final-step-line", style.detail, { opacity: 0.5, "stroke-width": 0.65 })));
+    } else {
+      const splineCount = freehubType === "microspline" ? 9 : 4;
+      centeredYs(cy, freehubRadius, splineCount).forEach((y) => {
+        details.push(line(xFreehubStart, y, xRightEndcapStart - 1, y, bp("hub-freehub-spline", style.detail, { opacity: 0.7, "stroke-width": 0.75 })));
+      });
+    }
+    if (isBlueprint(config)) {
+      details.push(line(leftEndX, cy + 55, leftEndX, cy + 65, bp("hub-blueprint-line", style.line)));
+      details.push(line(rightEndX, cy + 55, rightEndX, cy + 65, bp("hub-blueprint-line", style.line)));
+    }
+    return tag("g", { class: hubProfileClass(config), "data-hub-preset": config.hub.preset }, [...components, ...details].join(""));
+  }
+  function renderHubSideGroup(cx, cy, config) {
+    return renderContiguousHubSideGroup(cx, cy, config);
   }
   var HubSVGGenerator = class {
     renderFace(options = {}) {
       const config = normalizeOptions(options);
+      const style = activeStyle(config);
       const center = 75;
       const isLeft = config.view.hubFaceSide !== "right";
       const frontRadius = isLeft ? config.hub.leftFlangeDia / 2 : config.hub.rightFlangeDia / 2;
@@ -561,26 +970,42 @@ var BicycleWheelSVG = (() => {
         }
       }
       const content = [];
-      if (!isLeft && config.hub.brakeType === "6bolt") content.push(path(create6BoltPath(center, center), { class: "hub-brake-mount" }));
-      if (!isLeft && config.hub.brakeType === "centerlock") content.push(path(createCenterlockPath(center, center), { class: "hub-brake-mount" }));
+      if (!isLeft && config.hub.brakeType === "6bolt") {
+        content.push(path(create6BoltPath(center, center), bp("hub-brake-mount", style.mount)));
+      } else if (!isLeft && config.hub.brakeType === "centerlock") {
+        content.push(renderCenterlockFaceRings(center, center, style));
+      }
       if (config.hub.hubType === "straightpull") {
-        content.push(path(createStraightPullFlangePath(center, center, backRadius, backHoles), { class: "hub-flange-right" }));
-        content.push(path(createStraightPullFlangePath(center, center, frontRadius, frontHoles), { class: "hub-flange-left" }));
+        content.push(path(createStraightPullFlangePath(center, center, backRadius, backHoles), bp("hub-flange-right", style.flangeRight)));
+        content.push(path(createStraightPullFlangePath(center, center, frontRadius, frontHoles), bp("hub-flange-left", style.flangeLeft)));
       } else {
-        content.push(path(createJBendFlangePath(center, center, backRadius + 4, backHoles, true), { class: "hub-flange-right" }));
-        content.push(path(createJBendFlangePath(center, center, frontRadius + 4, frontHoles, true), { class: "hub-flange-left" }));
+        content.push(path(createJBendFlangePath(center, center, backRadius + 4, backHoles, true), bp("hub-flange-right", style.flangeRight)));
+        content.push(path(createJBendFlangePath(center, center, frontRadius + 4, frontHoles, true), bp("hub-flange-left", style.flangeLeft)));
+        if (config.hub.flangeCutoutStyle === "scalloped") {
+          const scallopCount = Math.max(6, Math.floor(spokesPerSide / 2));
+          for (let index = 0; index < scallopCount; index += 1) {
+            const cut = polar(center, center, frontRadius * 0.72, -Math.PI / 2 + index * (2 * Math.PI / scallopCount));
+            content.push(circle(cut.x, cut.y, 2.7, bp("hub-flange-cutout", style.cutout)));
+          }
+        } else if (config.hub.flangeCutoutStyle === "lightening-slots") {
+          for (let index = 0; index < 6; index += 1) {
+            const angle = index * (Math.PI / 3);
+            const slot = polar(center, center, frontRadius * 0.67, angle);
+            content.push(circle(slot.x, slot.y, 2.2, bp("hub-flange-cutout", style.cutout)));
+          }
+        }
       }
       if (config.hub.hubPosition === "rear" && !isLeft) {
-        content.push(path(createHGFreehubFacePath(center, center), { class: "hub-cylinder-freehub" }));
+        content.push(renderFreehubFace(center, center, config, style));
       }
-      if (isLeft && config.hub.brakeType === "6bolt") content.push(path(create6BoltPath(center, center), { class: "hub-brake-mount" }));
-      if (isLeft && config.hub.brakeType === "centerlock") {
-        content.push(path(createCenterlockPath(center, center), { class: "hub-brake-mount" }));
-        content.push(circle(center, center, 18, { fill: "none", stroke: "#6c757d", "stroke-width": 4, "stroke-dasharray": "2 2" }));
-        content.push(circle(center, center, 16, { fill: "none", stroke: "#212529", "stroke-width": 1 }));
+      if (isLeft && config.hub.brakeType === "6bolt") {
+        content.push(path(create6BoltPath(center, center), bp("hub-brake-mount", style.mount)));
+      } else if (isLeft && config.hub.brakeType === "centerlock") {
+        content.push(renderCenterlockFaceRings(center, center, style));
       }
-      content.push(circle(center, center, 9, { fill: "none", stroke: "#212529", "stroke-width": 6 }));
-      return svgDocument(150, 150, "0 0 150 150", tag("g", { class: "hub-face-group" }, content.join("")), visualizerStyle(), {
+      return svgDocument(150, 150, "0 0 150 150", tag("g", {
+        class: `hub-face-group hub-brand-${config.hub.brandStyle || "generic"}`
+      }, content.join("")), visualizerStyle(), {
         class: "hub-svg"
       });
     }
@@ -596,6 +1021,47 @@ var BicycleWheelSVG = (() => {
   };
 
   // src/wheelFaceSvgGenerator.js
+  function renderCenterlockFaceRings2(cx, cy) {
+    return [
+      circle(cx, cy, 17, {
+        class: "hub-centerlock-solid-ring",
+        fill: "none",
+        stroke: "#212529",
+        "stroke-width": 1
+      }),
+      circle(cx, cy, 17.5, {
+        class: "hub-centerlock-dashed-ring",
+        fill: "none",
+        stroke: "#212529",
+        "stroke-width": 1,
+        "stroke-dasharray": "1 1"
+      })
+    ].join("");
+  }
+  function renderFreehubFace2(cx, cy, config) {
+    if (config.hub.freehubType === "microspline") {
+      return path(createMicrosplineFreehubFacePath(cx, cy), { class: "hub-cylinder-freehub hub-freehub-microspline-face" });
+    }
+    if (config.hub.freehubType === "xd") {
+      return [
+        path(createXDFreehubFacePath(cx, cy), { class: "hub-cylinder-freehub hub-freehub-xd-face" }),
+        circle(cx, cy, 13.5, {
+          class: "hub-freehub-xd-middle-ring",
+          fill: "none",
+          stroke: "#212529",
+          "stroke-width": 1,
+          "stroke-dasharray": "1 1"
+        }),
+        circle(cx, cy, 11.5, {
+          class: "hub-freehub-xd-center-ring",
+          fill: "none",
+          stroke: "#212529",
+          "stroke-width": 1
+        })
+      ].join("");
+    }
+    return path(createHGFreehubFacePath(cx, cy), { class: "hub-cylinder-freehub hub-freehub-hg-face" });
+  }
   var WheelFaceSVGGenerator = class {
     render(options = {}) {
       const config = normalizeOptions(options);
@@ -635,7 +1101,7 @@ var BicycleWheelSVG = (() => {
       });
       const hubContent = [];
       if (!isLeftView && config.hub.brakeType === "6bolt") hubContent.push(path(create6BoltPath(center, center), { class: "hub-brake-mount" }));
-      if (!isLeftView && config.hub.brakeType === "centerlock") hubContent.push(path(createCenterlockPath(center, center), { class: "hub-brake-mount" }));
+      else if (!isLeftView && config.hub.brakeType === "centerlock") hubContent.push(renderCenterlockFaceRings2(center, center));
       if (config.hub.hubType === "straightpull") {
         hubContent.push(path(createStraightPullFlangePath(center, center, backRadius, backHoles), { class: "hub-flange-right" }));
         hubContent.push(path(createStraightPullFlangePath(center, center, frontRadius, frontHoles), { class: "hub-flange-left" }));
@@ -652,14 +1118,10 @@ var BicycleWheelSVG = (() => {
         hubContent.push(path(createJBendFlangePath(center, center, frontRadius + 4, frontHoles, showHoles), { class: "hub-flange-left" }));
       }
       if (config.hub.hubPosition === "rear" && !isLeftView) {
-        hubContent.push(path(createHGFreehubFacePath(center, center), { class: "hub-cylinder-freehub" }));
+        hubContent.push(renderFreehubFace2(center, center, config));
       }
       if (isLeftView && config.hub.brakeType === "6bolt") hubContent.push(path(create6BoltPath(center, center), { class: "hub-brake-mount" }));
-      if (isLeftView && config.hub.brakeType === "centerlock") {
-        hubContent.push(path(createCenterlockPath(center, center), { class: "hub-brake-mount" }));
-        hubContent.push(circle(center, center, 18, { fill: "none", stroke: "#6c757d", "stroke-width": 4, "stroke-dasharray": "2 2" }));
-        hubContent.push(circle(center, center, 16, { fill: "none", stroke: "#212529", "stroke-width": 1 }));
-      }
+      else if (isLeftView && config.hub.brakeType === "centerlock") hubContent.push(renderCenterlockFaceRings2(center, center));
       hubContent.push(circle(center, center, 9, { fill: "none", stroke: "#212529", "stroke-width": 6 }));
       const rim = tag("g", { id: "rimGroup" }, [
         circle(center, center, rimMidRadius, {

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150" preserveAspectRatio="xMidYMid meet" class="hub-svg"><style>
+    :root{--rim-color:#343a40;--spoke-left-pulling:#0d6efd;--spoke-left-trailing:#0dcaf0;--spoke-right-pulling:#fd7e14;--spoke-right-trailing:#ffc107}
+    .wheel-svg,.hub-svg{background:#fff}
+    .rim-body{fill:#343a40;stroke:#212529;stroke-width:1;fill-rule:evenodd}
+    .rim-outline{fill:none;stroke:#111;stroke-width:1.5}
+    .rim-highlight{fill:none;stroke:rgba(255,255,255,.15);stroke-width:1}
+    .hub-flange-right{fill:#dce8f3;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
+    .hub-flange-left{fill:#e6eef6;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
+    .hub-brake-mount{fill:#d4e1ec;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
+    .hub-cylinder{fill:#eaf1f8;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
+    .hub-cylinder-dark{fill:#d8e4ef;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
+    .hub-cylinder-freehub{fill:#eef3f8;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
+    .hub-axle{fill:#f8fbfd;stroke:#5d7f9e;stroke-width:.8}
+    .hub-endcap{fill:#e7eef5;stroke:#315c82;stroke-width:1}
+    .hub-axle-tip{fill:#f8fbfd;stroke:#5d7f9e;stroke-width:.8}
+    .hub-shell-body{fill:#eaf1f8;stroke:#1f4b72;stroke-width:1.2}
+    .hub-brand-dt-swiss .hub-shell-body{fill:#edf3f8}
+    .hub-brand-industry-nine .hub-shell-body{fill:#e3edf6}
+    .hub-shell-flute{stroke:#7399ba;stroke-width:.9;stroke-linecap:round;fill:none}
+    .hub-shell-highlight{stroke:#9ab9d4;stroke-width:1;stroke-linecap:round}
+    .hub-bearing-ring{fill:#d2e0ec;stroke:#244b6f;stroke-width:1}
+    .hub-flange-plate{stroke-width:1.1}
+    .hub-flange-cutout{fill:#fff;stroke:#5d7f9e;stroke-width:.7}
+    .hub-spoke-hole-side{fill:#315c82;stroke:none}
+    .hub-bolt-head-side{fill:#fff;stroke:#315c82;stroke-width:.6}
+    .hub-centerlock-side{fill:#dce8f3}
+    .hub-sixbolt-side{fill:#dce8f3}
+    .hub-spline-line,.hub-freehub-spline{stroke:#315c82;stroke-width:1;stroke-linecap:round}
+    .hub-blueprint-line{stroke:#78a9d4;stroke-width:.7;stroke-dasharray:3 3;fill:none;opacity:.9}
+    .rim-hole{fill:#111;stroke:#343a40;stroke-width:.5}
+    .valve-hole-marker{fill:#dc3545}
+    .valve-hole-line{stroke:#dc3545;stroke-width:2.5;stroke-linecap:round}
+    .valve-label{font-family:sans-serif;font-size:14px;fill:#495057;font-weight:bold}
+    .spoke-nipple{stroke-width:5;stroke-linecap:butt}
+    .nipple-theme-silver .spoke-nipple{stroke:#adb5bd}
+    .nipple-theme-black .spoke-nipple{stroke:#212529}
+    .spoke{stroke-width:1.5;stroke-linecap:round}
+    .spoke-theme-color .spoke-left.spoke-pulling{stroke:#0d6efd}
+    .spoke-theme-color .spoke-left.spoke-trailing{stroke:#0dcaf0}
+    .spoke-theme-color .spoke-right.spoke-pulling{stroke:#fd7e14;stroke-dasharray:4 4}
+    .spoke-theme-color .spoke-right.spoke-trailing{stroke:#ffc107;stroke-dasharray:4 4}
+    .spoke-theme-black .spoke{stroke:#212529}
+    .spoke-theme-silver .spoke{stroke:#ced4da}
+  </style><g class="hub-face-group hub-brand-dt-swiss"><path d="M 75 45.8 A 29.2 29.2 0 0 1 75 104.2 A 29.2 29.2 0 0 1 75 45.8 Z M 79.916 48.484 A 1.8 1.8 0 0 0 79.916 52.084 A 1.8 1.8 0 0 0 79.916 48.484 Z M 89 52.247 A 1.8 1.8 0 0 0 89 55.847 A 1.8 1.8 0 0 0 89 52.247 Z M 95.953 59.2 A 1.8 1.8 0 0 0 95.953 62.8 A 1.8 1.8 0 0 0 95.953 59.2 Z M 99.716 68.284 A 1.8 1.8 0 0 0 99.716 71.884 A 1.8 1.8 0 0 0 99.716 68.284 Z M 99.716 78.116 A 1.8 1.8 0 0 0 99.716 81.716 A 1.8 1.8 0 0 0 99.716 78.116 Z M 95.953 87.2 A 1.8 1.8 0 0 0 95.953 90.8 A 1.8 1.8 0 0 0 95.953 87.2 Z M 89 94.153 A 1.8 1.8 0 0 0 89 97.753 A 1.8 1.8 0 0 0 89 94.153 Z M 79.916 97.916 A 1.8 1.8 0 0 0 79.916 101.516 A 1.8 1.8 0 0 0 79.916 97.916 Z M 70.084 97.916 A 1.8 1.8 0 0 0 70.084 101.516 A 1.8 1.8 0 0 0 70.084 97.916 Z M 61 94.153 A 1.8 1.8 0 0 0 61 97.753 A 1.8 1.8 0 0 0 61 94.153 Z M 54.047 87.2 A 1.8 1.8 0 0 0 54.047 90.8 A 1.8 1.8 0 0 0 54.047 87.2 Z M 50.284 78.116 A 1.8 1.8 0 0 0 50.284 81.716 A 1.8 1.8 0 0 0 50.284 78.116 Z M 50.284 68.284 A 1.8 1.8 0 0 0 50.284 71.884 A 1.8 1.8 0 0 0 50.284 68.284 Z M 54.047 59.2 A 1.8 1.8 0 0 0 54.047 62.8 A 1.8 1.8 0 0 0 54.047 59.2 Z M 61 52.247 A 1.8 1.8 0 0 0 61 55.847 A 1.8 1.8 0 0 0 61 52.247 Z M 70.084 48.484 A 1.8 1.8 0 0 0 70.084 52.084 A 1.8 1.8 0 0 0 70.084 48.484 Z M 75 69 A 6 6 0 0 0 75 81 A 6 6 0 0 0 75 69 Z " class="hub-flange-right" fill="#babfc3" stroke="#111111" stroke-width="1.1"/><path d="M 75 45.8 A 29.2 29.2 0 0 1 75 104.2 A 29.2 29.2 0 0 1 75 45.8 Z M 75 48 A 1.8 1.8 0 0 0 75 51.6 A 1.8 1.8 0 0 0 75 48 Z M 84.644 49.918 A 1.8 1.8 0 0 0 84.644 53.518 A 1.8 1.8 0 0 0 84.644 49.918 Z M 92.819 55.381 A 1.8 1.8 0 0 0 92.819 58.981 A 1.8 1.8 0 0 0 92.819 55.381 Z M 98.282 63.556 A 1.8 1.8 0 0 0 98.282 67.156 A 1.8 1.8 0 0 0 98.282 63.556 Z M 100.2 73.2 A 1.8 1.8 0 0 0 100.2 76.8 A 1.8 1.8 0 0 0 100.2 73.2 Z M 98.282 82.844 A 1.8 1.8 0 0 0 98.282 86.444 A 1.8 1.8 0 0 0 98.282 82.844 Z M 92.819 91.019 A 1.8 1.8 0 0 0 92.819 94.619 A 1.8 1.8 0 0 0 92.819 91.019 Z M 84.644 96.482 A 1.8 1.8 0 0 0 84.644 100.082 A 1.8 1.8 0 0 0 84.644 96.482 Z M 75 98.4 A 1.8 1.8 0 0 0 75 102 A 1.8 1.8 0 0 0 75 98.4 Z M 65.356 96.482 A 1.8 1.8 0 0 0 65.356 100.082 A 1.8 1.8 0 0 0 65.356 96.482 Z M 57.181 91.019 A 1.8 1.8 0 0 0 57.181 94.619 A 1.8 1.8 0 0 0 57.181 91.019 Z M 51.718 82.844 A 1.8 1.8 0 0 0 51.718 86.444 A 1.8 1.8 0 0 0 51.718 82.844 Z M 49.8 73.2 A 1.8 1.8 0 0 0 49.8 76.8 A 1.8 1.8 0 0 0 49.8 73.2 Z M 51.718 63.556 A 1.8 1.8 0 0 0 51.718 67.156 A 1.8 1.8 0 0 0 51.718 63.556 Z M 57.181 55.381 A 1.8 1.8 0 0 0 57.181 58.981 A 1.8 1.8 0 0 0 57.181 55.381 Z M 65.356 49.918 A 1.8 1.8 0 0 0 65.356 53.518 A 1.8 1.8 0 0 0 65.356 49.918 Z M 75 69 A 6 6 0 0 0 75 81 A 6 6 0 0 0 75 69 Z " class="hub-flange-left" fill="#d8dadd" stroke="#111111" stroke-width="1.1"/><circle cx="91.884" cy="75" r="2.2" class="hub-flange-cutout" fill="#f8f8f8" stroke="#222222" stroke-width="0.7"/><circle cx="83.442" cy="89.622" r="2.2" class="hub-flange-cutout" fill="#f8f8f8" stroke="#222222" stroke-width="0.7"/><circle cx="66.558" cy="89.622" r="2.2" class="hub-flange-cutout" fill="#f8f8f8" stroke="#222222" stroke-width="0.7"/><circle cx="58.116" cy="75" r="2.2" class="hub-flange-cutout" fill="#f8f8f8" stroke="#222222" stroke-width="0.7"/><circle cx="66.558" cy="60.378" r="2.2" class="hub-flange-cutout" fill="#f8f8f8" stroke="#222222" stroke-width="0.7"/><circle cx="83.442" cy="60.378" r="2.2" class="hub-flange-cutout" fill="#f8f8f8" stroke="#222222" stroke-width="0.7"/><circle cx="75" cy="75" r="17" class="hub-centerlock-solid-ring" fill="none" stroke="#222222" stroke-width="1"/><circle cx="75" cy="75" r="17.5" class="hub-centerlock-dashed-ring" fill="none" stroke="#222222" stroke-width="1" stroke-dasharray="1 1"/></g></svg>

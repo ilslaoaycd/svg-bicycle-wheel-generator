@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hub Geometry Tuner</title>
+  <link rel="icon" href="data:,">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #1f2937;
+      background: #f3f4f6;
+    }
+    .app {
+      display: grid;
+      grid-template-columns: minmax(320px, 400px) 1fr;
+      min-height: 100vh;
+    }
+    .panel {
+      background: #fff;
+      border-right: 1px solid #d1d5db;
+      padding: 20px;
+      overflow: auto;
+      max-height: 100vh;
+    }
+    .canvas {
+      padding: 20px;
+      background-color: #f8fafc;
+      background-image: radial-gradient(#dbe3eb 1px, transparent 1px);
+      background-size: 20px 20px;
+      overflow: auto;
+    }
+    h1 { font-size: 22px; line-height: 1.1; margin: 0 0 8px; }
+    h2 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #64748b;
+      margin: 22px 0 10px;
+    }
+    p { color: #64748b; font-size: 14px; margin: 0 0 16px; }
+    label { display: block; font-size: 13px; font-weight: 650; color: #334155; }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 86px;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    input, select, button {
+      width: 100%;
+      font: inherit;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      background: #fff;
+      color: #111827;
+    }
+    input, select { padding: 7px 8px; }
+    input[type="checkbox"] { width: auto; }
+    button {
+      padding: 9px 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button.primary { background: #1f4b72; border-color: #1f4b72; color: #fff; }
+    .button-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+    .tab-button {
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #334155;
+      padding: 8px;
+      font-size: 13px;
+    }
+    .tab-button.active {
+      background: #1f4b72;
+      border-color: #1f4b72;
+      color: #fff;
+    }
+    .toggle-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 9px 0;
+    }
+    .stage {
+      max-width: 1260px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 18px;
+      box-shadow: 0 16px 50px rgba(15, 23, 42, .08);
+    }
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: baseline;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+    }
+    .stage-title { font-weight: 800; font-size: 18px; }
+    .stage-subtitle { color: #64748b; font-size: 13px; }
+    .viewer-tools {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+      color: #64748b;
+      font-size: 12px;
+    }
+    .tool-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .pill-toggle {
+      display: inline-flex;
+      gap: 7px;
+      align-items: center;
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #f8fafc;
+      font-weight: 700;
+      color: #334155;
+    }
+    .viewer {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 2.65 / 1;
+      min-height: 250px;
+      max-height: calc(100vh - 220px);
+      margin: 0 auto;
+      background: #fbfdff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .viewer.view-hub-face, .viewer.view-wheel-face {
+      aspect-ratio: 1 / 1;
+      min-height: 560px;
+      max-height: calc(100vh - 260px);
+      width: min(100%, 760px);
+    }
+    .viewer.view-wheel-side {
+      aspect-ratio: 1 / 2.15;
+      min-height: 620px;
+      max-height: none;
+      width: min(100%, 520px);
+    }
+    #hub-output {
+      position: absolute;
+      inset: 0;
+    }
+    #hub-output svg, #label-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    #hub-output svg {
+      display: block;
+      overflow: hidden;
+    }
+    #label-layer { pointer-events: none; display: none; }
+    #label-layer.visible { display: block; }
+    .label-line { stroke: #dc2626; stroke-width: .8; stroke-dasharray: 2 2; vector-effect: non-scaling-stroke; }
+    .label-dot { fill: #dc2626; }
+    .label-box { fill: rgba(255,255,255,.96); stroke: #dc2626; stroke-width: .8; rx: 2; vector-effect: non-scaling-stroke; }
+    .label-text { fill: #991b1b; font: 4px ui-sans-serif, system-ui, sans-serif; font-weight: 800; }
+    .config-details {
+      margin-top: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background: #f8fafc;
+      overflow: hidden;
+    }
+    .config-details summary {
+      cursor: pointer;
+      padding: 10px 12px;
+      font-weight: 800;
+      color: #334155;
+      user-select: none;
+    }
+    .json-box {
+      border-top: 1px solid #d1d5db;
+      padding: 12px;
+      white-space: pre-wrap;
+      font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: #334155;
+      max-height: 260px;
+      overflow: auto;
+    }
+    @media (max-width: 860px) {
+      .app { grid-template-columns: 1fr; }
+      .panel { max-height: none; border-right: 0; border-bottom: 1px solid #d1d5db; }
+      .viewer { aspect-ratio: 2 / 1; min-height: 240px; max-height: none; }
+      .viewer.view-hub-face, .viewer.view-wheel-face { min-height: 320px; }
+      .viewer.view-wheel-side { min-height: 520px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <aside class="panel">
+      <h1>Hub Geometry Tuner</h1>
+      <p>Change hub parameters live, switch render styles, and toggle part labels for appearance feedback.</p>
+
+      <h2>Preset</h2>
+      <div class="row">
+        <label for="preset">Hub preset</label>
+        <select id="preset"></select>
+      </div>
+      <div class="row">
+        <label for="hubRenderStyle">Render mode</label>
+        <select id="hubRenderStyle">
+          <option value="realistic">realistic</option>
+          <option value="blueprint">blueprint</option>
+        </select>
+      </div>
+      <div class="toggle-row">
+        <input id="showLabels" type="checkbox">
+        <label for="showLabels">Show part labels</label>
+      </div>
+
+      <h2>Hub Type</h2>
+      <div id="select-controls"></div>
+
+      <h2>Wheel</h2>
+      <div id="wheel-controls"></div>
+
+      <h2>View</h2>
+      <div class="row">
+        <label for="hubFaceSide">Hub Face Side</label>
+        <select id="hubFaceSide" data-view-field="hubFaceSide">
+          <option value="left">left</option>
+          <option value="right">right</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="wheelFaceSide">Wheel Face Side</label>
+        <select id="wheelFaceSide" data-view-field="wheelFaceSide">
+          <option value="left">left</option>
+          <option value="right">right</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="crossPattern">Cross Pattern</label>
+        <input id="crossPattern" data-lacing-field="crossPattern" type="number" min="0" max="5" step="1">
+      </div>
+
+      <h2>Hub Geometry</h2>
+      <div id="number-controls"></div>
+
+      <div class="button-row">
+        <button id="reset">Reset Preset</button>
+        <button id="copy" class="primary">Copy Config</button>
+      </div>
+    </aside>
+
+    <section class="canvas">
+      <div class="stage">
+        <div class="stage-header">
+          <div>
+            <div class="stage-title" id="stage-title">Hub Preview</div>
+            <div class="stage-subtitle" id="stage-subtitle">Side view, live-rendered from the package browser bundle</div>
+          </div>
+          <div class="stage-subtitle" id="status">Ready</div>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Preview mode">
+          <button class="tab-button active" data-tab="hub-side" type="button">Hub Side</button>
+          <button class="tab-button" data-tab="hub-face" type="button">Hub Face</button>
+          <button class="tab-button" data-tab="wheel-face" type="button">Wheel Face</button>
+          <button class="tab-button" data-tab="wheel-side" type="button">Wheel Side</button>
+        </div>
+        <div class="viewer-tools">
+          <div class="tool-group">
+            <label class="pill-toggle" for="showLabelsInline">
+              <input id="showLabelsInline" type="checkbox">
+              Show part labels
+            </label>
+          </div>
+          <div>Full SVG is fit to this preview frame</div>
+        </div>
+        <div class="viewer">
+          <div id="hub-output"></div>
+          <svg id="label-layer" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+        <details class="config-details">
+          <summary>Current config JSON</summary>
+          <div class="json-box" id="config-json"></div>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <script src="../../dist/bicycle-wheel-svg.global.js"></script>
+  <script>
+    const presets = {
+      'dt-swiss-350-mtb-boost-rear-6bolt': 'DT Swiss 350 Boost Rear 6-Bolt',
+      'dt-swiss-240-exp-boost-rear-centerlock': 'DT Swiss 240 EXP Boost Rear Centerlock',
+      'industry-nine-hydra2-boost-rear-6bolt': 'Industry Nine Hydra2 Boost Rear 6-Bolt',
+      'industry-nine-solix-road-rear-centerlock': 'Industry Nine Solix Road Rear Centerlock',
+      custom: 'Custom'
+    };
+
+    const presetDefaults = {
+      'dt-swiss-350-mtb-boost-rear-6bolt': {
+        hubPosition: 'rear', brakeType: '6bolt', hubType: 'jbend', builtInDimension: 148,
+        leftFlangeDia: 60, rightFlangeDia: 50.5, leftFlangeCenter: 36.6, rightFlangeCenter: 23.4,
+        spokeHoleDia: 2.6, shellWaistDia: 23, shellBodyDia: 32, flangeThickness: 4,
+        endcapLength: 8, endcapDia: 19, freehubLength: 37, freehubDia: 34, freehubType: 'xd',
+        brakeMountWidth: 5, brakeMountDia: 44, flangeStickOut: 4, centerShellDia: 25, curveDrama: 0.32
+      },
+      'dt-swiss-240-exp-boost-rear-centerlock': {
+        hubPosition: 'rear', brakeType: 'centerlock', hubType: 'jbend', builtInDimension: 148,
+        leftFlangeDia: 50.4, rightFlangeDia: 50.4, leftFlangeCenter: 37.3, rightFlangeCenter: 22.6,
+        spokeHoleDia: 2.5, shellWaistDia: 22, shellBodyDia: 30, flangeThickness: 3.5,
+        endcapLength: 8, endcapDia: 18, freehubLength: 37, freehubDia: 33, freehubType: 'hg',
+        brakeMountWidth: 5, brakeMountDia: 42, flangeStickOut: 4, centerShellDia: 24, curveDrama: 0.3
+      },
+      'industry-nine-hydra2-boost-rear-6bolt': {
+        hubPosition: 'rear', brakeType: '6bolt', hubType: 'jbend', builtInDimension: 148,
+        leftFlangeDia: 59.5, rightFlangeDia: 62, leftFlangeCenter: 36.9, rightFlangeCenter: 23.7,
+        spokeHoleDia: 2.6, shellWaistDia: 25, shellBodyDia: 34, flangeThickness: 5,
+        endcapLength: 8, endcapDia: 19, freehubLength: 37, freehubDia: 36, freehubType: 'xd',
+        brakeMountWidth: 5, brakeMountDia: 46, flangeStickOut: 5, centerShellDia: 28, curveDrama: 0.42
+      },
+      'industry-nine-solix-road-rear-centerlock': {
+        hubPosition: 'rear', brakeType: 'centerlock', hubType: 'jbend', builtInDimension: 142,
+        leftFlangeDia: 41, rightFlangeDia: 53, leftFlangeCenter: 33, rightFlangeCenter: 19,
+        spokeHoleDia: 2.5, shellWaistDia: 23, shellBodyDia: 31, flangeThickness: 4.5,
+        endcapLength: 7, endcapDia: 18, freehubLength: 37, freehubDia: 34, freehubType: 'xd',
+        brakeMountWidth: 5, brakeMountDia: 42, flangeStickOut: 4, centerShellDia: 24, curveDrama: 0.38
+      }
+    };
+    const presetSpokeCounts = {
+      'dt-swiss-350-mtb-boost-rear-6bolt': 32,
+      'dt-swiss-240-exp-boost-rear-centerlock': 32,
+      'industry-nine-hydra2-boost-rear-6bolt': 32,
+      'industry-nine-solix-road-rear-centerlock': 28
+    };
+
+    const selectFields = [
+      ['hubPosition', ['rear', 'front']],
+      ['brakeType', ['6bolt', 'centerlock', 'rim']],
+      ['hubType', ['jbend', 'straightpull']],
+      ['freehubType', [
+        ['xd', 'XD'],
+        ['hg', 'HG'],
+        ['microspline', 'Microspline']
+      ]]
+    ];
+    const wheelFields = [
+      ['spokeCount', 12, 64, 2],
+      ['outerDia', 300, 800, 1],
+      ['erd', 250, 760, 1],
+      ['rimWidth', 10, 80, 0.5],
+      ['rimOffset', -20, 20, 0.5]
+    ];
+    const numberFields = [
+      ['builtInDimension', 80, 160, 1],
+      ['leftFlangeDia', 20, 80, 0.5],
+      ['rightFlangeDia', 20, 80, 0.5],
+      ['leftFlangeCenter', 0, 55, 0.1],
+      ['rightFlangeCenter', 0, 55, 0.1],
+      ['spokeHoleDia', 1, 5, 0.1],
+      ['shellWaistDia', 8, 42, 0.5],
+      ['shellBodyDia', 8, 48, 0.5],
+      ['centerShellDia', 8, 48, 0.5],
+      ['curveDrama', 0.1, 1, 0.01],
+      ['flangeStickOut', 0, 14, 0.5],
+      ['flangeThickness', 1, 12, 0.1],
+      ['endcapLength', 0, 20, 0.5],
+      ['endcapDia', 8, 30, 0.5],
+      ['freehubLength', 0, 55, 0.5],
+      ['freehubDia', 0, 45, 0.5],
+      ['brakeMountWidth', 0, 20, 0.5],
+      ['brakeMountDia', 0, 60, 0.5]
+    ];
+
+    const state = {
+      preset: 'dt-swiss-240-exp-boost-rear-centerlock',
+      activeView: 'hub-side',
+      hubRenderStyle: 'realistic',
+      showLabels: false,
+      wheel: {
+        spokeCount: presetSpokeCounts['dt-swiss-240-exp-boost-rear-centerlock'],
+        outerDia: 634,
+        erd: 601,
+        rimWidth: 25,
+        rimOffset: 0,
+        valveType: 'presta'
+      },
+      lacing: { crossPattern: 3 },
+      view: { hubFaceSide: 'left', wheelFaceSide: 'left' },
+      hub: { ...presetDefaults['dt-swiss-240-exp-boost-rear-centerlock'] }
+    };
+
+    function enforceHubRules() {
+      if (state.hub.brakeType === 'rim') {
+        state.hub.brakeMountWidth = 0;
+      } else if (!Number(state.hub.brakeMountWidth)) {
+        state.hub.brakeMountWidth = 5;
+      }
+    }
+
+    function titleCase(value) {
+      return value.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
+    }
+
+    function createControls() {
+      const preset = document.querySelector('#preset');
+      preset.innerHTML = Object.entries(presets).map(([value, label]) => `<option value="${value}">${label}</option>`).join('');
+      preset.value = state.preset;
+
+      document.querySelector('#select-controls').innerHTML = selectFields.map(([field, options]) => `
+        <div class="row">
+          <label for="${field}">${titleCase(field)}</label>
+          <select id="${field}" data-field="${field}">
+            ${options.map(option => {
+              const value = Array.isArray(option) ? option[0] : option;
+              const label = Array.isArray(option) ? option[1] : option;
+              return `<option value="${value}">${label}</option>`;
+            }).join('')}
+          </select>
+        </div>
+      `).join('');
+
+      document.querySelector('#wheel-controls').innerHTML = `
+        ${wheelFields.map(([field, min, max, step]) => `
+          <div class="row">
+            <label for="${field}">${titleCase(field)}</label>
+            <input id="${field}" data-wheel-field="${field}" type="number" min="${min}" max="${max}" step="${step}">
+          </div>
+        `).join('')}
+        <div class="row">
+          <label for="valveType">Valve Type</label>
+          <select id="valveType" data-wheel-field="valveType">
+            <option value="presta">presta</option>
+            <option value="schrader">schrader</option>
+            <option value="marker">marker</option>
+          </select>
+        </div>
+      `;
+
+      document.querySelector('#number-controls').innerHTML = numberFields.map(([field, min, max, step]) => `
+        <div class="row">
+          <label for="${field}">${titleCase(field)}</label>
+          <input id="${field}" data-field="${field}" type="number" min="${min}" max="${max}" step="${step}">
+        </div>
+      `).join('');
+    }
+
+    function parseViewBox(svg) {
+      const match = svg.match(/viewBox="([^"]+)"/);
+      const values = match ? match[1].trim().split(/\s+/).map(Number) : [0, 0, 200, 150];
+      return {
+        x: values[0] || 0,
+        y: values[1] || 0,
+        width: values[2] || 200,
+        height: values[3] || 150,
+        raw: values.join(' ')
+      };
+    }
+
+    function fittedHubViewBox(config, fallback) {
+      const maxDiameter = Math.max(
+        Number(config.leftFlangeDia) || 0,
+        Number(config.rightFlangeDia) || 0,
+        Number(config.freehubDia) || 0,
+        Number(config.brakeMountDia) || 0,
+        Number(config.endcapDia) || 0,
+        Number(config.shellBodyDia) || 0,
+        Number(config.centerShellDia) || 0,
+        54
+      );
+      const centerY = fallback.y + (fallback.height / 2);
+      const labelPadding = state.showLabels ? 28 : 11;
+      const height = Math.min(fallback.height, Math.max(74, maxDiameter + (labelPadding * 2)));
+      const y = centerY - (height / 2);
+      return {
+        x: fallback.x,
+        y,
+        width: fallback.width,
+        height,
+        raw: [fallback.x, y, fallback.width, height].map(value => Number(value.toFixed(2))).join(' ')
+      };
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function labelSvg(config, viewBox) {
+      const cx = viewBox.x + (viewBox.width / 2);
+      const cy = viewBox.y + (viewBox.height / 2);
+      const old = Number(config.builtInDimension) || 142;
+      const topLabelY = viewBox.y + 10;
+      const lowerLabelY = viewBox.y + viewBox.height - 9;
+      const leftLabelX = viewBox.x + 12;
+      const rightLabelMax = viewBox.x + viewBox.width - 43;
+      const leftEndX = cx - old / 2;
+      const rightEndX = cx + old / 2;
+      const leftFlangeX = cx - Number(config.leftFlangeCenter || 0);
+      const rightFlangeX = cx + Number(config.rightFlangeCenter || 0);
+      const freehubLength = config.hubPosition === 'rear' ? Number(config.freehubLength || 0) : 0;
+      const freehubX = rightEndX - Number(config.endcapLength || 0) - freehubLength;
+      const points = [
+        ['left endcap', leftEndX + 5, cy - 10, leftLabelX, topLabelY],
+        ['brake mount', leftEndX + Number(config.endcapLength || 0) + 4, cy - 22, leftLabelX + 33, topLabelY + 13],
+        ['left flange', leftFlangeX, cy - Number(config.leftFlangeDia || 0) / 2, clamp(leftFlangeX - 21, viewBox.x + 8, rightLabelMax), topLabelY + 26],
+        ['hub shell', cx, cy - Number(config.centerShellDia || 24) / 2, cx - 20, topLabelY],
+        ['right flange', rightFlangeX, cy - Number(config.rightFlangeDia || 0) / 2, clamp(rightFlangeX + 4, viewBox.x + 8, rightLabelMax), topLabelY + 26],
+        ['freehub', freehubX + freehubLength / 2, cy - Number(config.freehubDia || 0) / 2, clamp(freehubX + 6, viewBox.x + 8, rightLabelMax), topLabelY + 13],
+        ['right endcap', rightEndX - 5, cy - 10, rightLabelMax, topLabelY],
+        ['shell waist', cx, cy, clamp(cx + 8, viewBox.x + 8, rightLabelMax), lowerLabelY],
+        ['flange stick-out', leftFlangeX, cy + Number(config.leftFlangeDia || 0) / 2, clamp(leftFlangeX - 35, viewBox.x + 8, rightLabelMax), lowerLabelY]
+      ];
+      return points.map(([text, x1, y1, x2, y2]) => {
+        const width = Math.max(22, text.length * 2.35);
+        return `
+          <g>
+            <line class="label-line" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>
+            <circle class="label-dot" cx="${x1}" cy="${y1}" r="1.2"/>
+            <rect class="label-box" x="${x2 - 1}" y="${y2 - 5.5}" width="${width}" height="7.5"/>
+            <text class="label-text" x="${x2 + 1}" y="${y2 - .6}">${text}</text>
+          </g>
+        `;
+      }).join('');
+    }
+
+    function syncInputs() {
+      document.querySelector('#preset').value = state.preset;
+      document.querySelector('#hubRenderStyle').value = state.hubRenderStyle;
+      document.querySelector('#showLabels').checked = state.showLabels;
+      document.querySelector('#showLabelsInline').checked = state.showLabels;
+      [...document.querySelectorAll('[data-tab]')].forEach(button => {
+        button.classList.toggle('active', button.dataset.tab === state.activeView);
+      });
+      [...document.querySelectorAll('[data-wheel-field]')].forEach(input => {
+        input.value = state.wheel[input.dataset.wheelField] ?? '';
+      });
+      [...document.querySelectorAll('[data-view-field]')].forEach(input => {
+        input.value = state.view[input.dataset.viewField] ?? 'left';
+      });
+      [...document.querySelectorAll('[data-lacing-field]')].forEach(input => {
+        input.value = state.lacing[input.dataset.lacingField] ?? '';
+      });
+      [...document.querySelectorAll('[data-field]')].forEach(input => {
+        input.value = state.hub[input.dataset.field] ?? '';
+        if (input.dataset.field === 'brakeMountWidth') {
+          input.disabled = state.hub.brakeType === 'rim';
+          input.title = state.hub.brakeType === 'rim' ? 'Rim brake hubs do not have a brake mount in side view.' : '';
+        }
+      });
+    }
+
+    function activeViewMeta() {
+      return {
+        'hub-side': {
+          title: 'Hub Side Preview',
+          subtitle: 'Hub side view, live-rendered from the package browser bundle',
+          hint: 'Full hub SVG is fit to this preview frame'
+        },
+        'hub-face': {
+          title: `Hub Face Preview (${state.view.hubFaceSide})`,
+          subtitle: 'Hub face view with left/right side selection',
+          hint: 'Hub face SVG is fit to this preview frame'
+        },
+        'wheel-face': {
+          title: `Wheel Face Preview (${state.view.wheelFaceSide})`,
+          subtitle: 'Full assembled wheel face view with wheel and hub parameters',
+          hint: 'Full wheel SVG is fit to this preview frame'
+        },
+        'wheel-side': {
+          title: 'Wheel Side Preview',
+          subtitle: 'Full assembled wheel side view with rim, spokes, and hub profile',
+          hint: 'Wheel side SVG is fit to this preview frame'
+        }
+      }[state.activeView];
+    }
+
+    function buildConfig() {
+      return {
+        wheel: { ...state.wheel },
+        hub: { preset: state.preset === 'custom' ? undefined : state.preset, ...state.hub },
+        lacing: { ...state.lacing },
+        view: { ...state.view },
+        style: {
+          hubRenderStyle: state.hubRenderStyle,
+          spokeLayering: '3d',
+          spokeColor: 'color',
+          nippleStyle: 'nipples',
+          nippleColor: 'silver'
+        }
+      };
+    }
+
+    function renderSvgForActiveView(config) {
+      if (state.activeView === 'hub-face') return BicycleWheelSVG.renderHubFaceSvg(config);
+      if (state.activeView === 'wheel-face') return BicycleWheelSVG.renderWheelFaceSvg(config);
+      if (state.activeView === 'wheel-side') return BicycleWheelSVG.renderWheelSideSvg(config);
+      return BicycleWheelSVG.renderHubSideSvg(config);
+    }
+
+    function render() {
+      enforceHubRules();
+      syncInputs();
+      const config = buildConfig();
+      const svg = renderSvgForActiveView(config);
+      const sourceViewBox = parseViewBox(svg);
+      const viewBox = state.activeView === 'hub-side' ? fittedHubViewBox(state.hub, sourceViewBox) : sourceViewBox;
+      document.querySelector('#hub-output').innerHTML = svg;
+      const renderedSvg = document.querySelector('#hub-output svg');
+      if (renderedSvg) {
+        renderedSvg.setAttribute('viewBox', viewBox.raw);
+        renderedSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      }
+      const labelLayer = document.querySelector('#label-layer');
+      labelLayer.setAttribute('viewBox', viewBox.raw);
+      labelLayer.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      labelLayer.innerHTML = state.activeView === 'hub-side' ? labelSvg(state.hub, viewBox) : '';
+      labelLayer.classList.toggle('visible', state.showLabels && state.activeView === 'hub-side');
+      const viewer = document.querySelector('.viewer');
+      viewer.className = `viewer view-${state.activeView}`;
+      const meta = activeViewMeta();
+      document.querySelector('#stage-title').textContent = meta.title;
+      document.querySelector('#stage-subtitle').textContent = meta.subtitle;
+      document.querySelector('.viewer-tools > div:last-child').textContent = meta.hint;
+      document.querySelector('#config-json').textContent = JSON.stringify(config, null, 2);
+    }
+
+    function loadPreset(preset) {
+      state.preset = preset;
+      if (presetDefaults[preset]) state.hub = { ...presetDefaults[preset] };
+      if (presetSpokeCounts[preset]) state.wheel.spokeCount = presetSpokeCounts[preset];
+      enforceHubRules();
+      render();
+    }
+
+    createControls();
+    document.querySelectorAll('[data-tab]').forEach(button => {
+      button.addEventListener('click', () => {
+        state.activeView = button.dataset.tab;
+        render();
+      });
+    });
+    document.querySelector('#preset').addEventListener('change', event => loadPreset(event.target.value));
+    document.querySelector('#hubRenderStyle').addEventListener('change', event => {
+      state.hubRenderStyle = event.target.value;
+      render();
+    });
+    document.querySelector('#showLabels').addEventListener('change', event => {
+      state.showLabels = event.target.checked;
+      render();
+    });
+    document.querySelector('#showLabelsInline').addEventListener('change', event => {
+      state.showLabels = event.target.checked;
+      render();
+    });
+    document.querySelector('#reset').addEventListener('click', () => loadPreset(state.preset));
+    document.querySelector('#copy').addEventListener('click', async () => {
+      await navigator.clipboard.writeText(document.querySelector('#config-json').textContent);
+      document.querySelector('#status').textContent = 'Copied config';
+      setTimeout(() => { document.querySelector('#status').textContent = 'Ready'; }, 1200);
+    });
+    document.addEventListener('input', event => {
+      const wheelField = event.target.dataset.wheelField;
+      if (wheelField) {
+        state.preset = 'custom';
+        state.wheel[wheelField] = event.target.type === 'number' ? Number(event.target.value) : event.target.value;
+        render();
+        return;
+      }
+      const lacingField = event.target.dataset.lacingField;
+      if (lacingField) {
+        state.preset = 'custom';
+        state.lacing[lacingField] = Number(event.target.value);
+        render();
+        return;
+      }
+      const field = event.target.dataset.field;
+      if (!field) return;
+      state.preset = 'custom';
+      state.hub[field] = event.target.type === 'number' ? Number(event.target.value) : event.target.value;
+      enforceHubRules();
+      render();
+    });
+    document.addEventListener('change', event => {
+      const wheelField = event.target.dataset.wheelField;
+      if (wheelField && event.target.type !== 'number') {
+        state.preset = 'custom';
+        state.wheel[wheelField] = event.target.value;
+        render();
+        return;
+      }
+      const viewField = event.target.dataset.viewField;
+      if (viewField) {
+        state.view[viewField] = event.target.value;
+        render();
+        return;
+      }
+      const field = event.target.dataset.field;
+      if (!field || event.target.type === 'number') return;
+      state.preset = 'custom';
+      state.hub[field] = event.target.value;
+      enforceHubRules();
+      render();
+    });
+    render();
+  </script>
+</body>
+</html>

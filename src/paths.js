@@ -1,9 +1,29 @@
-import { circle, path, rect } from './svg.js';
+import { circle, fmt, path, rect } from './svg.js';
 import { polar } from './math.js';
 
 export function circlePath(cx, cy, r, clockwise = true) {
   const sweep = clockwise ? 1 : 0;
   return `M ${cx} ${cy - r} A ${r} ${r} 0 0 ${sweep} ${cx} ${cy + r} A ${r} ${r} 0 0 ${sweep} ${cx} ${cy - r} Z `;
+}
+
+function closedFitSplinePath(points, tension = 0.45) {
+  if (points.length < 3) return '';
+  let d = `M ${points[0].x} ${points[0].y} `;
+  points.forEach((point, index) => {
+    const previous = points[(index - 1 + points.length) % points.length];
+    const next = points[(index + 1) % points.length];
+    const afterNext = points[(index + 2) % points.length];
+    const cp1 = {
+      x: point.x + (((next.x - previous.x) * tension) / 6),
+      y: point.y + (((next.y - previous.y) * tension) / 6)
+    };
+    const cp2 = {
+      x: next.x - (((afterNext.x - point.x) * tension) / 6),
+      y: next.y - (((afterNext.y - point.y) * tension) / 6)
+    };
+    d += `C ${cp1.x} ${cp1.y} ${cp2.x} ${cp2.y} ${next.x} ${next.y} `;
+  });
+  return `${d}Z `;
 }
 
 export function createJBendFlangePath(cx, cy, outerRadius, holes, showHoles) {
@@ -18,26 +38,26 @@ export function createJBendFlangePath(cx, cy, outerRadius, holes, showHoles) {
 }
 
 export function create6BoltPath(cx, cy) {
-  let d = '';
+  const points = [];
   for (let index = 0; index < 6; index += 1) {
     const angle = index * (Math.PI / 3);
-    const boltCenter = polar(cx, cy, 22, angle);
-    const pRight = polar(boltCenter.x, boltCenter.y, 6, angle + (Math.PI / 2));
-    const pLeft = polar(boltCenter.x, boltCenter.y, 6, angle - (Math.PI / 2));
-    if (index === 0) d += `M ${pLeft.x} ${pLeft.y} `;
-    else {
-      const valley = polar(cx, cy, 15, angle - (Math.PI / 6));
-      d += `Q ${valley.x} ${valley.y} ${pLeft.x} ${pLeft.y} `;
-    }
-    d += `A 6 6 0 0 1 ${pRight.x} ${pRight.y} `;
+    points.push(
+      polar(cx, cy, 16.7, angle - 0.32),
+      polar(cx, cy, 21.3, angle - 0.39),
+      polar(cx, cy, 26, angle - 0.29),
+      polar(cx, cy, 28.6, angle - 0.075),
+      polar(cx, cy, 28.6, angle + 0.075),
+      polar(cx, cy, 26, angle + 0.29),
+      polar(cx, cy, 21.3, angle + 0.39),
+      polar(cx, cy, 16.7, angle + 0.32),
+      polar(cx, cy, 13.8, angle + (Math.PI / 6))
+    );
   }
-  const firstBolt = polar(cx, cy, 22, 0);
-  const firstLeft = polar(firstBolt.x, firstBolt.y, 6, -Math.PI / 2);
-  const lastValley = polar(cx, cy, 15, (5 * Math.PI / 3) + (Math.PI / 6));
-  d += `Q ${lastValley.x} ${lastValley.y} ${firstLeft.x} ${firstLeft.y} Z `;
+
+  let d = closedFitSplinePath(points);
   for (let index = 0; index < 6; index += 1) {
     const boltCenter = polar(cx, cy, 22, index * (Math.PI / 3));
-    d += circlePath(boltCenter.x, boltCenter.y, 2.5, false);
+    d += circlePath(boltCenter.x, boltCenter.y, 2.8, false);
   }
   d += circlePath(cx, cy, 6, false);
   return d;
@@ -47,31 +67,24 @@ export function createCenterlockPath(cx, cy) {
   return `${circlePath(cx, cy, 21, true)}${circlePath(cx, cy, 6, false)}`;
 }
 
-export function createHGFreehubFacePath(cx, cy) {
+export function createFreehubSplineFacePath(cx, cy, options = {}) {
   const majorRadius = 17.45;
   const minorRadius = 15.9;
   const chamferDepth = 0.4;
   const chamferRad = 0.025;
-  const standardSpline = 0.42;
-  const narrowSpline = 0.20;
-  const narrowValleyRight = 0.20;
-  const wideValleyLeft = 0.40;
-  const remaining = (2 * Math.PI) - ((8 * standardSpline) + narrowSpline + narrowValleyRight + wideValleyLeft);
-  const standardValley = remaining / 7;
-  const pattern = [
-    [narrowSpline, narrowValleyRight],
-    [standardSpline, standardValley],
-    [standardSpline, standardValley],
-    [standardSpline, standardValley],
-    [standardSpline, standardValley],
-    [standardSpline, standardValley],
-    [standardSpline, standardValley],
-    [standardSpline, standardValley],
-    [standardSpline, wideValleyLeft]
-  ];
+  const toothCount = options.toothCount || 9;
+  const innerRadius = options.innerRadius || 10;
+  const splineScale = options.splineScale || 1;
+  const standardSpline = ((2 * Math.PI) / toothCount) * 0.6 * splineScale;
+  const standardValley = ((2 * Math.PI) / toothCount) - standardSpline;
+  const pattern = Array.from({ length: toothCount }, (_item, index) => {
+    if (toothCount === 9 && index === 0) return [standardSpline * 0.55, standardValley * 0.7];
+    if (toothCount === 9 && index === toothCount - 1) return [standardSpline, standardValley * 1.25];
+    return [standardSpline, standardValley];
+  });
 
   let d = '';
-  let currentAngle = (-Math.PI / 2) - (narrowSpline / 2);
+  let currentAngle = (-Math.PI / 2) - (pattern[0][0] / 2);
   pattern.forEach(([splineWidth, valleyWidth], index) => {
     const start = currentAngle;
     const end = currentAngle + splineWidth;
@@ -89,7 +102,19 @@ export function createHGFreehubFacePath(cx, cy) {
     currentAngle = nextStart;
   });
 
-  return `${d}Z ${circlePath(cx, cy, 10, false)}`;
+  return `${d}Z ${circlePath(cx, cy, innerRadius, false)}`;
+}
+
+export function createHGFreehubFacePath(cx, cy) {
+  return createFreehubSplineFacePath(cx, cy);
+}
+
+export function createMicrosplineFreehubFacePath(cx, cy) {
+  return createFreehubSplineFacePath(cx, cy, { toothCount: 18, splineScale: 0.72 });
+}
+
+export function createXDFreehubFacePath(cx, cy) {
+  return createFreehubSplineFacePath(cx, cy, { innerRadius: 15 });
 }
 
 export function createStraightPullFlangePath(cx, cy, radius, holes) {
@@ -172,12 +197,12 @@ export function createJBendFlangeSidePath(x, cy, flangeDia, spokesPerSide, hubSt
 export function renderValve(config, center, innerRadius) {
   const valve = polar(center, center, innerRadius, -Math.PI / 2);
   if (config.wheel.valveType === 'presta') {
-    return `<g class="wheel-valve-group" transform="translate(${valve.x} ${valve.y}) rotate(0)">${rect(-3, 0, 6, 48, { fill: '#adb5bd', rx: 1 })}${rect(-5, 0, 10, 3, { fill: '#6c757d', rx: 0.5 })}${rect(-2, 48, 4, 6, { fill: '#ced4da', rx: 0.5 })}</g>`;
+    return `<g class="wheel-valve-group" transform="translate(${fmt(valve.x)} ${fmt(valve.y)}) rotate(0)">${rect(-3, 0, 6, 48, { fill: '#adb5bd', rx: 1 })}${rect(-5, 0, 10, 3, { fill: '#6c757d', rx: 0.5 })}${rect(-2, 48, 4, 6, { fill: '#ced4da', rx: 0.5 })}</g>`;
   }
   if (config.wheel.valveType === 'schrader') {
-    return `<g class="wheel-valve-group" transform="translate(${valve.x} ${valve.y}) rotate(0)">${rect(-4, 0, 8, 30, { fill: '#343a40', rx: 1 })}${rect(-5, 0, 10, 3, { fill: '#6c757d', rx: 0.5 })}${rect(-4.5, 22, 9, 8, { fill: '#212529', rx: 1 })}</g>`;
+    return `<g class="wheel-valve-group" transform="translate(${fmt(valve.x)} ${fmt(valve.y)}) rotate(0)">${rect(-4, 0, 8, 30, { fill: '#343a40', rx: 1 })}${rect(-5, 0, 10, 3, { fill: '#6c757d', rx: 0.5 })}${rect(-4.5, 22, 9, 8, { fill: '#212529', rx: 1 })}</g>`;
   }
-  return `<g class="wheel-valve-group" transform="translate(${valve.x} ${valve.y}) rotate(0)"><text class="valve-label" transform="rotate(90)" x="8" y="0" dominant-baseline="middle" text-anchor="start" letter-spacing="2">VALVE</text></g>`;
+  return `<g class="wheel-valve-group" transform="translate(${fmt(valve.x)} ${fmt(valve.y)}) rotate(0)"><text class="valve-label" transform="rotate(90)" x="8" y="0" dominant-baseline="middle" text-anchor="start" letter-spacing="2">VALVE</text></g>`;
 }
 
 export function spokeNipple(hubPoint, rimPoint) {

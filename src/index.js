@@ -2,8 +2,10 @@ import { HubSVGGenerator } from './hubSvgGenerator.js';
 import {
   calculateSpokeLength,
   calculateWheelBuild,
+  HUB_PRESETS,
   hubHolePositions,
   lacingMap,
+  normalizeFreehubType,
   normalizeOptions,
   rimHolePositions,
   validateWheelBuild
@@ -82,8 +84,10 @@ export {
   WheelSideSVGGenerator,
   calculateSpokeLength,
   calculateWheelBuild,
+  HUB_PRESETS,
   hubHolePositions,
   lacingMap,
+  normalizeFreehubType,
   normalizeOptions,
   rimHolePositions,
   validateWheelBuild
