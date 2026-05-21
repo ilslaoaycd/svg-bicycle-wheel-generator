@@ -1,12 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 import { renderHubFaceSvg, renderHubSideSvg, renderWheelFaceSvg, renderWheelSideSvg } from '../src/index.js';
 
-const execFileAsync = promisify(execFile);
-
 await mkdir('examples/svg', { recursive: true });
-await mkdir('examples/png', { recursive: true });
 
 const rearWheel = {
   wheel: { outerDia: 634, erd: 601, rimWidth: 25, rimOffset: 0, spokeCount: 32, valveType: 'presta' },
@@ -45,9 +40,7 @@ const examples = {
   'wheel-rear-drive-hg.svg': renderWheelFaceSvg({ ...rearWheel, view: { wheelFaceSide: 'right' } }),
   'wheel-front-straightpull.svg': renderWheelFaceSvg({ ...frontRadial, view: { wheelFaceSide: 'left' } }),
   'wheel-side-projection.svg': renderWheelSideSvg(rearWheel),
-  'wheel-side-cross-section.svg': renderWheelSideSvg({ ...rearWheel, style: { ...rearWheel.style, spokeLayering: 'flat' } }),
-  'hub-face-centerlock.svg': renderHubFaceSvg({ ...frontRadial, view: { hubFaceSide: 'left' } }),
-  'hub-side-rear.svg': renderHubSideSvg(rearWheel)
+  'wheel-side-cross-section.svg': renderWheelSideSvg({ ...rearWheel, style: { ...rearWheel.style, spokeLayering: 'flat' } })
 };
 
 await Promise.all(Object.entries(examples).map(([file, svg]) => writeFile(`examples/svg/${file}`, `${svg}\n`, 'utf8')));
@@ -103,39 +96,6 @@ for (const sample of realisticHubSamples) {
 }
 
 await Promise.all(hubExampleEntries.map(([file, svg]) => writeFile(`examples/svg/${file}`, `${svg}\n`, 'utf8')));
-
-async function renderPng(svgFile) {
-  const pngFile = svgFile.replace(/^examples\/svg\//, 'examples/png/').replace(/\.svg$/, '.png');
-  await execFileAsync('magick', ['-background', 'white', '-density', '192', svgFile, '-resize', '800x600', pngFile]);
-}
-
-await Promise.all(Object.keys(examples).map((file) => renderPng(`examples/svg/${file}`)));
-
-await Promise.all(hubExampleEntries.map(([file]) => renderPng(`examples/svg/${file}`)));
-
-await execFileAsync('magick', [
-  'montage',
-  ...realisticHubSamples.map((sample) => `examples/png/hub-${sample.slug}-side.png`),
-  '-tile',
-  '2x2',
-  '-geometry',
-  '800x600+12+12',
-  '-background',
-  'white',
-  'examples/png/hub-blueprint-side-contact-sheet.png'
-]);
-
-await execFileAsync('magick', [
-  'montage',
-  ...realisticHubSamples.map((sample) => `examples/png/hub-${sample.slug}-realistic-side.png`),
-  '-tile',
-  '2x2',
-  '-geometry',
-  '800x600+12+12',
-  '-background',
-  'white',
-  'examples/png/hub-realistic-side-contact-sheet.png'
-]);
 
 function innerHubSvg(svg) {
   const match = svg.match(/<svg[^>]*>(?:<style>[\s\S]*?<\/style>)?([\s\S]*)<\/svg>/);
@@ -260,23 +220,18 @@ const appearanceVisualizer = `<svg xmlns="http://www.w3.org/2000/svg" width="120
 </svg>`;
 
 await writeFile('examples/svg/hub-appearance-visualizer.svg', `${appearanceVisualizer}\n`, 'utf8');
-await renderPng('examples/svg/hub-appearance-visualizer.svg');
 
 const reportRows = realisticHubSamples.map((sample) => {
   const side = `svg/hub-${sample.slug}-side.svg`;
-  const png = `png/hub-${sample.slug}-side.png`;
   const realisticSide = `svg/hub-${sample.slug}-realistic-side.svg`;
-  const realisticPng = `png/hub-${sample.slug}-realistic-side.png`;
-  return `| ${sample.title} | ${sample.source} | [Blueprint SVG](${side}) / [Blueprint PNG](${png}) / [Realistic SVG](${realisticSide}) / [Realistic PNG](${realisticPng}) | ${sample.notes} |`;
+  return `| ${sample.title} | ${sample.source} | [Blueprint SVG](${side}) / [Realistic SVG](${realisticSide}) | ${sample.notes} |`;
 }).join('\n');
 
 const report = `# Hub Blueprint Comparison
 
 Generated hub samples compare the SVG model against manufacturer product pages, official engineering drawings, and reputable wheelbuilding dimension tables. Product images are referenced as feedback sources rather than copied into this repository.
 
-Side-view QA contact sheets: [Blueprint PNG](png/hub-blueprint-side-contact-sheet.png) / [Realistic PNG](png/hub-realistic-side-contact-sheet.png)
-
-Static visualizer: [SVG](svg/hub-appearance-visualizer.svg) / [PNG](png/hub-appearance-visualizer.png)
+Static visualizer: [SVG](svg/hub-appearance-visualizer.svg)
 
 | Hub | Source basis | Generated side sample | Visual feedback applied |
 | --- | --- | --- | --- |

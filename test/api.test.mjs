@@ -92,7 +92,7 @@ describe('public API', () => {
   test('generated examples include expected visualizer groups', async () => {
     const face = await readFile('examples/svg/wheel-rear-drive-hg.svg', 'utf8');
     const side = await readFile('examples/svg/wheel-side-projection.svg', 'utf8');
-    const hub = await readFile('examples/svg/hub-face-centerlock.svg', 'utf8');
+    const hub = await readFile('examples/svg/hub-dt-swiss-240-exp-boost-rear-centerlock-face-left.svg', 'utf8');
 
     assert.match(face, /hub-cylinder-freehub/);
     assert.match(face, /wheel-front-spokes/);

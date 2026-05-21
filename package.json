@@ -26,7 +26,6 @@
     "dist",
     "src",
     "examples/svg",
-    "examples/png",
     "examples/hub-comparison.md",
     "README.md",
     "LICENSE"
