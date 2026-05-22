@@ -52,7 +52,9 @@ const wheel = renderWheelFaceSvg({
     spokeLayering: '3d',
     spokeColor: 'color',
     nippleStyle: 'nipples',
-    nippleColor: 'silver'
+    nippleColor: 'silver',
+    theme: 'drawing',
+    paintMode: 'hybrid'
   }
 });
 
@@ -90,8 +92,9 @@ renderHubSideSvg(options);
 
 The package also exports `WheelFaceSVGGenerator`, `WheelSideSVGGenerator`,
 `HubSVGGenerator`, `calculateSpokeLength`, `calculateWheelBuild`,
-`rimHolePositions`, `hubHolePositions`, `lacingMap`, `normalizeOptions`, and
-`validateWheelBuild`.
+`rimHolePositions`, `hubHolePositions`, `lacingMap`, `normalizeOptions`,
+`validateWheelBuild`, `STYLE_PRESETS`, `defineStylePreset`, and
+`resolveStyleOptions`.
 
 ## Options
 
@@ -130,16 +133,23 @@ renderWheelFaceSvg({
   style: {
     spokeLayering: '3d', // "3d" or "flat"
     spokeColor: 'color', // "color", "black", or "silver"
-    nippleStyle: 'nipples',
+    nippleStyle: 'nipples', // "nipples", "dots", or "none"
     nippleColor: 'silver',
-    hubRenderStyle: 'blueprint' // "blueprint" or "realistic"
+    theme: 'drawing', // "drawing", "technical", "realistic", or "light"
+    hubRenderStyle: 'blueprint', // optional override: "blueprint" or "realistic"
+    paintMode: 'hybrid', // "hybrid", "css", or "inline"
+    palette: {
+      hubShellFill: '#eaf1f8',
+      hubShellStroke: '#1f4b72',
+      spokeLeftPulling: '#0d6efd'
+    }
   }
 });
 ```
 
 Hub presets are optional and merge before explicit hub options, so a preset can
 provide a real hub starting point while local dimensions override it. Current
-blueprint-realism presets are:
+hub geometry presets are:
 
 ```js
 hub: { preset: 'dt-swiss-350-mtb-boost-rear-6bolt' }
@@ -147,6 +157,70 @@ hub: { preset: 'dt-swiss-240-exp-boost-rear-centerlock' }
 hub: { preset: 'industry-nine-hydra2-boost-rear-6bolt' }
 hub: { preset: 'industry-nine-solix-road-rear-centerlock' }
 ```
+
+## Styling
+
+Generated SVGs are self-contained, but the paint system is tokenized for host
+applications. Built-in style presets live in `STYLE_PRESETS` and are selected
+with `style.theme`. Presets can set colors and rendering behavior such as spoke
+colors, nipple indicators, valve type, hub hole visibility, and hub render mode.
+The built-in style presets are:
+
+- `drawing`: black strokes, white fills, black spokes, real nipples, no hub
+  spoke-hole dots, hollow side rim, light technical wheel-face rim, and a white
+  presta valve.
+- `technical`: colored/patterned spokes, rim dots instead of nipples, visible
+  hub holes, lightly colored flanges, white component fills, and a black rim.
+- `realistic`: greys and blacks, black spokes/rim/nipples, no extra connection
+  indicators, and a dark presta valve.
+- `light`: a light-on-dark version of realistic for dark or black backgrounds.
+
+The SVG CSS and most inline hub paint use CSS custom properties with fallbacks,
+so app CSS can override colors without rewriting SVG markup:
+
+```css
+.wheel-preview {
+  --wheel-rim-face-fill: #111827;
+  --wheel-rim-side-fill: #ffffff;
+  --wheel-hub-shell-fill: #f8fafc;
+  --wheel-hub-shell-stroke: #1e3a8a;
+  --wheel-spoke-left-pulling: #06b6d4;
+  --wheel-spoke-right-pulling: #f97316;
+}
+```
+
+`style.paintMode` controls how much paint is emitted on elements:
+
+- `hybrid` emits `var(--token, fallback)` inline attributes for portable SVGs
+  that remain app-themeable.
+- `css` emits classes and stylesheet rules only, which is easiest to override
+  from a host app.
+- `inline` emits resolved color values, useful for export pipelines that do not
+  support CSS variables.
+
+You can also define local presets by extending an existing one:
+
+```js
+import { defineStylePreset } from 'svg-bicycle-wheel-generator';
+
+const shopTheme = defineStylePreset('shop-theme', {
+  extends: 'drawing',
+  palette: {
+    hubShellFill: '#eef2ff',
+    hubShellStroke: '#3730a3',
+    spokeLeftPulling: '#0891b2'
+  }
+});
+```
+
+For visual tuning, run the local browser tools and open the style gallery:
+
+```bash
+npm run build
+npm run hub:tuner
+```
+
+Then visit `http://localhost:4173/examples/browser/style-gallery.html`.
 
 ## Examples
 

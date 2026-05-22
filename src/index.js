@@ -1,5 +1,11 @@
 import { HubSVGGenerator } from './hubSvgGenerator.js';
 import {
+  STYLE_PRESETS,
+  defineStylePreset,
+  hubPaintStyles,
+  resolveStyleOptions
+} from './styles.js';
+import {
   calculateSpokeLength,
   calculateWheelBuild,
   HUB_PRESETS,
@@ -85,10 +91,14 @@ export {
   calculateSpokeLength,
   calculateWheelBuild,
   HUB_PRESETS,
+  STYLE_PRESETS,
   hubHolePositions,
+  defineStylePreset,
+  hubPaintStyles,
   lacingMap,
   normalizeFreehubType,
   normalizeOptions,
+  resolveStyleOptions,
   rimHolePositions,
   validateWheelBuild
 };

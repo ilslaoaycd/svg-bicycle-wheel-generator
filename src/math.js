@@ -1,3 +1,5 @@
+import { resolveStyleOptions, stylePresetOptions } from './styles.js';
+
 export const DEFAULT_WHEEL = {
   outerDia: 634,
   erd: 601,
@@ -162,9 +164,12 @@ export const DEFAULT_VIEW = {
 
 export const DEFAULT_STYLE = {
   spokeLayering: '3d',
-  spokeColor: 'color',
+  spokeColor: 'black',
   nippleStyle: 'nipples',
-  nippleColor: 'silver'
+  nippleColor: 'black',
+  theme: 'drawing',
+  paintMode: 'hybrid',
+  palette: {}
 };
 
 export function round(value, decimals = 1) {
@@ -229,22 +234,24 @@ export function normalizeOptions(options = {}) {
   const wheelOptions = { ...compact(flatWheel), ...(options.wheel || {}) };
   const hubOptions = { ...compact(flatHub), ...(options.hub || {}) };
   const hubPreset = HUB_PRESETS[hubOptions.preset] || {};
+  const styleInput = typeof options.style === 'object' ? options.style : {};
+  const presetOptions = stylePresetOptions(styleInput);
   const view = typeof options.view === 'string'
     ? { wheelFaceSide: options.view, hubFaceSide: options.view }
     : options.view || {};
 
-  const hub = { ...DEFAULT_HUB, ...hubPreset, ...hubOptions };
+  const hub = { ...DEFAULT_HUB, ...hubPreset, ...presetOptions.hub, ...hubOptions };
   hub.freehubType = normalizeFreehubType(hub.freehubType);
   if (hub.brakeType === 'rim') {
     hub.brakeMountWidth = 0;
   }
 
   return {
-    wheel: { ...DEFAULT_WHEEL, ...wheelOptions },
+    wheel: { ...DEFAULT_WHEEL, ...presetOptions.wheel, ...wheelOptions },
     hub,
     lacing: { ...DEFAULT_LACING, ...(options.lacing || {}) },
     view: { ...DEFAULT_VIEW, ...view },
-    style: { ...DEFAULT_STYLE, ...(typeof options.style === 'object' ? options.style : {}) }
+    style: resolveStyleOptions(styleInput)
   };
 }
 

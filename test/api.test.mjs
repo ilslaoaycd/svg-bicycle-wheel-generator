@@ -6,13 +6,16 @@ import {
   BicycleWheelSVG,
   HUB_PRESETS,
   HubSVGGenerator,
+  STYLE_PRESETS,
   WheelFaceSVGGenerator,
   WheelSideSVGGenerator,
   calculateSpokeLength,
   calculateWheelBuild,
+  defineStylePreset,
   lacingMap,
   normalizeFreehubType,
   normalizeOptions,
+  resolveStyleOptions,
   renderHubFaceSvg,
   renderHubSideSvg,
   renderWheelFaceSvg,
@@ -27,6 +30,8 @@ describe('public API', () => {
     assert.equal(typeof WheelFaceSVGGenerator, 'function');
     assert.equal(typeof WheelSideSVGGenerator, 'function');
     assert.equal(typeof HUB_PRESETS, 'object');
+    assert.equal(typeof STYLE_PRESETS, 'object');
+    assert.equal(typeof defineStylePreset, 'function');
     assert.equal(typeof renderWheelSvg, 'function');
     assert.equal(typeof renderWheelFaceSvg, 'function');
     assert.equal(typeof renderWheelSideSvg, 'function');
@@ -37,6 +42,7 @@ describe('public API', () => {
     assert.equal(typeof lacingMap, 'function');
     assert.equal(typeof normalizeFreehubType, 'function');
     assert.equal(typeof normalizeOptions, 'function');
+    assert.equal(typeof resolveStyleOptions, 'function');
   });
 
   test('facade renders every view as SVG strings', () => {
@@ -76,6 +82,7 @@ describe('public API', () => {
       'src/index.js',
       'src/math.js',
       'src/paths.js',
+      'src/styles.js',
       'src/svg.js',
       'src/wheelFaceSvgGenerator.js',
       'src/wheelSideSvgGenerator.js',
@@ -158,7 +165,7 @@ describe('public API', () => {
     assert.match(centerlock, /hub-centerlock-dashed-ring/);
     assert.doesNotMatch(centerlock, /class="hub-brake-mount"/);
     assert.match(sixBolt, /class="hub-brake-mount"/);
-    assert.doesNotMatch(sixBolt, /hub-centerlock-dashed-ring/);
+    assert.doesNotMatch(sixBolt, /<circle[^>]+class="hub-centerlock-dashed-ring"/);
   });
 
   test('right hub face freehub varies between HG, Microspline, and XD', () => {
@@ -181,8 +188,66 @@ describe('public API', () => {
     });
 
     assert.match(svg, /hub-render-realistic/);
-    assert.match(svg, /fill="#c9cdd0"/);
-    assert.match(svg, /stroke="#111111"/);
+    assert.match(svg, /fill="var\(--wheel-hub-shell-fill, #bfc4c8\)"/);
+    assert.match(svg, /stroke="var\(--wheel-hub-shell-stroke, #3c4145\)"/);
+  });
+
+  test('style themes expose behavior presets, CSS-variable fallbacks, and css paint mode', () => {
+    const technical = renderWheelFaceSvg({ style: { theme: 'technical' } });
+    const cssPaint = renderHubSideSvg({ style: { paintMode: 'css' } });
+    const extended = defineStylePreset('warm-drawing', {
+      extends: 'drawing',
+      palette: { hubShellFill: '#fff7ed' }
+    });
+    const technicalConfig = normalizeOptions({ style: { theme: 'technical' } });
+    const drawingConfig = normalizeOptions({ style: { theme: 'drawing' } });
+
+    assert.match(technical, /--wheel-rim-face-fill, #111111/);
+    assert.match(technical, /spoke-nipple-dot/);
+    assert.doesNotMatch(cssPaint, /<path[^>]+fill="var\(--wheel-hub-shell-fill/);
+    assert.equal(resolveStyleOptions({ theme: 'realistic' }).hubRenderStyle, 'realistic');
+    assert.equal(technicalConfig.style.nippleStyle, 'dots');
+    assert.equal(technicalConfig.hub.showHubHoles, 'visible');
+    assert.equal(drawingConfig.hub.showHubHoles, 'hidden');
+    assert.equal(extended.palette.hubShellFill, '#fff7ed');
+    assert.equal(extended.palette.rimStroke, '#111111');
+  });
+
+  test('rim renders over spoke nipples while rim dots stay above the rim', () => {
+    const faceNipples = renderWheelFaceSvg({ style: { theme: 'drawing' } });
+    const sideNipples = renderWheelSideSvg({ style: { theme: 'drawing' } });
+    const faceDots = renderWheelFaceSvg({ style: { theme: 'technical' } });
+    const sideDots = renderWheelSideSvg({ style: { theme: 'technical' } });
+
+    assert.ok(faceNipples.indexOf('wheel-front-nipples') < faceNipples.indexOf('id="rimGroup"'));
+    assert.ok(sideNipples.indexOf('wheel-front-nipples') < sideNipples.indexOf('id="rimGroup"'));
+    assert.ok(faceDots.indexOf('id="rimGroup"') < faceDots.indexOf('wheel-front-nipple-dots'));
+    assert.ok(sideDots.indexOf('id="rimGroup"') < sideDots.indexOf('wheel-front-nipple-dots'));
+  });
+
+  test('technical face views use physical side colors and right views are mirrored', () => {
+    const hubLeft = renderHubFaceSvg({
+      hub: { preset: 'dt-swiss-240-exp-boost-rear-centerlock' },
+      view: { hubFaceSide: 'left' },
+      style: { theme: 'technical' }
+    });
+    const hubRight = renderHubFaceSvg({
+      hub: { preset: 'dt-swiss-240-exp-boost-rear-centerlock' },
+      view: { hubFaceSide: 'right' },
+      style: { theme: 'technical' }
+    });
+    const wheelRight = renderWheelFaceSvg({
+      hub: { preset: 'dt-swiss-240-exp-boost-rear-centerlock' },
+      view: { wheelFaceSide: 'right' },
+      style: { theme: 'technical' }
+    });
+
+    assert.match(hubLeft, /class="hub-flange-left"[^>]+fill="var\(--wheel-hub-flange-left-fill, #e7f1ff\)"/);
+    assert.match(hubRight, /class="hub-flange-right"[^>]+fill="var\(--wheel-hub-flange-right-fill, #fff3cd\)"/);
+    assert.doesNotMatch(hubLeft, /class="hub-flange-cutout"/);
+    assert.doesNotMatch(hubRight, /class="hub-flange-cutout"/);
+    assert.match(wheelRight, /class="wheel-face-right-mirror"/);
+    assert.match(wheelRight, /hub-flange-right/);
   });
 
   test('j-bend side views omit side-visible flange spoke holes', () => {

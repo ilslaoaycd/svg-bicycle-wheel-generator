@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wheel Style Preset Gallery</title>
+  <link rel="icon" href="data:,">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #172033;
+      background: #edf2f7;
+    }
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 310px 1fr;
+    }
+    .panel {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      background: #fff;
+      border-right: 1px solid #cbd5e1;
+      padding: 18px;
+    }
+    h1 { margin: 0 0 8px; font-size: 22px; line-height: 1.08; }
+    h2 {
+      margin: 22px 0 10px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #64748b;
+    }
+    p { margin: 0 0 16px; color: #64748b; font-size: 13px; line-height: 1.45; }
+    label { display: block; font-size: 12px; font-weight: 750; color: #334155; }
+    select, textarea, button {
+      width: 100%;
+      font: inherit;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      background: #fff;
+      color: #111827;
+    }
+    select, textarea { padding: 7px 8px; }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+      font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    button {
+      padding: 9px 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .primary { background: #1f4b72; border-color: #1f4b72; color: #fff; }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      margin-bottom: 11px;
+    }
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 8px 12px;
+      padding: 12px 14px 14px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #fff;
+    }
+    .swatch-row {
+      display: grid;
+      grid-template-columns: minmax(86px, 1fr) 42px minmax(74px, 96px);
+      gap: 8px;
+      align-items: center;
+    }
+    input[type="color"] {
+      width: 42px;
+      height: 32px;
+      padding: 1px;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      background: #fff;
+    }
+    .hex {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      padding: 7px 6px;
+      font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .button-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .export-box { min-height: 260px; }
+    .main { padding: 20px; overflow: auto; }
+    .toolbar {
+      max-width: 1600px;
+      margin: 0 auto 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+    }
+    .title { font-size: 20px; font-weight: 850; }
+    .subtitle { color: #64748b; font-size: 13px; }
+    .gallery {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+    .theme-card {
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 12px 34px rgba(15, 23, 42, .07);
+    }
+    .theme-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      padding: 12px 14px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #f8fafc;
+    }
+    .theme-name { font-weight: 850; }
+    .theme-meta { color: #64748b; font-size: 12px; }
+    .theme-actions {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(120px, 1fr));
+      gap: 8px;
+      padding: 10px 14px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #ffffff;
+    }
+    .theme-json {
+      display: grid;
+      grid-template-columns: 1fr 140px;
+      gap: 10px;
+      padding: 0 14px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #ffffff;
+    }
+    .theme-json textarea { min-height: 72px; }
+    .theme-json button { align-self: end; }
+    .view-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(150px, 1fr));
+      gap: 1px;
+      background: #e2e8f0;
+    }
+    .view-cell {
+      min-width: 0;
+      background: #fff;
+      padding: 10px;
+    }
+    .view-title {
+      margin-bottom: 8px;
+      font-size: 11px;
+      font-weight: 850;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .svg-box {
+      width: 100%;
+      min-height: 150px;
+      display: grid;
+      place-items: center;
+      background-color: #fbfdff;
+      background-image: radial-gradient(#dbe3eb 1px, transparent 1px);
+      background-size: 18px 18px;
+      border: 1px solid #e2e8f0;
+      border-radius: 7px;
+      overflow: hidden;
+    }
+    .svg-box.tall { min-height: 320px; }
+    .svg-box img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 340px;
+    }
+    .svg-box.tall img { max-height: 420px; width: auto; height: 100%; }
+    @media (max-width: 1180px) {
+      .app { grid-template-columns: 1fr; }
+      .panel { position: static; height: auto; }
+      .view-grid { grid-template-columns: repeat(2, minmax(160px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <aside class="panel">
+      <h1>Style Preset Gallery</h1>
+      <p>Render one hub preset through every built-in style preset, across hub and wheel views. Each preset section has its own independent palette controls.</p>
+
+      <h2>Preset</h2>
+      <div class="row">
+        <label for="hubPreset">Hub preset</label>
+        <select id="hubPreset"></select>
+      </div>
+      <div class="row">
+        <label for="paintMode">Paint mode</label>
+        <select id="paintMode">
+          <option value="hybrid">hybrid: CSS variables in inline paint</option>
+          <option value="css">css: classes and variables only</option>
+          <option value="inline">inline: resolved values for export</option>
+        </select>
+      </div>
+
+      <h2>Export</h2>
+      <div class="button-row">
+        <button id="buildExport" type="button">Build Export</button>
+        <button id="copyExport" class="primary" type="button">Copy Export</button>
+      </div>
+      <div class="row">
+        <label for="exportJson">All tuned style presets</label>
+        <textarea id="exportJson" class="export-box" spellcheck="false" readonly></textarea>
+      </div>
+    </aside>
+
+    <section class="main">
+      <div class="toolbar">
+        <div>
+          <div class="title" id="title">Preset gallery</div>
+          <div class="subtitle">Hub side, hub faces, wheel faces, and wheel side rendered together</div>
+        </div>
+        <div class="subtitle" id="status">Ready</div>
+      </div>
+      <div id="gallery" class="gallery"></div>
+    </section>
+  </main>
+
+  <script src="../../dist/bicycle-wheel-svg.global.js"></script>
+  <script>
+    const api = BicycleWheelSVG;
+    const themeOrder = ['drawing', 'technical', 'realistic', 'light'];
+    const defaultPreset = 'dt-swiss-240-exp-boost-rear-centerlock';
+    const paletteTokens = Object.keys(api.STYLE_PRESETS.drawing.palette);
+    const state = {
+      hubPreset: defaultPreset,
+      paintMode: 'hybrid',
+      palettes: Object.fromEntries(themeOrder.map(theme => [theme, {}]))
+    };
+
+    function tokenLabel(token) {
+      return token
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^./, character => character.toUpperCase());
+    }
+
+    function tokenVariable(token) {
+      return `--wheel-${token.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}`;
+    }
+
+    function inputSafeColor(value) {
+      return /^#[0-9a-f]{6}$/i.test(value) ? value : '#ffffff';
+    }
+
+    function optionLabel(slug, preset) {
+      return preset.name || slug.replaceAll('-', ' ');
+    }
+
+    function wheelForPreset(slug) {
+      const spokeCount = slug.includes('solix') ? 28 : 32;
+      return {
+        wheel: { outerDia: 634, erd: 601, rimWidth: 25, rimOffset: 0, spokeCount, valveType: 'presta' },
+        hub: { preset: slug },
+        lacing: { crossPattern: slug.includes('solix') ? 2 : 3 },
+        view: { hubFaceSide: 'left', wheelFaceSide: 'left' }
+      };
+    }
+
+    function svgDataUri(svg) {
+      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    }
+
+    function renderView(theme, label, svg, tall = false) {
+      return `
+        <div class="view-cell">
+          <div class="view-title">${label}</div>
+          <div class="svg-box ${tall ? 'tall' : ''}" data-theme="${theme}">
+            <img alt="${label} preview for ${theme}" src="${svgDataUri(svg)}">
+          </div>
+        </div>
+      `;
+    }
+
+    function config(theme, view = {}) {
+      return {
+        ...wheelForPreset(state.hubPreset),
+        view: { ...wheelForPreset(state.hubPreset).view, ...view },
+        style: {
+          theme,
+          paintMode: state.paintMode,
+          palette: state.palettes[theme]
+        }
+      };
+    }
+
+    function renderSwatches(theme) {
+      const resolved = api.resolveStyleOptions({ theme, palette: state.palettes[theme] }).palette;
+      return paletteTokens.map(token => {
+        const value = state.palettes[theme][token] || resolved[token];
+        const variable = tokenVariable(token);
+        return `
+          <div class="swatch-row">
+            <label for="${theme}-${token}">${tokenLabel(token)}</label>
+            <input id="${theme}-${token}" type="color" data-theme="${theme}" data-token="${token}" value="${inputSafeColor(value)}">
+            <input class="hex" data-theme="${theme}" data-token-text="${token}" value="${value || ''}" placeholder="${resolved[token] || ''}">
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderTheme(theme) {
+      const themePreset = api.STYLE_PRESETS[theme];
+      const cells = [
+        renderView(theme, 'Hub Side', api.renderHubSideSvg(config(theme))),
+        renderView(theme, 'Hub Face L', api.renderHubFaceSvg(config(theme, { hubFaceSide: 'left' }))),
+        renderView(theme, 'Hub Face R', api.renderHubFaceSvg(config(theme, { hubFaceSide: 'right' }))),
+        renderView(theme, 'Wheel Face L', api.renderWheelFaceSvg(config(theme, { wheelFaceSide: 'left' }))),
+        renderView(theme, 'Wheel Face R', api.renderWheelFaceSvg(config(theme, { wheelFaceSide: 'right' }))),
+        renderView(theme, 'Wheel Side', api.renderWheelSideSvg(config(theme)), true)
+      ].join('');
+      return `
+        <article class="theme-card" data-theme-card="${theme}">
+          <div class="theme-header">
+            <div class="theme-name">${themePreset.name}</div>
+            <div class="theme-meta">style.theme: ${theme}</div>
+          </div>
+          <div class="theme-actions">
+            <button type="button" data-reset-theme="${theme}">Reset ${themePreset.name}</button>
+            <button type="button" data-copy-theme="${theme}">Copy Palette</button>
+            <button type="button" data-export-theme="${theme}" class="primary">Export Preset</button>
+          </div>
+          <div class="swatch-grid">${renderSwatches(theme)}</div>
+          <div class="theme-json">
+            <textarea data-json-theme="${theme}" spellcheck="false">${JSON.stringify(state.palettes[theme], null, 2)}</textarea>
+            <button type="button" data-apply-theme-json="${theme}">Apply JSON</button>
+          </div>
+          <div class="view-grid">${cells}</div>
+        </article>
+      `;
+    }
+
+    function render() {
+      document.querySelector('#title').textContent = optionLabel(state.hubPreset, api.HUB_PRESETS[state.hubPreset]);
+      document.querySelector('#gallery').innerHTML = themeOrder.map(renderTheme).join('');
+      buildExport();
+    }
+
+    function syncControls() {
+      const presetSelect = document.querySelector('#hubPreset');
+      presetSelect.innerHTML = Object.entries(api.HUB_PRESETS)
+        .map(([slug, preset]) => `<option value="${slug}">${optionLabel(slug, preset)}</option>`)
+        .join('');
+      presetSelect.value = state.hubPreset;
+      document.querySelector('#paintMode').value = state.paintMode;
+    }
+
+    function tunedThemes() {
+      return Object.fromEntries(themeOrder.map(theme => [
+        theme,
+        {
+          extends: theme,
+          hubRenderStyle: api.resolveStyleOptions({ theme }).hubRenderStyle,
+          palette: { ...state.palettes[theme] }
+        }
+      ]));
+    }
+
+    function resolvedThemes() {
+      return Object.fromEntries(themeOrder.map(theme => [
+        theme,
+        {
+          name: api.STYLE_PRESETS[theme].name,
+          hubRenderStyle: api.resolveStyleOptions({ theme, palette: state.palettes[theme] }).hubRenderStyle,
+          palette: api.resolveStyleOptions({ theme, palette: state.palettes[theme] }).palette
+        }
+      ]));
+    }
+
+    function buildExport() {
+      const payload = {
+        hubPreset: state.hubPreset,
+        paintMode: state.paintMode,
+        paletteOverrides: tunedThemes(),
+        resolvedPresets: resolvedThemes()
+      };
+      document.querySelector('#exportJson').value = JSON.stringify(payload, null, 2);
+      return payload;
+    }
+
+    function setStatus(message) {
+      document.querySelector('#status').textContent = message;
+      setTimeout(() => { document.querySelector('#status').textContent = 'Ready'; }, 1200);
+    }
+
+    function updateThemeJson(theme) {
+      const textarea = document.querySelector(`[data-json-theme="${theme}"]`);
+      if (textarea) textarea.value = JSON.stringify(state.palettes[theme], null, 2);
+    }
+
+    syncControls();
+    render();
+
+    document.querySelector('#hubPreset').addEventListener('change', event => {
+      state.hubPreset = event.target.value;
+      render();
+    });
+    document.querySelector('#paintMode').addEventListener('change', event => {
+      state.paintMode = event.target.value;
+      render();
+    });
+    document.querySelector('#buildExport').addEventListener('click', () => {
+      buildExport();
+      setStatus('Export refreshed');
+    });
+    document.querySelector('#copyExport').addEventListener('click', async () => {
+      await navigator.clipboard.writeText(document.querySelector('#exportJson').value);
+      setStatus('Copied all tuned presets');
+    });
+    document.addEventListener('input', event => {
+      const theme = event.target.dataset.theme;
+      const token = event.target.dataset.token || event.target.dataset.tokenText;
+      if (!theme || !token) return;
+      state.palettes[theme][token] = event.target.value;
+      const colorInput = document.querySelector(`[data-theme="${theme}"][data-token="${token}"]`);
+      const textInput = document.querySelector(`[data-theme="${theme}"][data-token-text="${token}"]`);
+      if (event.target.dataset.token && textInput) textInput.value = event.target.value;
+      if (event.target.dataset.tokenText && colorInput && /^#[0-9a-f]{6}$/i.test(event.target.value)) colorInput.value = event.target.value;
+      updateThemeJson(theme);
+      if (event.target.dataset.token) render();
+      else buildExport();
+    });
+    document.addEventListener('change', event => {
+      const theme = event.target.dataset.theme;
+      const token = event.target.dataset.tokenText;
+      if (!theme || !token) return;
+      render();
+    });
+    document.addEventListener('click', async event => {
+      const resetTheme = event.target.dataset.resetTheme;
+      const copyTheme = event.target.dataset.copyTheme;
+      const exportTheme = event.target.dataset.exportTheme;
+      const applyThemeJson = event.target.dataset.applyThemeJson;
+      if (resetTheme) {
+        state.palettes[resetTheme] = {};
+        render();
+        setStatus(`Reset ${resetTheme}`);
+      }
+      if (copyTheme) {
+        await navigator.clipboard.writeText(JSON.stringify(state.palettes[copyTheme], null, 2));
+        setStatus(`Copied ${copyTheme} palette`);
+      }
+      if (exportTheme) {
+        const payload = {
+          [exportTheme]: {
+            extends: exportTheme,
+            palette: { ...state.palettes[exportTheme] },
+            resolved: api.resolveStyleOptions({ theme: exportTheme, palette: state.palettes[exportTheme] })
+          }
+        };
+        await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+        setStatus(`Copied ${exportTheme} preset`);
+      }
+      if (applyThemeJson) {
+        try {
+          const textarea = document.querySelector(`[data-json-theme="${applyThemeJson}"]`);
+          state.palettes[applyThemeJson] = JSON.parse(textarea.value || '{}');
+          render();
+          setStatus(`Applied ${applyThemeJson} JSON`);
+        } catch (error) {
+          setStatus('Invalid JSON');
+        }
+      }
+    });
+  </script>
+</body>
+</html>

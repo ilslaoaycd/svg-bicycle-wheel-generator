@@ -10,43 +10,15 @@ import {
   path
 } from './paths.js';
 import { line, rect, svgDocument, tag, visualizerStyle } from './svg.js';
-
-const BLUEPRINT = {
-  axle: { fill: '#f8fbfd', stroke: '#5d7f9e', 'stroke-width': 0.8 },
-  endcap: { fill: '#e7eef5', stroke: '#315c82', 'stroke-width': 1 },
-  shell: { fill: '#eaf1f8', stroke: '#1f4b72', 'stroke-width': 1.2 },
-  flangeLeft: { fill: '#e6eef6', stroke: '#244b6f', 'stroke-width': 1.1 },
-  flangeRight: { fill: '#dce8f3', stroke: '#244b6f', 'stroke-width': 1.1 },
-  mount: { fill: '#dce8f3', stroke: '#244b6f', 'stroke-width': 1 },
-  freehub: { fill: '#eef3f8', stroke: '#244b6f', 'stroke-width': 1 },
-  bearing: { fill: '#d2e0ec', stroke: '#244b6f', 'stroke-width': 1 },
-  cutout: { fill: '#ffffff', stroke: '#5d7f9e', 'stroke-width': 0.7 },
-  hole: { fill: '#315c82', stroke: 'none' },
-  line: { fill: 'none', stroke: '#78a9d4', 'stroke-width': 0.7, 'stroke-dasharray': '3 3' },
-  detail: { fill: 'none', stroke: '#315c82', 'stroke-width': 1, 'stroke-linecap': 'round' },
-  faceReference: { fill: 'none', stroke: '#78a9d4', 'stroke-width': 0.7, 'stroke-dasharray': '3 3' },
-  faceBearing: { fill: 'none', stroke: '#5d7f9e', 'stroke-width': 2, 'stroke-dasharray': '2 2' }
-};
-
-const REALISTIC = {
-  axle: { fill: '#e8e8e8', stroke: '#1f1f1f', 'stroke-width': 0.8 },
-  endcap: { fill: '#8f9498', stroke: '#111111', 'stroke-width': 1 },
-  shell: { fill: '#c9cdd0', stroke: '#111111', 'stroke-width': 1.2 },
-  flangeLeft: { fill: '#d8dadd', stroke: '#111111', 'stroke-width': 1.1 },
-  flangeRight: { fill: '#babfc3', stroke: '#111111', 'stroke-width': 1.1 },
-  mount: { fill: '#9fa4a8', stroke: '#111111', 'stroke-width': 1 },
-  freehub: { fill: '#d7d9dc', stroke: '#111111', 'stroke-width': 1 },
-  bearing: { fill: '#757b80', stroke: '#111111', 'stroke-width': 1 },
-  cutout: { fill: '#f8f8f8', stroke: '#222222', 'stroke-width': 0.7 },
-  hole: { fill: '#171717', stroke: 'none' },
-  line: { fill: 'none', stroke: '#1f1f1f', 'stroke-width': 0.7, 'stroke-dasharray': '3 3', opacity: 0.35 },
-  detail: { fill: 'none', stroke: '#222222', 'stroke-width': 1, 'stroke-linecap': 'round' },
-  faceReference: { fill: 'none', stroke: '#222222', 'stroke-width': 0.7, 'stroke-dasharray': '3 3', opacity: 0.35 },
-  faceBearing: { fill: 'none', stroke: '#222222', 'stroke-width': 2, 'stroke-dasharray': '2 2' }
-};
+import { hubPaintStyles } from './styles.js';
 
 function activeStyle(config) {
-  return config.style.hubRenderStyle === 'realistic' ? REALISTIC : BLUEPRINT;
+  const style = hubPaintStyles(config.style);
+  if (config.style.hubRenderStyle === 'realistic') {
+    style.line.opacity = 0.35;
+    style.faceReference.opacity = 0.35;
+  }
+  return style;
 }
 
 function isBlueprint(config) {
@@ -358,6 +330,14 @@ function renderFreehubFace(cx, cy, config, style) {
   return path(createHGFreehubFacePath(cx, cy), bp('hub-cylinder-freehub hub-freehub-hg-face', style.freehub));
 }
 
+function sideFacePaint(style, side) {
+  return side === 'left' ? style.flangeLeft : style.flangeRight;
+}
+
+function sideFaceClass(side) {
+  return side === 'left' ? 'hub-flange-left' : 'hub-flange-right';
+}
+
 function renderContiguousHubSideGroup(cx, cy, config) {
   const style = activeStyle(config);
   const old = config.hub.builtInDimension || (config.hub.hubPosition === 'front' ? 100 : 142);
@@ -536,6 +516,8 @@ export class HubSVGGenerator {
     const style = activeStyle(config);
     const center = 75;
     const isLeft = config.view.hubFaceSide !== 'right';
+    const frontSide = isLeft ? 'left' : 'right';
+    const backSide = isLeft ? 'right' : 'left';
     const frontRadius = isLeft ? config.hub.leftFlangeDia / 2 : config.hub.rightFlangeDia / 2;
     const backRadius = isLeft ? config.hub.rightFlangeDia / 2 : config.hub.leftFlangeDia / 2;
     const spokesPerSide = config.wheel.spokeCount / 2;
@@ -563,22 +545,17 @@ export class HubSVGGenerator {
     }
 
     if (config.hub.hubType === 'straightpull') {
-      content.push(path(createStraightPullFlangePath(center, center, backRadius, backHoles), bp('hub-flange-right', style.flangeRight)));
-      content.push(path(createStraightPullFlangePath(center, center, frontRadius, frontHoles), bp('hub-flange-left', style.flangeLeft)));
+      content.push(path(createStraightPullFlangePath(center, center, backRadius, backHoles), bp(sideFaceClass(backSide), sideFacePaint(style, backSide))));
+      content.push(path(createStraightPullFlangePath(center, center, frontRadius, frontHoles), bp(sideFaceClass(frontSide), sideFacePaint(style, frontSide))));
     } else {
-      content.push(path(createJBendFlangePath(center, center, backRadius + 4, backHoles, true), bp('hub-flange-right', style.flangeRight)));
-      content.push(path(createJBendFlangePath(center, center, frontRadius + 4, frontHoles, true), bp('hub-flange-left', style.flangeLeft)));
+      const showHoles = config.hub.showHubHoles === 'visible';
+      content.push(path(createJBendFlangePath(center, center, backRadius + 4, backHoles, showHoles), bp(sideFaceClass(backSide), sideFacePaint(style, backSide))));
+      content.push(path(createJBendFlangePath(center, center, frontRadius + 4, frontHoles, showHoles), bp(sideFaceClass(frontSide), sideFacePaint(style, frontSide))));
       if (config.hub.flangeCutoutStyle === 'scalloped') {
         const scallopCount = Math.max(6, Math.floor(spokesPerSide / 2));
         for (let index = 0; index < scallopCount; index += 1) {
           const cut = polar(center, center, frontRadius * 0.72, (-Math.PI / 2) + (index * ((2 * Math.PI) / scallopCount)));
           content.push(circle(cut.x, cut.y, 2.7, bp('hub-flange-cutout', style.cutout)));
-        }
-      } else if (config.hub.flangeCutoutStyle === 'lightening-slots') {
-        for (let index = 0; index < 6; index += 1) {
-          const angle = index * (Math.PI / 3);
-          const slot = polar(center, center, frontRadius * 0.67, angle);
-          content.push(circle(slot.x, slot.y, 2.2, bp('hub-flange-cutout', style.cutout)));
         }
       }
     }
@@ -593,15 +570,15 @@ export class HubSVGGenerator {
     }
 
     return svgDocument(150, 150, '0 0 150 150', tag('g', {
-      class: `hub-face-group hub-brand-${config.hub.brandStyle || 'generic'}`
-    }, content.join('')), visualizerStyle(), {
+      class: `hub-face-group hub-brand-${config.hub.brandStyle || 'generic'} hub-render-${config.style.hubRenderStyle || 'blueprint'}`
+    }, content.join('')), visualizerStyle(config.style), {
       class: 'hub-svg'
     });
   }
 
   renderSide(options = {}) {
     const config = normalizeOptions(options);
-    return svgDocument(200, 150, '0 0 200 150', renderHubSideGroup(100, 75, config), visualizerStyle(), {
+    return svgDocument(200, 150, '0 0 200 150', renderHubSideGroup(100, 75, config), visualizerStyle(config.style), {
       class: 'hub-svg'
     });
   }

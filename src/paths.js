@@ -197,10 +197,10 @@ export function createJBendFlangeSidePath(x, cy, flangeDia, spokesPerSide, hubSt
 export function renderValve(config, center, innerRadius) {
   const valve = polar(center, center, innerRadius, -Math.PI / 2);
   if (config.wheel.valveType === 'presta') {
-    return `<g class="wheel-valve-group" transform="translate(${fmt(valve.x)} ${fmt(valve.y)}) rotate(0)">${rect(-3, 0, 6, 48, { fill: '#adb5bd', rx: 1 })}${rect(-5, 0, 10, 3, { fill: '#6c757d', rx: 0.5 })}${rect(-2, 48, 4, 6, { fill: '#ced4da', rx: 0.5 })}</g>`;
+    return `<g class="wheel-valve-group" transform="translate(${fmt(valve.x)} ${fmt(valve.y)}) rotate(0)">${rect(-3, 0, 6, 48, { class: 'wheel-valve-part wheel-valve-stem', rx: 1 })}${rect(-5, 0, 10, 3, { class: 'wheel-valve-part wheel-valve-base', rx: 0.5 })}${rect(-2, 48, 4, 6, { class: 'wheel-valve-part wheel-valve-cap', rx: 0.5 })}</g>`;
   }
   if (config.wheel.valveType === 'schrader') {
-    return `<g class="wheel-valve-group" transform="translate(${fmt(valve.x)} ${fmt(valve.y)}) rotate(0)">${rect(-4, 0, 8, 30, { fill: '#343a40', rx: 1 })}${rect(-5, 0, 10, 3, { fill: '#6c757d', rx: 0.5 })}${rect(-4.5, 22, 9, 8, { fill: '#212529', rx: 1 })}</g>`;
+    return `<g class="wheel-valve-group" transform="translate(${fmt(valve.x)} ${fmt(valve.y)}) rotate(0)">${rect(-4, 0, 8, 30, { class: 'wheel-valve-part wheel-valve-stem', rx: 1 })}${rect(-5, 0, 10, 3, { class: 'wheel-valve-part wheel-valve-base', rx: 0.5 })}${rect(-4.5, 22, 9, 8, { class: 'wheel-valve-part wheel-valve-cap', rx: 1 })}</g>`;
   }
   return `<g class="wheel-valve-group" transform="translate(${fmt(valve.x)} ${fmt(valve.y)}) rotate(0)"><text class="valve-label" transform="rotate(90)" x="8" y="0" dominant-baseline="middle" text-anchor="start" letter-spacing="2">VALVE</text></g>`;
 }

@@ -22,12 +22,15 @@ __export(index_exports, {
   BicycleWheelSVG: () => BicycleWheelSVG,
   HUB_PRESETS: () => HUB_PRESETS,
   HubSVGGenerator: () => HubSVGGenerator,
+  STYLE_PRESETS: () => STYLE_PRESETS,
   WheelFaceSVGGenerator: () => WheelFaceSVGGenerator,
   WheelSideSVGGenerator: () => WheelSideSVGGenerator,
   calculateSpokeLength: () => calculateSpokeLength,
   calculateWheelBuild: () => calculateWheelBuild,
   default: () => index_default,
+  defineStylePreset: () => defineStylePreset,
   hubHolePositions: () => hubHolePositions,
+  hubPaintStyles: () => hubPaintStyles,
   lacingMap: () => lacingMap,
   normalizeFreehubType: () => normalizeFreehubType,
   normalizeOptions: () => normalizeOptions,
@@ -36,10 +39,366 @@ __export(index_exports, {
   renderWheelFaceSvg: () => renderWheelFaceSvg,
   renderWheelSideSvg: () => renderWheelSideSvg,
   renderWheelSvg: () => renderWheelSvg,
+  resolveStyleOptions: () => resolveStyleOptions,
   rimHolePositions: () => rimHolePositions,
   validateWheelBuild: () => validateWheelBuild
 });
 module.exports = __toCommonJS(index_exports);
+
+// src/styles.js
+var BASE_PALETTE = {
+  svgBackground: "#ffffff",
+  rimFaceFill: "#343a40",
+  rimSideFill: "#343a40",
+  rimStroke: "#212529",
+  rimOutlineStroke: "#111111",
+  rimHighlightStroke: "rgba(255,255,255,.15)",
+  rimHoleFill: "#111111",
+  rimHoleStroke: "#343a40",
+  valveFill: "#ffffff",
+  valveStroke: "#111111",
+  valveLabelFill: "#495057",
+  spokeLeftPulling: "#111111",
+  spokeLeftTrailing: "#111111",
+  spokeRightPulling: "#111111",
+  spokeRightTrailing: "#111111",
+  spokeBlack: "#111111",
+  spokeSilver: "#ced4da",
+  nippleSilver: "#111111",
+  nippleBlack: "#111111",
+  nippleDotFill: "#ffffff",
+  nippleDotStroke: "#111111",
+  hubAxleFill: "#ffffff",
+  hubAxleStroke: "#111111",
+  hubEndcapFill: "#ffffff",
+  hubEndcapStroke: "#111111",
+  hubShellFill: "#ffffff",
+  hubShellStroke: "#111111",
+  hubShellDtSwissFill: "#ffffff",
+  hubShellIndustryNineFill: "#ffffff",
+  hubFlangeLeftFill: "#ffffff",
+  hubFlangeLeftStroke: "#111111",
+  hubFlangeRightFill: "#ffffff",
+  hubFlangeRightStroke: "#111111",
+  hubMountFill: "#ffffff",
+  hubMountStroke: "#111111",
+  hubFreehubFill: "#ffffff",
+  hubFreehubStroke: "#111111",
+  hubBearingFill: "#ffffff",
+  hubBearingStroke: "#111111",
+  hubCutoutFill: "#ffffff",
+  hubCutoutStroke: "#111111",
+  hubHoleFill: "#111111",
+  hubDetailStroke: "#111111",
+  hubBlueprintStroke: "#111111",
+  hubFluteStroke: "#111111",
+  hubHighlightStroke: "#111111"
+};
+var STYLE_PRESETS = {
+  drawing: {
+    name: "Drawing",
+    hubRenderStyle: "blueprint",
+    wheel: { valveType: "presta" },
+    hub: { showHubHoles: "hidden" },
+    style: {
+      spokeColor: "black",
+      nippleStyle: "nipples",
+      nippleColor: "black",
+      spokeLayering: "3d"
+    },
+    palette: {
+      ...BASE_PALETTE,
+      rimFaceFill: "#e9ecef",
+      rimSideFill: "#ffffff",
+      rimStroke: "#111111",
+      spokeBlack: "#111111",
+      nippleBlack: "#111111",
+      nippleSilver: "#111111",
+      hubBlueprintStroke: "#6b7280"
+    }
+  },
+  technical: {
+    name: "Technical",
+    hubRenderStyle: "blueprint",
+    wheel: { valveType: "presta" },
+    hub: { showHubHoles: "visible" },
+    style: {
+      spokeColor: "color",
+      nippleStyle: "dots",
+      nippleColor: "black",
+      spokeLayering: "3d"
+    },
+    palette: {
+      ...BASE_PALETTE,
+      rimFaceFill: "#111111",
+      rimSideFill: "#111111",
+      rimStroke: "#111111",
+      spokeLeftPulling: "#0d6efd",
+      spokeLeftTrailing: "#0dcaf0",
+      spokeRightPulling: "#fd7e14",
+      spokeRightTrailing: "#ffc107",
+      nippleDotFill: "#ffffff",
+      nippleDotStroke: "#111111",
+      hubFlangeLeftFill: "#e7f1ff",
+      hubFlangeLeftStroke: "#0d6efd",
+      hubFlangeRightFill: "#fff3cd",
+      hubFlangeRightStroke: "#fd7e14",
+      hubHoleFill: "#111111",
+      hubBlueprintStroke: "#8aa8c2"
+    }
+  },
+  realistic: {
+    name: "Realistic",
+    hubRenderStyle: "realistic",
+    wheel: { valveType: "presta" },
+    hub: { showHubHoles: "hidden" },
+    style: {
+      spokeColor: "black",
+      nippleStyle: "nipples",
+      nippleColor: "black",
+      spokeLayering: "3d"
+    },
+    palette: {
+      ...BASE_PALETTE,
+      svgBackground: "#ffffff",
+      rimFaceFill: "#222529",
+      rimSideFill: "#222529",
+      rimStroke: "#111111",
+      rimOutlineStroke: "#111111",
+      rimHighlightStroke: "rgba(255,255,255,.18)",
+      rimHoleFill: "#101214",
+      rimHoleStroke: "#101214",
+      valveFill: "#2f3438",
+      valveStroke: "#111111",
+      spokeBlack: "#111111",
+      nippleBlack: "#111111",
+      nippleSilver: "#111111",
+      hubAxleFill: "#d9dcde",
+      hubAxleStroke: "#222222",
+      hubEndcapFill: "#7d848a",
+      hubEndcapStroke: "#25282b",
+      hubShellFill: "#bfc4c8",
+      hubShellStroke: "#3c4145",
+      hubShellDtSwissFill: "#c9ced2",
+      hubShellIndustryNineFill: "#b5bcc1",
+      hubFlangeLeftFill: "#d2d6d9",
+      hubFlangeLeftStroke: "#3c4145",
+      hubFlangeRightFill: "#aeb5ba",
+      hubFlangeRightStroke: "#3c4145",
+      hubMountFill: "#969da3",
+      hubMountStroke: "#2c3033",
+      hubFreehubFill: "#c8ccd0",
+      hubFreehubStroke: "#3c4145",
+      hubBearingFill: "#6f767c",
+      hubBearingStroke: "#2c3033",
+      hubCutoutFill: "#f1f2f3",
+      hubCutoutStroke: "#3c4145",
+      hubHoleFill: "#111111",
+      hubDetailStroke: "#24272a",
+      hubBlueprintStroke: "#24272a",
+      hubFluteStroke: "#6d747a",
+      hubHighlightStroke: "#eceff1"
+    }
+  },
+  light: {
+    name: "Light",
+    hubRenderStyle: "realistic",
+    wheel: { valveType: "presta" },
+    hub: { showHubHoles: "hidden" },
+    style: {
+      spokeColor: "silver",
+      nippleStyle: "nipples",
+      nippleColor: "silver",
+      spokeLayering: "3d"
+    },
+    palette: {
+      ...BASE_PALETTE,
+      svgBackground: "#0b0f14",
+      rimFaceFill: "#d9e2ea",
+      rimSideFill: "#d9e2ea",
+      rimStroke: "#f8fafc",
+      rimOutlineStroke: "#f8fafc",
+      rimHighlightStroke: "rgba(255,255,255,.42)",
+      rimHoleFill: "#f8fafc",
+      rimHoleStroke: "#d9e2ea",
+      valveFill: "#f8fafc",
+      valveStroke: "#e5eef7",
+      spokeSilver: "#edf4fb",
+      nippleSilver: "#f8fafc",
+      hubAxleFill: "#fbfdff",
+      hubAxleStroke: "#d9e2ea",
+      hubEndcapFill: "#d7e0e8",
+      hubEndcapStroke: "#f8fafc",
+      hubShellFill: "#eef4fa",
+      hubShellStroke: "#d6e1ea",
+      hubShellDtSwissFill: "#f5f9fc",
+      hubShellIndustryNineFill: "#e7f0f7",
+      hubFlangeLeftFill: "#f6fbff",
+      hubFlangeLeftStroke: "#d6e1ea",
+      hubFlangeRightFill: "#dce7ef",
+      hubFlangeRightStroke: "#d6e1ea",
+      hubMountFill: "#d5dee7",
+      hubMountStroke: "#f8fafc",
+      hubFreehubFill: "#eef4fa",
+      hubFreehubStroke: "#d6e1ea",
+      hubBearingFill: "#c8d4de",
+      hubBearingStroke: "#f8fafc",
+      hubCutoutFill: "#0b0f14",
+      hubCutoutStroke: "#d6e1ea",
+      hubHoleFill: "#f8fafc",
+      hubDetailStroke: "#f8fafc",
+      hubBlueprintStroke: "#c7d7e5",
+      hubFluteStroke: "#d6e1ea",
+      hubHighlightStroke: "#ffffff"
+    }
+  }
+};
+var TOKEN_TO_VAR = Object.fromEntries(Object.keys(BASE_PALETTE).map((key) => [
+  key,
+  `--wheel-${key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}`
+]));
+function compact(object) {
+  return Object.fromEntries(Object.entries(object || {}).filter(([, value]) => value !== void 0));
+}
+function defineStylePreset(name, preset = {}) {
+  return {
+    name,
+    ...preset,
+    palette: {
+      ...STYLE_PRESETS[preset.extends]?.palette || {},
+      ...preset.palette || {}
+    }
+  };
+}
+function resolveStyleOptions(style = {}) {
+  const themeName = style.theme || style.hubRenderStyle || "drawing";
+  const preset = STYLE_PRESETS[themeName] || STYLE_PRESETS.drawing;
+  const presetStyle = preset.style || {};
+  const hubRenderStyle = style.hubRenderStyle || preset.hubRenderStyle || "blueprint";
+  return {
+    ...presetStyle,
+    ...style,
+    theme: themeName,
+    hubRenderStyle,
+    paintMode: style.paintMode || presetStyle.paintMode || "hybrid",
+    palette: {
+      ...BASE_PALETTE,
+      ...compact(preset.palette),
+      ...compact(style.palette)
+    }
+  };
+}
+function stylePresetOptions(style = {}) {
+  const themeName = style.theme || style.hubRenderStyle || "drawing";
+  const preset = STYLE_PRESETS[themeName] || STYLE_PRESETS.drawing;
+  return {
+    wheel: preset.wheel || {},
+    hub: preset.hub || {},
+    style: preset.style || {}
+  };
+}
+function cssVar(token, fallback) {
+  return `var(${TOKEN_TO_VAR[token]}, ${fallback})`;
+}
+function paintValue(style, token) {
+  const resolved = resolveStyleOptions(style);
+  const value = resolved.palette[token] || BASE_PALETTE[token];
+  if (resolved.paintMode === "css") return void 0;
+  if (resolved.paintMode === "inline") return value;
+  return cssVar(token, value);
+}
+function paintAttrs(style, map) {
+  return Object.fromEntries(Object.entries(map).flatMap(([attribute, token]) => {
+    const value = paintValue(style, token);
+    return value === void 0 ? [] : [[attribute, value]];
+  }));
+}
+function hubPaintStyles(style = {}) {
+  const line2 = {
+    ...paintAttrs(style, { stroke: "hubBlueprintStroke" }),
+    fill: "none",
+    "stroke-width": 0.7,
+    "stroke-dasharray": "3 3"
+  };
+  const detail = {
+    ...paintAttrs(style, { stroke: "hubDetailStroke" }),
+    fill: "none",
+    "stroke-width": 1,
+    "stroke-linecap": "round"
+  };
+  return {
+    axle: { ...paintAttrs(style, { fill: "hubAxleFill", stroke: "hubAxleStroke" }), "stroke-width": 0.8 },
+    endcap: { ...paintAttrs(style, { fill: "hubEndcapFill", stroke: "hubEndcapStroke" }), "stroke-width": 1 },
+    shell: { ...paintAttrs(style, { fill: "hubShellFill", stroke: "hubShellStroke" }), "stroke-width": 1.2 },
+    flangeLeft: { ...paintAttrs(style, { fill: "hubFlangeLeftFill", stroke: "hubFlangeLeftStroke" }), "stroke-width": 1.1 },
+    flangeRight: { ...paintAttrs(style, { fill: "hubFlangeRightFill", stroke: "hubFlangeRightStroke" }), "stroke-width": 1.1 },
+    mount: { ...paintAttrs(style, { fill: "hubMountFill", stroke: "hubMountStroke" }), "stroke-width": 1 },
+    freehub: { ...paintAttrs(style, { fill: "hubFreehubFill", stroke: "hubFreehubStroke" }), "stroke-width": 1 },
+    bearing: { ...paintAttrs(style, { fill: "hubBearingFill", stroke: "hubBearingStroke" }), "stroke-width": 1 },
+    cutout: { ...paintAttrs(style, { fill: "hubCutoutFill", stroke: "hubCutoutStroke" }), "stroke-width": 0.7 },
+    hole: { ...paintAttrs(style, { fill: "hubHoleFill" }), stroke: "none" },
+    line: line2,
+    detail,
+    faceReference: line2,
+    faceBearing: {
+      ...paintAttrs(style, { stroke: "hubAxleStroke" }),
+      fill: "none",
+      "stroke-width": 2,
+      "stroke-dasharray": "2 2"
+    }
+  };
+}
+function rule(selector, declarations) {
+  return `${selector}{${Object.entries(declarations).filter(([, value]) => value !== void 0 && value !== null).map(([property, value]) => `${property}:${value}`).join(";")}}`;
+}
+function v(token, palette) {
+  return cssVar(token, palette[token] || BASE_PALETTE[token]);
+}
+function createVisualizerStyle(style = {}) {
+  const { palette } = resolveStyleOptions(style);
+  return [
+    rule(".wheel-svg,.hub-svg", { background: v("svgBackground", palette) }),
+    rule(".rim-body", { fill: v("rimSideFill", palette), stroke: v("rimStroke", palette), "stroke-width": 1, "fill-rule": "evenodd" }),
+    rule(".rim-outline", { fill: "none", stroke: v("rimOutlineStroke", palette), "stroke-width": 1.5 }),
+    rule(".rim-highlight", { fill: "none", stroke: v("rimHighlightStroke", palette), "stroke-width": 1 }),
+    rule(".rim-hole", { fill: v("rimHoleFill", palette), stroke: v("rimHoleStroke", palette), "stroke-width": 0.5 }),
+    rule(".valve-hole-marker", { fill: v("valveFill", palette) }),
+    rule(".valve-hole-line", { stroke: v("valveStroke", palette), "stroke-width": 2.5, "stroke-linecap": "round" }),
+    rule(".valve-label", { "font-family": "sans-serif", "font-size": "14px", fill: v("valveLabelFill", palette), "font-weight": "bold" }),
+    rule(".wheel-valve-part", { fill: v("valveFill", palette), stroke: v("valveStroke", palette), "stroke-width": 1 }),
+    rule(".spoke-nipple", { "stroke-width": 5, "stroke-linecap": "butt" }),
+    rule(".spoke-nipple-dot", { fill: v("nippleDotFill", palette), stroke: v("nippleDotStroke", palette), "stroke-width": 1 }),
+    rule(".nipple-theme-silver .spoke-nipple", { stroke: v("nippleSilver", palette) }),
+    rule(".nipple-theme-black .spoke-nipple", { stroke: v("nippleBlack", palette) }),
+    rule(".spoke", { "stroke-width": 1.5, "stroke-linecap": "round" }),
+    rule(".spoke-theme-color .spoke-left.spoke-pulling", { stroke: v("spokeLeftPulling", palette) }),
+    rule(".spoke-theme-color .spoke-left.spoke-trailing", { stroke: v("spokeLeftTrailing", palette) }),
+    rule(".spoke-theme-color .spoke-right.spoke-pulling", { stroke: v("spokeRightPulling", palette), "stroke-dasharray": "4 4" }),
+    rule(".spoke-theme-color .spoke-right.spoke-trailing", { stroke: v("spokeRightTrailing", palette), "stroke-dasharray": "4 4" }),
+    rule(".spoke-theme-black .spoke", { stroke: v("spokeBlack", palette) }),
+    rule(".spoke-theme-silver .spoke", { stroke: v("spokeSilver", palette) }),
+    rule(".hub-axle,.hub-axle-tip", { fill: v("hubAxleFill", palette), stroke: v("hubAxleStroke", palette), "stroke-width": 0.8 }),
+    rule(".hub-endcap", { fill: v("hubEndcapFill", palette), stroke: v("hubEndcapStroke", palette), "stroke-width": 1 }),
+    rule(".hub-cylinder,.hub-shell-body", { fill: v("hubShellFill", palette), stroke: v("hubShellStroke", palette), "stroke-width": 1.2, "fill-rule": "evenodd" }),
+    rule(".hub-brand-dt-swiss .hub-shell-body", { fill: v("hubShellDtSwissFill", palette) }),
+    rule(".hub-brand-industry-nine .hub-shell-body", { fill: v("hubShellIndustryNineFill", palette) }),
+    rule(".hub-flange-left", { fill: v("hubFlangeLeftFill", palette), stroke: v("hubFlangeLeftStroke", palette), "stroke-width": 1, "fill-rule": "evenodd" }),
+    rule(".hub-flange-right", { fill: v("hubFlangeRightFill", palette), stroke: v("hubFlangeRightStroke", palette), "stroke-width": 1, "fill-rule": "evenodd" }),
+    rule(".hub-flange-plate", { "stroke-width": 1.1 }),
+    rule(".hub-brake-mount,.hub-centerlock-side,.hub-sixbolt-side", { fill: v("hubMountFill", palette), stroke: v("hubMountStroke", palette), "stroke-width": 1, "fill-rule": "evenodd" }),
+    rule(".hub-cylinder-freehub", { fill: v("hubFreehubFill", palette), stroke: v("hubFreehubStroke", palette), "stroke-width": 1, "fill-rule": "evenodd" }),
+    rule(".hub-cylinder-dark,.hub-bearing-ring,.hub-freehub-inner-shoulder,.hub-freehub-thread-step", { fill: v("hubBearingFill", palette), stroke: v("hubBearingStroke", palette), "stroke-width": 1 }),
+    rule(".hub-flange-cutout,.hub-flange-scallop", { fill: v("hubCutoutFill", palette), stroke: v("hubCutoutStroke", palette), "stroke-width": 0.7 }),
+    rule(".hub-spoke-hole-side", { fill: v("hubHoleFill", palette), stroke: "none" }),
+    rule(".hub-bolt-head-side", { fill: v("hubCutoutFill", palette), stroke: v("hubDetailStroke", palette), "stroke-width": 0.6 }),
+    rule(".hub-spline-line,.hub-freehub-spline,.hub-centerlock-tooth,.hub-sixbolt-side-line,.hub-freehub-thread-line,.hub-freehub-final-step-line,.hub-straightpull-slot-side", { stroke: v("hubDetailStroke", palette), "stroke-width": 1, "stroke-linecap": "round", fill: "none" }),
+    rule(".hub-blueprint-line", { stroke: v("hubBlueprintStroke", palette), "stroke-width": 0.7, "stroke-dasharray": "3 3", fill: "none", opacity: 0.9 }),
+    rule(".hub-shell-flute", { stroke: v("hubFluteStroke", palette), "stroke-width": 0.9, "stroke-linecap": "round", fill: "none" }),
+    rule(".hub-shell-highlight", { stroke: v("hubHighlightStroke", palette), "stroke-width": 1, "stroke-linecap": "round" }),
+    rule(".hub-centerlock-solid-ring,.hub-freehub-xd-center-ring", { fill: "none", stroke: v("hubDetailStroke", palette), "stroke-width": 1 }),
+    rule(".hub-centerlock-dashed-ring,.hub-freehub-xd-middle-ring", { fill: "none", stroke: v("hubDetailStroke", palette), "stroke-width": 1, "stroke-dasharray": "1 1" })
+  ].join("");
+}
 
 // src/math.js
 var DEFAULT_WHEEL = {
@@ -199,12 +558,6 @@ var DEFAULT_VIEW = {
   wheelFaceSide: "left",
   hubFaceSide: "left"
 };
-var DEFAULT_STYLE = {
-  spokeLayering: "3d",
-  spokeColor: "color",
-  nippleStyle: "nipples",
-  nippleColor: "silver"
-};
 function round(value, decimals = 1) {
   const factor = 10 ** decimals;
   return Math.round(value * factor) / factor;
@@ -260,22 +613,24 @@ function normalizeOptions(options = {}) {
     centerShellDia: options.centerShellDia,
     curveDrama: options.curveDrama
   };
-  const compact = (object) => Object.fromEntries(Object.entries(object).filter(([, value]) => value !== void 0));
-  const wheelOptions = { ...compact(flatWheel), ...options.wheel || {} };
-  const hubOptions = { ...compact(flatHub), ...options.hub || {} };
+  const compact2 = (object) => Object.fromEntries(Object.entries(object).filter(([, value]) => value !== void 0));
+  const wheelOptions = { ...compact2(flatWheel), ...options.wheel || {} };
+  const hubOptions = { ...compact2(flatHub), ...options.hub || {} };
   const hubPreset = HUB_PRESETS[hubOptions.preset] || {};
+  const styleInput = typeof options.style === "object" ? options.style : {};
+  const presetOptions = stylePresetOptions(styleInput);
   const view = typeof options.view === "string" ? { wheelFaceSide: options.view, hubFaceSide: options.view } : options.view || {};
-  const hub = { ...DEFAULT_HUB, ...hubPreset, ...hubOptions };
+  const hub = { ...DEFAULT_HUB, ...hubPreset, ...presetOptions.hub, ...hubOptions };
   hub.freehubType = normalizeFreehubType(hub.freehubType);
   if (hub.brakeType === "rim") {
     hub.brakeMountWidth = 0;
   }
   return {
-    wheel: { ...DEFAULT_WHEEL, ...wheelOptions },
+    wheel: { ...DEFAULT_WHEEL, ...presetOptions.wheel, ...wheelOptions },
     hub,
     lacing: { ...DEFAULT_LACING, ...options.lacing || {} },
     view: { ...DEFAULT_VIEW, ...view },
-    style: { ...DEFAULT_STYLE, ...typeof options.style === "object" ? options.style : {} }
+    style: resolveStyleOptions(styleInput)
   };
 }
 function calculateSpokeLength(params) {
@@ -435,51 +790,8 @@ function svgDocument(width, height, viewBox, content, style = "", attributes = {
     ...attributes
   }, `${style ? tag("style", {}, style) : ""}${content}`);
 }
-function visualizerStyle() {
-  return `
-    :root{--rim-color:#343a40;--spoke-left-pulling:#0d6efd;--spoke-left-trailing:#0dcaf0;--spoke-right-pulling:#fd7e14;--spoke-right-trailing:#ffc107}
-    .wheel-svg,.hub-svg{background:#fff}
-    .rim-body{fill:#343a40;stroke:#212529;stroke-width:1;fill-rule:evenodd}
-    .rim-outline{fill:none;stroke:#111;stroke-width:1.5}
-    .rim-highlight{fill:none;stroke:rgba(255,255,255,.15);stroke-width:1}
-    .hub-flange-right{fill:#dce8f3;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
-    .hub-flange-left{fill:#e6eef6;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
-    .hub-brake-mount{fill:#d4e1ec;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
-    .hub-cylinder{fill:#eaf1f8;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
-    .hub-cylinder-dark{fill:#d8e4ef;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
-    .hub-cylinder-freehub{fill:#eef3f8;stroke:#244b6f;stroke-width:1;fill-rule:evenodd}
-    .hub-axle{fill:#f8fbfd;stroke:#5d7f9e;stroke-width:.8}
-    .hub-endcap{fill:#e7eef5;stroke:#315c82;stroke-width:1}
-    .hub-axle-tip{fill:#f8fbfd;stroke:#5d7f9e;stroke-width:.8}
-    .hub-shell-body{fill:#eaf1f8;stroke:#1f4b72;stroke-width:1.2}
-    .hub-brand-dt-swiss .hub-shell-body{fill:#edf3f8}
-    .hub-brand-industry-nine .hub-shell-body{fill:#e3edf6}
-    .hub-shell-flute{stroke:#7399ba;stroke-width:.9;stroke-linecap:round;fill:none}
-    .hub-shell-highlight{stroke:#9ab9d4;stroke-width:1;stroke-linecap:round}
-    .hub-bearing-ring{fill:#d2e0ec;stroke:#244b6f;stroke-width:1}
-    .hub-flange-plate{stroke-width:1.1}
-    .hub-flange-cutout{fill:#fff;stroke:#5d7f9e;stroke-width:.7}
-    .hub-spoke-hole-side{fill:#315c82;stroke:none}
-    .hub-bolt-head-side{fill:#fff;stroke:#315c82;stroke-width:.6}
-    .hub-centerlock-side{fill:#dce8f3}
-    .hub-sixbolt-side{fill:#dce8f3}
-    .hub-spline-line,.hub-freehub-spline{stroke:#315c82;stroke-width:1;stroke-linecap:round}
-    .hub-blueprint-line{stroke:#78a9d4;stroke-width:.7;stroke-dasharray:3 3;fill:none;opacity:.9}
-    .rim-hole{fill:#111;stroke:#343a40;stroke-width:.5}
-    .valve-hole-marker{fill:#dc3545}
-    .valve-hole-line{stroke:#dc3545;stroke-width:2.5;stroke-linecap:round}
-    .valve-label{font-family:sans-serif;font-size:14px;fill:#495057;font-weight:bold}
-    .spoke-nipple{stroke-width:5;stroke-linecap:butt}
-    .nipple-theme-silver .spoke-nipple{stroke:#adb5bd}
-    .nipple-theme-black .spoke-nipple{stroke:#212529}
-    .spoke{stroke-width:1.5;stroke-linecap:round}
-    .spoke-theme-color .spoke-left.spoke-pulling{stroke:#0d6efd}
-    .spoke-theme-color .spoke-left.spoke-trailing{stroke:#0dcaf0}
-    .spoke-theme-color .spoke-right.spoke-pulling{stroke:#fd7e14;stroke-dasharray:4 4}
-    .spoke-theme-color .spoke-right.spoke-trailing{stroke:#ffc107;stroke-dasharray:4 4}
-    .spoke-theme-black .spoke{stroke:#212529}
-    .spoke-theme-silver .spoke{stroke:#ced4da}
-  `;
+function visualizerStyle(style = {}) {
+  return createVisualizerStyle(style);
 }
 
 // src/paths.js
@@ -642,10 +954,10 @@ function createStraightPullFlangePath(cx, cy, radius, holes) {
 function renderValve(config, center, innerRadius) {
   const valve = polar(center, center, innerRadius, -Math.PI / 2);
   if (config.wheel.valveType === "presta") {
-    return `<g class="wheel-valve-group" transform="translate(${fmt(valve.x)} ${fmt(valve.y)}) rotate(0)">${rect(-3, 0, 6, 48, { fill: "#adb5bd", rx: 1 })}${rect(-5, 0, 10, 3, { fill: "#6c757d", rx: 0.5 })}${rect(-2, 48, 4, 6, { fill: "#ced4da", rx: 0.5 })}</g>`;
+    return `<g class="wheel-valve-group" transform="translate(${fmt(valve.x)} ${fmt(valve.y)}) rotate(0)">${rect(-3, 0, 6, 48, { class: "wheel-valve-part wheel-valve-stem", rx: 1 })}${rect(-5, 0, 10, 3, { class: "wheel-valve-part wheel-valve-base", rx: 0.5 })}${rect(-2, 48, 4, 6, { class: "wheel-valve-part wheel-valve-cap", rx: 0.5 })}</g>`;
   }
   if (config.wheel.valveType === "schrader") {
-    return `<g class="wheel-valve-group" transform="translate(${fmt(valve.x)} ${fmt(valve.y)}) rotate(0)">${rect(-4, 0, 8, 30, { fill: "#343a40", rx: 1 })}${rect(-5, 0, 10, 3, { fill: "#6c757d", rx: 0.5 })}${rect(-4.5, 22, 9, 8, { fill: "#212529", rx: 1 })}</g>`;
+    return `<g class="wheel-valve-group" transform="translate(${fmt(valve.x)} ${fmt(valve.y)}) rotate(0)">${rect(-4, 0, 8, 30, { class: "wheel-valve-part wheel-valve-stem", rx: 1 })}${rect(-5, 0, 10, 3, { class: "wheel-valve-part wheel-valve-base", rx: 0.5 })}${rect(-4.5, 22, 9, 8, { class: "wheel-valve-part wheel-valve-cap", rx: 1 })}</g>`;
   }
   return `<g class="wheel-valve-group" transform="translate(${fmt(valve.x)} ${fmt(valve.y)}) rotate(0)"><text class="valve-label" transform="rotate(90)" x="8" y="0" dominant-baseline="middle" text-anchor="start" letter-spacing="2">VALVE</text></g>`;
 }
@@ -657,40 +969,13 @@ function spokeNipple(hubPoint, rimPoint) {
 }
 
 // src/hubSvgGenerator.js
-var BLUEPRINT = {
-  axle: { fill: "#f8fbfd", stroke: "#5d7f9e", "stroke-width": 0.8 },
-  endcap: { fill: "#e7eef5", stroke: "#315c82", "stroke-width": 1 },
-  shell: { fill: "#eaf1f8", stroke: "#1f4b72", "stroke-width": 1.2 },
-  flangeLeft: { fill: "#e6eef6", stroke: "#244b6f", "stroke-width": 1.1 },
-  flangeRight: { fill: "#dce8f3", stroke: "#244b6f", "stroke-width": 1.1 },
-  mount: { fill: "#dce8f3", stroke: "#244b6f", "stroke-width": 1 },
-  freehub: { fill: "#eef3f8", stroke: "#244b6f", "stroke-width": 1 },
-  bearing: { fill: "#d2e0ec", stroke: "#244b6f", "stroke-width": 1 },
-  cutout: { fill: "#ffffff", stroke: "#5d7f9e", "stroke-width": 0.7 },
-  hole: { fill: "#315c82", stroke: "none" },
-  line: { fill: "none", stroke: "#78a9d4", "stroke-width": 0.7, "stroke-dasharray": "3 3" },
-  detail: { fill: "none", stroke: "#315c82", "stroke-width": 1, "stroke-linecap": "round" },
-  faceReference: { fill: "none", stroke: "#78a9d4", "stroke-width": 0.7, "stroke-dasharray": "3 3" },
-  faceBearing: { fill: "none", stroke: "#5d7f9e", "stroke-width": 2, "stroke-dasharray": "2 2" }
-};
-var REALISTIC = {
-  axle: { fill: "#e8e8e8", stroke: "#1f1f1f", "stroke-width": 0.8 },
-  endcap: { fill: "#8f9498", stroke: "#111111", "stroke-width": 1 },
-  shell: { fill: "#c9cdd0", stroke: "#111111", "stroke-width": 1.2 },
-  flangeLeft: { fill: "#d8dadd", stroke: "#111111", "stroke-width": 1.1 },
-  flangeRight: { fill: "#babfc3", stroke: "#111111", "stroke-width": 1.1 },
-  mount: { fill: "#9fa4a8", stroke: "#111111", "stroke-width": 1 },
-  freehub: { fill: "#d7d9dc", stroke: "#111111", "stroke-width": 1 },
-  bearing: { fill: "#757b80", stroke: "#111111", "stroke-width": 1 },
-  cutout: { fill: "#f8f8f8", stroke: "#222222", "stroke-width": 0.7 },
-  hole: { fill: "#171717", stroke: "none" },
-  line: { fill: "none", stroke: "#1f1f1f", "stroke-width": 0.7, "stroke-dasharray": "3 3", opacity: 0.35 },
-  detail: { fill: "none", stroke: "#222222", "stroke-width": 1, "stroke-linecap": "round" },
-  faceReference: { fill: "none", stroke: "#222222", "stroke-width": 0.7, "stroke-dasharray": "3 3", opacity: 0.35 },
-  faceBearing: { fill: "none", stroke: "#222222", "stroke-width": 2, "stroke-dasharray": "2 2" }
-};
 function activeStyle(config) {
-  return config.style.hubRenderStyle === "realistic" ? REALISTIC : BLUEPRINT;
+  const style = hubPaintStyles(config.style);
+  if (config.style.hubRenderStyle === "realistic") {
+    style.line.opacity = 0.35;
+    style.faceReference.opacity = 0.35;
+  }
+  return style;
 }
 function isBlueprint(config) {
   return config.style.hubRenderStyle !== "realistic";
@@ -784,6 +1069,12 @@ function renderFreehubFace(cx, cy, config, style) {
     ].join("");
   }
   return path(createHGFreehubFacePath(cx, cy), bp("hub-cylinder-freehub hub-freehub-hg-face", style.freehub));
+}
+function sideFacePaint(style, side) {
+  return side === "left" ? style.flangeLeft : style.flangeRight;
+}
+function sideFaceClass(side) {
+  return side === "left" ? "hub-flange-left" : "hub-flange-right";
 }
 function renderContiguousHubSideGroup(cx, cy, config) {
   const style = activeStyle(config);
@@ -952,6 +1243,8 @@ var HubSVGGenerator = class {
     const style = activeStyle(config);
     const center = 75;
     const isLeft = config.view.hubFaceSide !== "right";
+    const frontSide = isLeft ? "left" : "right";
+    const backSide = isLeft ? "right" : "left";
     const frontRadius = isLeft ? config.hub.leftFlangeDia / 2 : config.hub.rightFlangeDia / 2;
     const backRadius = isLeft ? config.hub.rightFlangeDia / 2 : config.hub.leftFlangeDia / 2;
     const spokesPerSide = config.wheel.spokeCount / 2;
@@ -976,22 +1269,17 @@ var HubSVGGenerator = class {
       content.push(renderCenterlockFaceRings(center, center, style));
     }
     if (config.hub.hubType === "straightpull") {
-      content.push(path(createStraightPullFlangePath(center, center, backRadius, backHoles), bp("hub-flange-right", style.flangeRight)));
-      content.push(path(createStraightPullFlangePath(center, center, frontRadius, frontHoles), bp("hub-flange-left", style.flangeLeft)));
+      content.push(path(createStraightPullFlangePath(center, center, backRadius, backHoles), bp(sideFaceClass(backSide), sideFacePaint(style, backSide))));
+      content.push(path(createStraightPullFlangePath(center, center, frontRadius, frontHoles), bp(sideFaceClass(frontSide), sideFacePaint(style, frontSide))));
     } else {
-      content.push(path(createJBendFlangePath(center, center, backRadius + 4, backHoles, true), bp("hub-flange-right", style.flangeRight)));
-      content.push(path(createJBendFlangePath(center, center, frontRadius + 4, frontHoles, true), bp("hub-flange-left", style.flangeLeft)));
+      const showHoles = config.hub.showHubHoles === "visible";
+      content.push(path(createJBendFlangePath(center, center, backRadius + 4, backHoles, showHoles), bp(sideFaceClass(backSide), sideFacePaint(style, backSide))));
+      content.push(path(createJBendFlangePath(center, center, frontRadius + 4, frontHoles, showHoles), bp(sideFaceClass(frontSide), sideFacePaint(style, frontSide))));
       if (config.hub.flangeCutoutStyle === "scalloped") {
         const scallopCount = Math.max(6, Math.floor(spokesPerSide / 2));
         for (let index = 0; index < scallopCount; index += 1) {
           const cut = polar(center, center, frontRadius * 0.72, -Math.PI / 2 + index * (2 * Math.PI / scallopCount));
           content.push(circle(cut.x, cut.y, 2.7, bp("hub-flange-cutout", style.cutout)));
-        }
-      } else if (config.hub.flangeCutoutStyle === "lightening-slots") {
-        for (let index = 0; index < 6; index += 1) {
-          const angle = index * (Math.PI / 3);
-          const slot = polar(center, center, frontRadius * 0.67, angle);
-          content.push(circle(slot.x, slot.y, 2.2, bp("hub-flange-cutout", style.cutout)));
         }
       }
     }
@@ -1004,14 +1292,14 @@ var HubSVGGenerator = class {
       content.push(renderCenterlockFaceRings(center, center, style));
     }
     return svgDocument(150, 150, "0 0 150 150", tag("g", {
-      class: `hub-face-group hub-brand-${config.hub.brandStyle || "generic"}`
-    }, content.join("")), visualizerStyle(), {
+      class: `hub-face-group hub-brand-${config.hub.brandStyle || "generic"} hub-render-${config.style.hubRenderStyle || "blueprint"}`
+    }, content.join("")), visualizerStyle(config.style), {
       class: "hub-svg"
     });
   }
   renderSide(options = {}) {
     const config = normalizeOptions(options);
-    return svgDocument(200, 150, "0 0 200 150", renderHubSideGroup(100, 75, config), visualizerStyle(), {
+    return svgDocument(200, 150, "0 0 200 150", renderHubSideGroup(100, 75, config), visualizerStyle(config.style), {
       class: "hub-svg"
     });
   }
@@ -1021,18 +1309,18 @@ var HubSVGGenerator = class {
 };
 
 // src/wheelFaceSvgGenerator.js
-function renderCenterlockFaceRings2(cx, cy) {
+function renderCenterlockFaceRings2(cx, cy, config) {
   return [
     circle(cx, cy, 17, {
       class: "hub-centerlock-solid-ring",
       fill: "none",
-      stroke: "#212529",
+      stroke: paintValue(config.style, "hubDetailStroke"),
       "stroke-width": 1
     }),
     circle(cx, cy, 17.5, {
       class: "hub-centerlock-dashed-ring",
       fill: "none",
-      stroke: "#212529",
+      stroke: paintValue(config.style, "hubDetailStroke"),
       "stroke-width": 1,
       "stroke-dasharray": "1 1"
     })
@@ -1048,19 +1336,22 @@ function renderFreehubFace2(cx, cy, config) {
       circle(cx, cy, 13.5, {
         class: "hub-freehub-xd-middle-ring",
         fill: "none",
-        stroke: "#212529",
+        stroke: paintValue(config.style, "hubDetailStroke"),
         "stroke-width": 1,
         "stroke-dasharray": "1 1"
       }),
       circle(cx, cy, 11.5, {
         class: "hub-freehub-xd-center-ring",
         fill: "none",
-        stroke: "#212529",
+        stroke: paintValue(config.style, "hubDetailStroke"),
         "stroke-width": 1
       })
     ].join("");
   }
   return path(createHGFreehubFacePath(cx, cy), { class: "hub-cylinder-freehub hub-freehub-hg-face" });
+}
+function sideFaceClass2(side) {
+  return side === "left" ? "hub-flange-left" : "hub-flange-right";
 }
 var WheelFaceSVGGenerator = class {
   render(options = {}) {
@@ -1074,6 +1365,8 @@ var WheelFaceSVGGenerator = class {
     const hubHoles = hubHolePositions(config, { center });
     const lacing = lacingMap(config);
     const isLeftView = config.view.wheelFaceSide !== "right";
+    const frontSide = isLeftView ? "left" : "right";
+    const backSide = isLeftView ? "right" : "left";
     const frontRadius = isLeftView ? config.hub.leftFlangeDia / 2 : config.hub.rightFlangeDia / 2;
     const backRadius = isLeftView ? config.hub.rightFlangeDia / 2 : config.hub.leftFlangeDia / 2;
     const frontHoles = isLeftView ? hubHoles.left : hubHoles.right;
@@ -1082,6 +1375,8 @@ var WheelFaceSVGGenerator = class {
     const frontSpokes = [];
     const backNipples = [];
     const frontNipples = [];
+    const backNippleDots = [];
+    const frontNippleDots = [];
     lacing.forEach((spoke) => {
       const hubPoint = hubHoles[spoke.side][spoke.hubIndex];
       const rimPoint = rimHoles[spoke.rimIndex];
@@ -1097,36 +1392,39 @@ var WheelFaceSVGGenerator = class {
         const nipple = spokeNipple(hubPoint, rimPoint);
         const nippleSvg = line(rimPoint.x, rimPoint.y, nipple.x2, nipple.y2, { class: "spoke-nipple" });
         (isFront ? frontNipples : backNipples).push(nippleSvg);
+      } else if (config.style.nippleStyle === "dots") {
+        const dotSvg = circle(rimPoint.x, rimPoint.y, 2.2, { class: "spoke-nipple-dot" });
+        (isFront ? frontNippleDots : backNippleDots).push(dotSvg);
       }
     });
     const hubContent = [];
     if (!isLeftView && config.hub.brakeType === "6bolt") hubContent.push(path(create6BoltPath(center, center), { class: "hub-brake-mount" }));
-    else if (!isLeftView && config.hub.brakeType === "centerlock") hubContent.push(renderCenterlockFaceRings2(center, center));
+    else if (!isLeftView && config.hub.brakeType === "centerlock") hubContent.push(renderCenterlockFaceRings2(center, center, config));
     if (config.hub.hubType === "straightpull") {
-      hubContent.push(path(createStraightPullFlangePath(center, center, backRadius, backHoles), { class: "hub-flange-right" }));
-      hubContent.push(path(createStraightPullFlangePath(center, center, frontRadius, frontHoles), { class: "hub-flange-left" }));
+      hubContent.push(path(createStraightPullFlangePath(center, center, backRadius, backHoles), { class: sideFaceClass2(backSide) }));
+      hubContent.push(path(createStraightPullFlangePath(center, center, frontRadius, frontHoles), { class: sideFaceClass2(frontSide) }));
     } else {
       const showHoles = config.hub.showHubHoles === "visible";
-      hubContent.push(path(createJBendFlangePath(center, center, backRadius + 4, backHoles, showHoles), { class: "hub-flange-right" }));
+      hubContent.push(path(createJBendFlangePath(center, center, backRadius + 4, backHoles, showHoles), { class: sideFaceClass2(backSide) }));
       if (showHoles) {
         backHoles.forEach((point) => {
           hubContent.push(circle(point.x + 0.4, point.y + 0.4, 1.4, {
-            fill: config.style.spokeColor === "black" ? "#343a40" : "#ced4da"
+            fill: config.style.spokeColor === "black" ? paintValue(config.style, "spokeBlack") : paintValue(config.style, "spokeSilver")
           }));
         });
       }
-      hubContent.push(path(createJBendFlangePath(center, center, frontRadius + 4, frontHoles, showHoles), { class: "hub-flange-left" }));
+      hubContent.push(path(createJBendFlangePath(center, center, frontRadius + 4, frontHoles, showHoles), { class: sideFaceClass2(frontSide) }));
     }
     if (config.hub.hubPosition === "rear" && !isLeftView) {
       hubContent.push(renderFreehubFace2(center, center, config));
     }
     if (isLeftView && config.hub.brakeType === "6bolt") hubContent.push(path(create6BoltPath(center, center), { class: "hub-brake-mount" }));
-    else if (isLeftView && config.hub.brakeType === "centerlock") hubContent.push(renderCenterlockFaceRings2(center, center));
-    hubContent.push(circle(center, center, 9, { fill: "none", stroke: "#212529", "stroke-width": 6 }));
+    else if (isLeftView && config.hub.brakeType === "centerlock") hubContent.push(renderCenterlockFaceRings2(center, center, config));
+    hubContent.push(circle(center, center, 9, { fill: "none", stroke: paintValue(config.style, "hubDetailStroke"), "stroke-width": 6 }));
     const rim = tag("g", { id: "rimGroup" }, [
       circle(center, center, rimMidRadius, {
         fill: "transparent",
-        stroke: "#343a40",
+        stroke: paintValue(config.style, "rimFaceFill"),
         "stroke-width": rimThickness
       }),
       circle(center, center, outerRadius, { class: "rim-outline" }),
@@ -1135,20 +1433,23 @@ var WheelFaceSVGGenerator = class {
     ].join(""));
     const rimHoleSvg = tag("g", { class: "rim-holes-group" }, rimHoles.map((point) => circle(point.x, point.y, 2.2, { class: "rim-hole" })).join(""));
     const foregroundHubHeads = config.hub.hubType === "jbend" && config.hub.showHubHoles === "visible" ? frontHoles.map((point) => circle(point.x + 0.4, point.y + 0.4, 1.4, {
-      fill: config.style.spokeColor === "black" ? "#343a40" : "#ced4da"
+      fill: config.style.spokeColor === "black" ? paintValue(config.style, "spokeBlack") : paintValue(config.style, "spokeSilver")
     })).join("") : "";
     const content = [
-      rim,
       config.style.spokeLayering === "3d" ? tag("g", { class: `spoke-theme-${config.style.spokeColor} wheel-back-spokes` }, backSpokes.join("")) : "",
       config.style.spokeLayering === "3d" ? tag("g", { class: `nipple-theme-${config.style.nippleColor} wheel-back-nipples` }, backNipples.join("")) : "",
       tag("g", { class: "wheel-hub-face-group" }, hubContent.join("")),
       tag("g", { class: `spoke-theme-${config.style.spokeColor} wheel-front-spokes` }, frontSpokes.join("")),
       tag("g", { class: `nipple-theme-${config.style.nippleColor} wheel-front-nipples` }, frontNipples.join("")),
+      rim,
+      config.style.spokeLayering === "3d" ? tag("g", { class: "wheel-back-nipple-dots" }, backNippleDots.join("")) : "",
+      tag("g", { class: "wheel-front-nipple-dots" }, frontNippleDots.join("")),
       rimHoleSvg,
       foregroundHubHeads ? tag("g", { class: "hub-spoke-heads-group" }, foregroundHubHeads) : "",
       renderValve(config, center, innerRadius)
     ].join("");
-    return svgDocument(700, 700, "0 0 700 700", content, visualizerStyle(), { class: "wheel-svg" });
+    const renderedContent = isLeftView ? content : tag("g", { transform: "translate(700 0) scale(-1 1)", class: "wheel-face-right-mirror" }, content);
+    return svgDocument(700, 700, "0 0 700 700", renderedContent, visualizerStyle(config.style), { class: "wheel-svg" });
   }
 };
 
@@ -1199,11 +1500,14 @@ var WheelSideSVGGenerator = class {
     if (config.style.spokeLayering === "flat") {
       const spokes = [];
       const nipples = [];
+      const nippleDots = [];
       const draw = (hubPoint, rimPoint, side) => {
         spokes.push(line(hubPoint.x, hubPoint.y, rimPoint.x, rimPoint.y, { class: `spoke spoke-${side} spoke-pulling` }));
         if (config.style.nippleStyle === "nipples") {
           const nipple = spokeNipple(hubPoint, rimPoint);
           nipples.push(line(rimPoint.x, rimPoint.y, nipple.x2, nipple.y2, { class: "spoke-nipple" }));
+        } else if (config.style.nippleStyle === "dots") {
+          nippleDots.push(circle(rimPoint.x, rimPoint.y, 1.7, { class: "spoke-nipple-dot" }));
         }
       };
       draw({ x: leftHubX, y: cy - leftHubRadius }, { x: rimCenter, y: yInnerTop }, "left");
@@ -1214,8 +1518,9 @@ var WheelSideSVGGenerator = class {
         tag("g", { class: `spoke-theme-${config.style.spokeColor}` }, spokes.join("")),
         hubGroup,
         tag("g", { class: `nipple-theme-${config.style.nippleColor}` }, nipples.join("")),
-        rimGroup
-      ].join(""), visualizerStyle(), { class: "wheel-svg" });
+        rimGroup,
+        tag("g", { class: "wheel-nipple-dots" }, nippleDots.join(""))
+      ].join(""), visualizerStyle(config.style), { class: "wheel-svg" });
     }
     const spokesPerSide = config.wheel.spokeCount / 2;
     const rimStep = 2 * Math.PI / config.wheel.spokeCount;
@@ -1227,6 +1532,8 @@ var WheelSideSVGGenerator = class {
     const frontSpokes = [];
     const backNipples = [];
     const frontNipples = [];
+    const backNippleDots = [];
+    const frontNippleDots = [];
     lacingMap(config).forEach((spoke) => {
       const isLeft = spoke.side === "left";
       const hubRadius = isLeft ? leftHubRadius : rightHubRadius;
@@ -1244,6 +1551,9 @@ var WheelSideSVGGenerator = class {
         const nipple = spokeNipple(hubPoint, rimPoint);
         const nippleSvg = line(rimPoint.x, rimPoint.y, nipple.x2, nipple.y2, { class: "spoke-nipple" });
         (isFront ? frontNipples : backNipples).push(nippleSvg);
+      } else if (config.style.nippleStyle === "dots") {
+        const dotSvg = circle(rimPoint.x, rimPoint.y, 1.7, { class: "spoke-nipple-dot" });
+        (isFront ? frontNippleDots : backNippleDots).push(dotSvg);
       }
     });
     return svgDocument(200, 750, "0 0 200 750", [
@@ -1252,8 +1562,10 @@ var WheelSideSVGGenerator = class {
       hubGroup,
       tag("g", { class: `spoke-theme-${config.style.spokeColor} wheel-front-spokes` }, frontSpokes.join("")),
       tag("g", { class: `nipple-theme-${config.style.nippleColor} wheel-front-nipples` }, frontNipples.join("")),
-      rimGroup
-    ].join(""), visualizerStyle(), { class: "wheel-svg" });
+      rimGroup,
+      tag("g", { class: "wheel-back-nipple-dots" }, backNippleDots.join("")),
+      tag("g", { class: "wheel-front-nipple-dots" }, frontNippleDots.join(""))
+    ].join(""), visualizerStyle(config.style), { class: "wheel-svg" });
   }
 };
 

@@ -1,6 +1,6 @@
 import { lacingMap, normalizeOptions } from './math.js';
 import { renderHubSideGroup, } from './hubSvgGenerator.js';
-import { line, path, svgDocument, tag, visualizerStyle } from './svg.js';
+import { circle, line, path, svgDocument, tag, visualizerStyle } from './svg.js';
 import { spokeNipple } from './paths.js';
 
 export class WheelSideSVGGenerator {
@@ -50,11 +50,14 @@ export class WheelSideSVGGenerator {
     if (config.style.spokeLayering === 'flat') {
       const spokes = [];
       const nipples = [];
+      const nippleDots = [];
       const draw = (hubPoint, rimPoint, side) => {
         spokes.push(line(hubPoint.x, hubPoint.y, rimPoint.x, rimPoint.y, { class: `spoke spoke-${side} spoke-pulling` }));
         if (config.style.nippleStyle === 'nipples') {
           const nipple = spokeNipple(hubPoint, rimPoint);
           nipples.push(line(rimPoint.x, rimPoint.y, nipple.x2, nipple.y2, { class: 'spoke-nipple' }));
+        } else if (config.style.nippleStyle === 'dots') {
+          nippleDots.push(circle(rimPoint.x, rimPoint.y, 1.7, { class: 'spoke-nipple-dot' }));
         }
       };
       draw({ x: leftHubX, y: cy - leftHubRadius }, { x: rimCenter, y: yInnerTop }, 'left');
@@ -65,8 +68,9 @@ export class WheelSideSVGGenerator {
         tag('g', { class: `spoke-theme-${config.style.spokeColor}` }, spokes.join('')),
         hubGroup,
         tag('g', { class: `nipple-theme-${config.style.nippleColor}` }, nipples.join('')),
-        rimGroup
-      ].join(''), visualizerStyle(), { class: 'wheel-svg' });
+        rimGroup,
+        tag('g', { class: 'wheel-nipple-dots' }, nippleDots.join(''))
+      ].join(''), visualizerStyle(config.style), { class: 'wheel-svg' });
     }
 
     const spokesPerSide = config.wheel.spokeCount / 2;
@@ -79,6 +83,8 @@ export class WheelSideSVGGenerator {
     const frontSpokes = [];
     const backNipples = [];
     const frontNipples = [];
+    const backNippleDots = [];
+    const frontNippleDots = [];
 
     lacingMap(config).forEach((spoke) => {
       const isLeft = spoke.side === 'left';
@@ -97,6 +103,9 @@ export class WheelSideSVGGenerator {
         const nipple = spokeNipple(hubPoint, rimPoint);
         const nippleSvg = line(rimPoint.x, rimPoint.y, nipple.x2, nipple.y2, { class: 'spoke-nipple' });
         (isFront ? frontNipples : backNipples).push(nippleSvg);
+      } else if (config.style.nippleStyle === 'dots') {
+        const dotSvg = circle(rimPoint.x, rimPoint.y, 1.7, { class: 'spoke-nipple-dot' });
+        (isFront ? frontNippleDots : backNippleDots).push(dotSvg);
       }
     });
 
@@ -106,7 +115,9 @@ export class WheelSideSVGGenerator {
       hubGroup,
       tag('g', { class: `spoke-theme-${config.style.spokeColor} wheel-front-spokes` }, frontSpokes.join('')),
       tag('g', { class: `nipple-theme-${config.style.nippleColor} wheel-front-nipples` }, frontNipples.join('')),
-      rimGroup
-    ].join(''), visualizerStyle(), { class: 'wheel-svg' });
+      rimGroup,
+      tag('g', { class: 'wheel-back-nipple-dots' }, backNippleDots.join('')),
+      tag('g', { class: 'wheel-front-nipple-dots' }, frontNippleDots.join('')),
+    ].join(''), visualizerStyle(config.style), { class: 'wheel-svg' });
   }
 }
