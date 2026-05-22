@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { describe, test } from 'node:test';
 import {
   BicycleWheelSVG,
+  calculateRearHubMount,
   HUB_PRESETS,
   HubSVGGenerator,
   STYLE_PRESETS,
@@ -18,7 +19,9 @@ import {
   resolveStyleOptions,
   renderHubFaceSvg,
   renderHubSideSvg,
+  renderWheelFaceGroup,
   renderWheelFaceSvg,
+  renderWheelSideGroup,
   renderWheelSideSvg,
   renderWheelSvg
 } from '../src/index.js';
@@ -33,6 +36,9 @@ describe('public API', () => {
     assert.equal(typeof STYLE_PRESETS, 'object');
     assert.equal(typeof defineStylePreset, 'function');
     assert.equal(typeof renderWheelSvg, 'function');
+    assert.equal(typeof renderWheelFaceGroup, 'function');
+    assert.equal(typeof renderWheelSideGroup, 'function');
+    assert.equal(typeof calculateRearHubMount, 'function');
     assert.equal(typeof renderWheelFaceSvg, 'function');
     assert.equal(typeof renderWheelSideSvg, 'function');
     assert.equal(typeof renderHubFaceSvg, 'function');
@@ -120,6 +126,29 @@ describe('public API', () => {
     assert.equal(config.hub.builtInDimension, 148);
     assert.equal(config.hub.leftFlangeDia, 61);
     assert.equal(config.hub.rightFlangeDia, 62);
+  });
+
+  test('rear hub mount metadata exposes freehub coordinates for composition', () => {
+    const mount = calculateRearHubMount({
+      hub: { preset: 'dt-swiss-240-exp-boost-rear-centerlock' }
+    });
+
+    assert.equal(mount.axleCenter.x, 0);
+    assert.equal(mount.driveSide, 'right');
+    assert.equal(mount.overLocknutDimension, 148);
+    assert.equal(mount.freehubEndX, 66);
+    assert.ok(mount.freehubStartX < mount.freehubEndX);
+    assert.equal(mount.freehubLength, 37);
+  });
+
+  test('wheel group helpers return embeddable fragments', () => {
+    const face = renderWheelFaceGroup({ style: { theme: 'drawing' } });
+    const side = renderWheelSideGroup({ style: { theme: 'drawing' } });
+
+    assert.match(face, /^<g class="wheel-face-embedded">/);
+    assert.match(side, /^<g class="wheel-side-embedded">/);
+    assert.match(face, /<svg /);
+    assert.match(side, /<svg /);
   });
 
   test('hub side rendering uses built-in dimension and blueprint detail classes', () => {

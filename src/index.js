@@ -7,6 +7,7 @@ import {
 } from './styles.js';
 import {
   calculateSpokeLength,
+  calculateRearHubMount,
   calculateWheelBuild,
   HUB_PRESETS,
   hubHolePositions,
@@ -84,11 +85,22 @@ export function renderHubSideSvg(options = {}) {
   return new BicycleWheelSVG(options.generatorConfig).hubSide(options);
 }
 
+export function renderWheelFaceGroup(options = {}) {
+  const svg = renderWheelFaceSvg(options);
+  return `<g class="wheel-face-embedded">${svg}</g>`;
+}
+
+export function renderWheelSideGroup(options = {}) {
+  const svg = renderWheelSideSvg(options);
+  return `<g class="wheel-side-embedded">${svg}</g>`;
+}
+
 export {
   HubSVGGenerator,
   WheelFaceSVGGenerator,
   WheelSideSVGGenerator,
   calculateSpokeLength,
+  calculateRearHubMount,
   calculateWheelBuild,
   HUB_PRESETS,
   STYLE_PRESETS,

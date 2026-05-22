@@ -26,6 +26,7 @@ var BicycleWheelSVG = (() => {
     STYLE_PRESETS: () => STYLE_PRESETS,
     WheelFaceSVGGenerator: () => WheelFaceSVGGenerator,
     WheelSideSVGGenerator: () => WheelSideSVGGenerator,
+    calculateRearHubMount: () => calculateRearHubMount,
     calculateSpokeLength: () => calculateSpokeLength,
     calculateWheelBuild: () => calculateWheelBuild,
     default: () => index_default,
@@ -37,7 +38,9 @@ var BicycleWheelSVG = (() => {
     normalizeOptions: () => normalizeOptions,
     renderHubFaceSvg: () => renderHubFaceSvg,
     renderHubSideSvg: () => renderHubSideSvg,
+    renderWheelFaceGroup: () => renderWheelFaceGroup,
     renderWheelFaceSvg: () => renderWheelFaceSvg,
+    renderWheelSideGroup: () => renderWheelSideGroup,
     renderWheelSideSvg: () => renderWheelSideSvg,
     renderWheelSvg: () => renderWheelSvg,
     resolveStyleOptions: () => resolveStyleOptions,
@@ -662,6 +665,36 @@ var BicycleWheelSVG = (() => {
       crossPattern: lacing.crossPattern
     });
     return { left, right, roundedLeft: round(left, 1), roundedRight: round(right, 1) };
+  }
+  function calculateRearHubMount(options = {}) {
+    const config = normalizeOptions(options);
+    const old = config.hub.builtInDimension || (config.hub.hubPosition === "front" ? 100 : 142);
+    const endcapLength = config.hub.endcapLength || 8;
+    const flangeThickness = (config.hub.flangeThickness || 4) * (config.hub.hubType === "straightpull" ? 1.5 : 1);
+    const rightEndX = old / 2;
+    const rightEndcapStart = rightEndX - endcapLength;
+    const rightFlangeX = config.hub.rightFlangeCenter;
+    const rightFlangeOuterX = rightFlangeX + flangeThickness / 2;
+    const freehubLength = config.hub.hubPosition === "rear" ? config.hub.freehubLength : 0;
+    const freehubStartX = Math.max(rightEndcapStart - freehubLength, rightFlangeOuterX + 2);
+    const freehubEndX = rightEndcapStart;
+    return {
+      axleCenter: { x: 0, y: 0 },
+      driveSide: "right",
+      brakeSide: "left",
+      overLocknutDimension: old,
+      leftEndX: -old / 2,
+      rightEndX,
+      freehubStartX,
+      freehubEndX,
+      freehubLength: Math.max(0, freehubEndX - freehubStartX),
+      freehubRadius: (config.hub.freehubDia || 34) / 2,
+      wheelOuterRadius: config.wheel.outerDia / 2,
+      wheelInnerRadius: config.wheel.erd / 2,
+      rimOffset: config.wheel.rimOffset,
+      hub: config.hub,
+      wheel: config.wheel
+    };
   }
   function validateWheelBuild(options = {}) {
     const { wheel, hub, lacing } = normalizeOptions(options);
@@ -1621,6 +1654,14 @@ var BicycleWheelSVG = (() => {
   }
   function renderHubSideSvg(options = {}) {
     return new BicycleWheelSVG(options.generatorConfig).hubSide(options);
+  }
+  function renderWheelFaceGroup(options = {}) {
+    const svg = renderWheelFaceSvg(options);
+    return `<g class="wheel-face-embedded">${svg}</g>`;
+  }
+  function renderWheelSideGroup(options = {}) {
+    const svg = renderWheelSideSvg(options);
+    return `<g class="wheel-side-embedded">${svg}</g>`;
   }
   var index_default = BicycleWheelSVG;
   return __toCommonJS(index_exports);

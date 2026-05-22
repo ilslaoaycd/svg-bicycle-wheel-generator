@@ -293,6 +293,38 @@ export function calculateWheelBuild(options = {}) {
   return { left, right, roundedLeft: round(left, 1), roundedRight: round(right, 1) };
 }
 
+export function calculateRearHubMount(options = {}) {
+  const config = normalizeOptions(options);
+  const old = config.hub.builtInDimension || (config.hub.hubPosition === 'front' ? 100 : 142);
+  const endcapLength = config.hub.endcapLength || 8;
+  const flangeThickness = (config.hub.flangeThickness || 4) * (config.hub.hubType === 'straightpull' ? 1.5 : 1);
+  const rightEndX = old / 2;
+  const rightEndcapStart = rightEndX - endcapLength;
+  const rightFlangeX = config.hub.rightFlangeCenter;
+  const rightFlangeOuterX = rightFlangeX + (flangeThickness / 2);
+  const freehubLength = config.hub.hubPosition === 'rear' ? config.hub.freehubLength : 0;
+  const freehubStartX = Math.max(rightEndcapStart - freehubLength, rightFlangeOuterX + 2);
+  const freehubEndX = rightEndcapStart;
+
+  return {
+    axleCenter: { x: 0, y: 0 },
+    driveSide: 'right',
+    brakeSide: 'left',
+    overLocknutDimension: old,
+    leftEndX: -old / 2,
+    rightEndX,
+    freehubStartX,
+    freehubEndX,
+    freehubLength: Math.max(0, freehubEndX - freehubStartX),
+    freehubRadius: (config.hub.freehubDia || 34) / 2,
+    wheelOuterRadius: config.wheel.outerDia / 2,
+    wheelInnerRadius: config.wheel.erd / 2,
+    rimOffset: config.wheel.rimOffset,
+    hub: config.hub,
+    wheel: config.wheel
+  };
+}
+
 export function validateWheelBuild(options = {}) {
   const { wheel, hub, lacing } = normalizeOptions(options);
   const warnings = [];
