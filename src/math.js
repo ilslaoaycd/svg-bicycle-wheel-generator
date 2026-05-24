@@ -20,6 +20,8 @@ export const DEFAULT_HUB = {
   leftFlangeCenter: 36.6,
   rightFlangeCenter: 23.3,
   spokeHoleDia: 2.6,
+  spokeOffsetNds: 0,
+  spokeOffsetDs: 0,
   brandStyle: 'generic',
   shellStyle: 'tapered',
   shellWaistDia: 24,
@@ -159,7 +161,8 @@ export const DEFAULT_LACING = {
 
 export const DEFAULT_VIEW = {
   wheelFaceSide: 'left',
-  hubFaceSide: 'left'
+  hubFaceSide: 'left',
+  hubFaceFlangeMode: 'both'
 };
 
 export const DEFAULT_STYLE = {

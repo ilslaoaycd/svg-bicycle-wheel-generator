@@ -26,6 +26,10 @@ import {
   renderWheelSvg
 } from '../src/index.js';
 
+function parseAttributes(attributeText) {
+  return Object.fromEntries([...attributeText.matchAll(/([\w-]+)="([^"]*)"/g)].map(([, key, value]) => [key, value]));
+}
+
 describe('public API', () => {
   test('exports facade, render functions, classes, and math helpers', () => {
     assert.equal(typeof BicycleWheelSVG, 'function');
@@ -161,7 +165,54 @@ describe('public API', () => {
     assert.match(svg, /hub-brand-industry-nine/);
     assert.match(svg, /hub-freehub-xd/);
     assert.match(svg, /hub-centerlock-side/);
-    assert.match(svg, /hub-blueprint-line/);
+    assert.doesNotMatch(svg, /<line[^>]+class="hub-blueprint-line"/);
+    assert.match(svg, /data-hub-component="hub-side"/);
+    assert.match(svg, /data-hub-component="left-endcap"/);
+    assert.match(svg, /data-hub-component="shell"/);
+    assert.match(svg, /data-hub-component="left-flange"/);
+    assert.match(svg, /data-hub-component="right-flange"/);
+    assert.match(svg, /data-hub-component="freehub"/);
+    assert.match(svg, /class="hub-measure-guide/);
+    assert.match(svg, /data-measure="old"/);
+    assert.match(svg, /data-measure="left-ftl"/);
+    assert.match(svg, /data-measure="right-ftl"/);
+    assert.match(svg, /data-measure="left-ctf"/);
+    assert.match(svg, /data-measure="right-ctf"/);
+
+    const guideLines = [...svg.matchAll(/<line ([^>]+)\/>/g)]
+      .map(match => parseAttributes(match[1]))
+      .filter(attributes => attributes.class?.includes('hub-measure-guide'));
+    const verticalGuides = guideLines.filter(attributes => attributes['data-measure-part'] !== 'connector');
+    const connectors = guideLines.filter(attributes => attributes['data-measure-part'] === 'connector');
+
+    assert.ok(verticalGuides.length > 0, 'expected vertical measurement guides');
+    verticalGuides.forEach(attributes => {
+      assert.equal(Number(attributes.y1) + Number(attributes.y2), 150);
+      assert.ok(Number(attributes.y2) - Number(attributes.y1) < 70);
+    });
+    connectors.forEach(attributes => {
+      assert.equal(attributes['stroke-dasharray'], '4 4');
+    });
+  });
+
+  test('hub side shell path mirrors top and bottom around centerline', () => {
+    const svg = renderHubSideSvg({
+      hub: {
+        preset: 'industry-nine-solix-road-rear-centerlock',
+        leftFlangeCenter: 33,
+        rightFlangeCenter: 21
+      }
+    });
+    const shellPath = svg.match(/<path d="([^"]+)" class="hub-cylinder hub-shell-body"/)?.[1];
+    assert.ok(shellPath, 'expected shell path');
+    const numbers = (shellPath.match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
+    const yValues = numbers.filter((_value, index) => index % 2 === 1);
+    const uniqueY = [...new Set(yValues.map((value) => Number(value.toFixed(3))))];
+
+    uniqueY.forEach((y) => {
+      const mirror = Number((150 - y).toFixed(3));
+      assert.ok(uniqueY.includes(mirror), `expected y=${y} to mirror to ${mirror}`);
+    });
   });
 
   test('hub face rendering exposes DT Swiss realism details', () => {
@@ -195,6 +246,99 @@ describe('public API', () => {
     assert.doesNotMatch(centerlock, /class="hub-brake-mount"/);
     assert.match(sixBolt, /class="hub-brake-mount"/);
     assert.doesNotMatch(sixBolt, /<circle[^>]+class="hub-centerlock-dashed-ring"/);
+  });
+
+  test('wheel face exposes stable spoke and hub component metadata', () => {
+    const svg = renderWheelFaceSvg({
+      wheel: { spokeCount: 32 },
+      hub: { hubPosition: 'rear', brakeType: '6bolt' },
+      lacing: { crossPattern: 3 },
+      view: { wheelFaceSide: 'right' },
+      style: { theme: 'technical' }
+    });
+
+    assert.match(svg, /class="spoke wheel-spoke spoke-left spoke-pulling"/);
+    assert.match(svg, /data-wheel-component="spoke"/);
+    assert.match(svg, /data-spoke-number="1"/);
+    assert.match(svg, /data-spoke-side="left"/);
+    assert.match(svg, /data-spoke-type="pulling"/);
+    assert.match(svg, /data-rim-index="6"/);
+    assert.match(svg, /data-hub-index="0"/);
+    assert.match(svg, /data-hub-component="hub-face"/);
+    assert.match(svg, /data-hub-component="left-flange"/);
+    assert.match(svg, /data-hub-component="right-flange"/);
+    assert.match(svg, /data-hub-component="brake-mount"/);
+    assert.match(svg, /data-hub-component="freehub"/);
+  });
+
+  test('straight-pull wheel face renders hub-side spoke heads', () => {
+    const straightPull = renderWheelFaceSvg({
+      wheel: { spokeCount: 32 },
+      hub: { hubType: 'straightpull', spokeOffsetNds: 1.2, spokeOffsetDs: 0.8 },
+      lacing: { crossPattern: 3 },
+      style: { theme: 'technical', spokeColor: 'black' }
+    });
+    const jBend = renderWheelFaceSvg({
+      wheel: { spokeCount: 32 },
+      hub: { hubType: 'jbend' },
+      lacing: { crossPattern: 3 },
+      style: { theme: 'technical', spokeColor: 'black' }
+    });
+
+    assert.match(straightPull, /class="straight-pull-spoke-head spoke-left spoke-pulling"/);
+    assert.match(straightPull, /data-wheel-component="straight-pull-spoke-head"/);
+    assert.match(straightPull, /style="stroke: transparent; stroke-width: 0;"/);
+    assert.match(straightPull, /class="spoke wheel-spoke spoke-left spoke-pulling straight-pull-wheel-spoke"/);
+    assert.match(straightPull, /A 1 1 0 0 1 1\.293 0\.707/);
+    assert.match(straightPull, /transform="translate\([^"]+ rotate\([^"]+"\s/);
+    assert.doesNotMatch(jBend, /data-wheel-component="straight-pull-spoke-head"/);
+  });
+
+  test('hub face exposes addressable spoke hole markers', () => {
+    const svg = renderHubFaceSvg({
+      wheel: { spokeCount: 32 },
+      hub: { hubPosition: 'rear', showHubHoles: 'visible' },
+      view: { hubFaceSide: 'left' }
+    });
+
+    assert.match(svg, /data-hub-component="spoke-hole-group"/);
+    assert.match(svg, /data-hub-component="spoke-hole"/);
+    assert.match(svg, /data-spoke-side="left"/);
+    assert.match(svg, /data-spoke-side="right"/);
+    assert.match(svg, /data-hub-index="0"/);
+  });
+
+  test('hub face can render only the viewed flange', () => {
+    const left = renderHubFaceSvg({
+      wheel: { spokeCount: 32 },
+      hub: { hubPosition: 'rear', showHubHoles: 'visible' },
+      view: { hubFaceSide: 'left', hubFaceFlangeMode: 'single' }
+    });
+    const right = renderHubFaceSvg({
+      wheel: { spokeCount: 32 },
+      hub: { hubPosition: 'rear', showHubHoles: 'visible' },
+      view: { hubFaceSide: 'right', hubFaceFlangeMode: 'single' }
+    });
+
+    assert.match(left, /data-hub-component="left-flange"/);
+    assert.doesNotMatch(left, /data-hub-component="right-flange"/);
+    assert.match(left, /data-spoke-side="left"/);
+    assert.doesNotMatch(left, /data-spoke-side="right"/);
+    assert.match(right, /data-hub-component="right-flange"/);
+    assert.doesNotMatch(right, /data-hub-component="left-flange"/);
+    assert.match(right, /data-spoke-side="right"/);
+    assert.doesNotMatch(right, /data-spoke-side="left"/);
+  });
+
+  test('wheel face expands its canvas for large outer diameter previews', () => {
+    const svg = renderWheelFaceSvg({
+      wheel: { outerDia: 813, erd: 601, spokeCount: 32 },
+      view: { wheelFaceSide: 'right' }
+    });
+
+    assert.match(svg, /viewBox="0 0 861 861"/);
+    assert.match(svg, /class="wheel-face-right-mirror"/);
+    assert.match(svg, /transform="translate\(861 0\) scale\(-1 1\)"/);
   });
 
   test('right hub face freehub varies between HG, Microspline, and XD', () => {
@@ -368,6 +512,67 @@ describe('public API', () => {
 
     assert.doesNotMatch(svg, /class="hub-spoke-hole-side"/);
     assert.equal(slotCount, 14);
+  });
+
+  test('straight-pull hub face flanges use rounded buttes outside centerlock mount', () => {
+    const svg = renderHubFaceSvg({
+      wheel: { spokeCount: 32 },
+      hub: { hubType: 'straightpull', brakeType: 'centerlock', leftFlangeDia: 56, rightFlangeDia: 56 },
+      view: { hubFaceSide: 'left', hubFaceFlangeMode: 'single' }
+    });
+    const flangePath = svg.match(/<path d="([^"]+)" class="hub-flange-left"/)?.[1] || '';
+    const flangeOutlinePath = flangePath.split(' Z M ')[0];
+    const pathPoints = [];
+    const endPoints = [];
+    [...flangeOutlinePath.matchAll(/([MLCA])([^MLCAZ]+)/g)].forEach((match) => {
+      const command = match[1];
+      const numbers = [...match[2].matchAll(/-?\d+(?:\.\d+)?/g)].map(numberMatch => Number(numberMatch[0]));
+      if (command === 'M' || command === 'L') {
+        pathPoints.push([numbers[0], numbers[1]]);
+        endPoints.push([numbers[0], numbers[1]]);
+      } else if (command === 'C') {
+        for (let index = 0; index < numbers.length; index += 2) {
+          pathPoints.push([numbers[index], numbers[index + 1]]);
+        }
+        endPoints.push([numbers.at(-2), numbers.at(-1)]);
+      } else if (command === 'A') {
+        pathPoints.push([numbers.at(-2), numbers.at(-1)]);
+        endPoints.push([numbers.at(-2), numbers.at(-1)]);
+      }
+    });
+    const distances = pathPoints.map(([x, y]) => Math.hypot(x - 75, y - 75));
+    const minDistanceFromCenter = Math.min(...distances);
+    const maxDistanceFromCenter = Math.max(...distances);
+    const angleOf = ([x, y]) => Math.atan2(y - 75, x - 75);
+    const unwrapSpan = (start, end) => {
+      let span = end - start;
+      while (span < 0) span += 2 * Math.PI;
+      return span;
+    };
+    const firstValleyLeft = endPoints[0];
+    const firstPeakLeft = endPoints[2];
+    const firstPeakRight = endPoints[3];
+    const firstValleyRight = endPoints[5];
+    const peakWidth = unwrapSpan(angleOf(firstPeakLeft), angleOf(firstPeakRight));
+    const valleyWidth = unwrapSpan(angleOf(firstValleyLeft), angleOf(firstValleyRight));
+
+    assert.ok(minDistanceFromCenter >= 21.5);
+    assert.ok(maxDistanceFromCenter - minDistanceFromCenter >= 5);
+    assert.ok(maxDistanceFromCenter - minDistanceFromCenter <= 7);
+    assert.ok(peakWidth < valleyWidth);
+    assert.match(flangePath, / C /);
+    assert.doesNotMatch(flangePath, /Q /);
+  });
+
+  test('straight-pull hub face omits spoke hole marker dots', () => {
+    const svg = renderHubFaceSvg({
+      wheel: { spokeCount: 32 },
+      hub: { hubType: 'straightpull', showHubHoles: 'visible' },
+      view: { hubFaceSide: 'left' }
+    });
+
+    assert.doesNotMatch(svg, /<circle[^>]+class="hub-spoke-hole-face/);
+    assert.doesNotMatch(svg, /data-hub-component="spoke-hole"/);
   });
 
   test('six-bolt side mount uses centerlock body shape with horizontal line detail', () => {

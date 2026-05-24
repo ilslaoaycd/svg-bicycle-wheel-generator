@@ -120,61 +120,73 @@ export function createXDFreehubFacePath(cx, cy) {
 export function createStraightPullFlangePath(cx, cy, radius, holes) {
   const arms = Math.floor(holes.length / 2);
   if (arms === 0) return '';
-  let firstAngle = Math.atan2(holes[0].y - cy, holes[0].x - cx);
-  let secondAngle = Math.atan2(holes[1].y - cy, holes[1].x - cx);
-  if (firstAngle < 0) firstAngle += 2 * Math.PI;
-  if (secondAngle < 0) secondAngle += 2 * Math.PI;
-  if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
-
-  const armGap = secondAngle - firstAngle;
   const slice = (2 * Math.PI) / arms;
-  const emptySpace = slice - armGap;
-  const outerRadius = radius + 6;
-  const innerRadius = Math.max(14, radius - 8);
-  const valleyRadius = Math.max(10, innerRadius - 5);
-  const padLength = Math.min(5, ((emptySpace * innerRadius) / 2) * 0.75);
-  const outerPad = padLength / outerRadius;
-  const innerPad = padLength / innerRadius;
+  const peakRadius = radius + 4;
+  const valleyRadius = Math.max(22, peakRadius - 6);
+  const valleyHalf = Math.min(slice * 0.34, 0.32);
+  const shoulderHalf = Math.min(slice * 0.22, 0.21);
+  const plateauHalf = Math.min(slice * 0.085, 0.085);
+  const curveHandle = Math.min(5.5, slice * peakRadius * 0.18);
 
-  const armsData = Array.from({ length: arms }, (_item, armIndex) => {
-    const h1 = holes[armIndex * 2];
-    const h2 = holes[(armIndex * 2) + 1];
+  const commandCurve = (from, to, scale = 1) => {
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const distance = Math.hypot(dx, dy) || 1;
+    const handle = Math.min(curveHandle * scale, distance * 0.42);
+    const ux = dx / distance;
+    const uy = dy / distance;
+    const c1 = {
+      x: from.x + (ux * handle),
+      y: from.y + (uy * handle)
+    };
+    const c2 = {
+      x: to.x - (ux * handle),
+      y: to.y - (uy * handle)
+    };
+    return `C ${c1.x} ${c1.y} ${c2.x} ${c2.y} ${to.x} ${to.y} `;
+  };
+
+  const lobes = Array.from({ length: arms }, (_item, index) => {
+    const h1 = holes[index * 2];
+    const h2 = holes[(index * 2) + 1];
     let a1 = Math.atan2(h1.y - cy, h1.x - cx);
     let a2 = Math.atan2(h2.y - cy, h2.x - cx);
     if (a1 < 0) a1 += 2 * Math.PI;
     if (a2 < 0) a2 += 2 * Math.PI;
     if (a2 < a1) a2 += 2 * Math.PI;
+    const centerAngle = a1 + ((a2 - a1) / 2);
     return {
-      pIL: polar(cx, cy, innerRadius, a1 - innerPad),
-      pOL: polar(cx, cy, outerRadius, a1 - outerPad),
-      pOR: polar(cx, cy, outerRadius, a2 + outerPad),
-      pIR: polar(cx, cy, innerRadius, a2 + innerPad),
-      aInnerLeft: a1 - innerPad,
-      aInnerRight: a2 + innerPad
+      valleyLeft: polar(cx, cy, valleyRadius, centerAngle - valleyHalf),
+      shoulderLeft: polar(cx, cy, valleyRadius + 2.1, centerAngle - shoulderHalf),
+      peakLeft: polar(cx, cy, peakRadius, centerAngle - plateauHalf),
+      peakRight: polar(cx, cy, peakRadius, centerAngle + plateauHalf),
+      shoulderRight: polar(cx, cy, valleyRadius + 2.1, centerAngle + shoulderHalf),
+      valleyRight: polar(cx, cy, valleyRadius, centerAngle + valleyHalf),
+      aValleyLeft: centerAngle - valleyHalf,
+      aShoulderLeft: centerAngle - shoulderHalf,
+      aPeakLeft: centerAngle - plateauHalf,
+      aPeakRight: centerAngle + plateauHalf,
+      aShoulderRight: centerAngle + shoulderHalf,
+      aValleyRight: centerAngle + valleyHalf
     };
   });
 
-  let d = '';
-  armsData.forEach((current, index) => {
-    if (index === 0) {
-      d += `M ${current.pIL.x} ${current.pIL.y} `;
-    } else {
-      const previous = armsData[index - 1];
-      let leftAngle = previous.aInnerRight;
-      let rightAngle = current.aInnerLeft;
-      if (rightAngle < leftAngle) rightAngle += 2 * Math.PI;
-      const valley = polar(cx, cy, valleyRadius, leftAngle + ((rightAngle - leftAngle) / 2));
-      d += `Q ${valley.x} ${valley.y} ${current.pIL.x} ${current.pIL.y} `;
-    }
-    d += `L ${current.pOL.x} ${current.pOL.y} A ${outerRadius} ${outerRadius} 0 0 1 ${current.pOR.x} ${current.pOR.y} L ${current.pIR.x} ${current.pIR.y} `;
+  let d = `M ${lobes[0].valleyLeft.x} ${lobes[0].valleyLeft.y} `;
+  lobes.forEach((lobe, index) => {
+    d += commandCurve(lobe.valleyLeft, lobe.shoulderLeft, 0.72);
+    d += commandCurve(lobe.shoulderLeft, lobe.peakLeft, 1.12);
+    d += commandCurve(lobe.peakLeft, lobe.peakRight, 0.52);
+    d += commandCurve(lobe.peakRight, lobe.shoulderRight, 1.12);
+    d += commandCurve(lobe.shoulderRight, lobe.valleyRight, 0.72);
+
+    const next = lobes[(index + 1) % arms];
+    const nextValleyLeft = index === arms - 1
+      ? polar(cx, cy, valleyRadius, next.aValleyLeft + (2 * Math.PI))
+      : next.valleyLeft;
+    d += commandCurve(lobe.valleyRight, nextValleyLeft, 1.28);
   });
 
-  const last = armsData[arms - 1];
-  const first = armsData[0];
-  let rightAngle = first.aInnerLeft;
-  if (rightAngle < last.aInnerRight) rightAngle += 2 * Math.PI;
-  const valley = polar(cx, cy, valleyRadius, last.aInnerRight + ((rightAngle - last.aInnerRight) / 2));
-  return `${d}Q ${valley.x} ${valley.y} ${first.pIL.x} ${first.pIL.y} Z ${circlePath(cx, cy, 6, false)}`;
+  return `${d}Z ${circlePath(cx, cy, 6, false)}`;
 }
 
 export function createJBendFlangeSidePath(x, cy, flangeDia, spokesPerSide, hubStep, isLeft) {

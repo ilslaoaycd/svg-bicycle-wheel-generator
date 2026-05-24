@@ -38,6 +38,10 @@ function hubProfileClass(config) {
   ].join(' ');
 }
 
+function componentAttr(name) {
+  return { 'data-hub-component': name };
+}
+
 function sideShellPath(points, cy) {
   const top = points.map(([x, dia], index) => `${index === 0 ? 'M' : 'L'} ${x} ${cy - (dia / 2)}`);
   const bottom = points.slice().reverse().map(([x, dia]) => `L ${x} ${cy + (dia / 2)}`);
@@ -139,23 +143,11 @@ function renderEndcapStack(x, cy, direction, config) {
   const style = activeStyle(config);
   const endcapLength = config.hub.endcapLength;
   const endcapDia = config.hub.endcapDia;
-  const sign = direction === 'left' ? 1 : -1;
   const start = direction === 'left' ? x - 2 : x - endcapLength + 2;
-  const innerX = direction === 'left' ? x + endcapLength - 3 : x - endcapLength + 3;
   const groups = [
     sideCylinder(start, cy, endcapLength - 2, endcapDia, 'hub-endcap', style.endcap, { chamfer: 1.5 }),
     sideCylinder(start + (direction === 'left' ? 1 : endcapLength - 8), cy, 6, endcapDia - 5, 'hub-axle-tip', style.axle, { chamfer: 1.2 })
   ];
-  if (isBlueprint(config)) {
-    groups.push(line(innerX, cy - (endcapDia / 2) - 3, innerX + (sign * 8), cy - (endcapDia / 2) - 3, {
-      class: 'hub-blueprint-line',
-      ...style.line
-    }));
-    groups.push(line(innerX, cy + (endcapDia / 2) + 3, innerX + (sign * 8), cy + (endcapDia / 2) + 3, {
-      class: 'hub-blueprint-line',
-      ...style.line
-    }));
-  }
   return groups.join('');
 }
 
@@ -338,6 +330,65 @@ function sideFaceClass(side) {
   return side === 'left' ? 'hub-flange-left' : 'hub-flange-right';
 }
 
+function mirrorY(cy, value) {
+  return (2 * cy) - value;
+}
+
+function measureGuide(x1, y1, x2, y2, measure, part, extraClass = '') {
+  const isDashed = extraClass.split(/\s+/).includes('hub-measure-dashed');
+  return line(x1, y1, x2, y2, {
+    class: `hub-measure-guide ${extraClass}`.trim(),
+    'data-measure': measure,
+    'data-measure-part': part,
+    ...(isDashed ? { 'stroke-dasharray': '4 4' } : {}),
+    opacity: 0
+  });
+}
+
+function renderMeasurementGuides(cx, cy, layout) {
+  const guideHalfHeight = Math.max(1, layout.guideRadius || 55) * 1.1;
+  const guideTop = cy - guideHalfHeight;
+  const guideBottom = cy + guideHalfHeight;
+  const ftlY = cy;
+  const ctfY = cy;
+  const leftFtlMeasure = 'left-ftl';
+  const rightFtlMeasure = 'right-ftl';
+  const leftCtfMeasure = 'left-ctf';
+  const rightCtfMeasure = 'right-ctf';
+
+  return [
+    measureGuide(layout.leftEndX, guideTop, layout.leftEndX, guideBottom, 'old', 'left-locknut'),
+    measureGuide(layout.rightEndX, guideTop, layout.rightEndX, guideBottom, 'old', 'right-locknut'),
+    measureGuide(layout.leftEndX, cy, layout.rightEndX, cy, 'old', 'connector', 'hub-measure-dashed'),
+    measureGuide(layout.leftEndX, guideTop, layout.leftEndX, guideBottom, leftFtlMeasure, 'locknut'),
+    measureGuide(layout.leftFlangeX, guideTop, layout.leftFlangeX, guideBottom, leftFtlMeasure, 'flange-center'),
+    measureGuide(layout.leftEndX, ftlY, layout.leftFlangeX, ftlY, leftFtlMeasure, 'connector', 'hub-measure-dashed'),
+    measureGuide(layout.rightEndX, guideTop, layout.rightEndX, guideBottom, rightFtlMeasure, 'locknut'),
+    measureGuide(layout.rightFlangeX, guideTop, layout.rightFlangeX, guideBottom, rightFtlMeasure, 'flange-center'),
+    measureGuide(layout.rightFlangeX, ftlY, layout.rightEndX, ftlY, rightFtlMeasure, 'connector', 'hub-measure-dashed'),
+    measureGuide(cx, guideTop, cx, guideBottom, leftCtfMeasure, 'centerline'),
+    measureGuide(layout.leftFlangeX, guideTop, layout.leftFlangeX, guideBottom, leftCtfMeasure, 'flange-center'),
+    measureGuide(layout.leftFlangeX, ctfY, cx, ctfY, leftCtfMeasure, 'connector', 'hub-measure-dashed'),
+    measureGuide(cx, guideTop, cx, guideBottom, rightCtfMeasure, 'centerline'),
+    measureGuide(layout.rightFlangeX, guideTop, layout.rightFlangeX, guideBottom, rightCtfMeasure, 'flange-center'),
+    measureGuide(cx, ctfY, layout.rightFlangeX, ctfY, rightCtfMeasure, 'connector', 'hub-measure-dashed')
+  ].join('');
+}
+
+function renderFaceSpokeHoleMarkers(points, side, config, style) {
+  const radius = Math.max(1.1, Math.min(2.8, config.hub.spokeHoleDia / 2));
+  return tag('g', {
+    class: `hub-spoke-hole-markers hub-spoke-hole-markers-${side}`,
+    'data-hub-component': 'spoke-hole-group',
+    'data-spoke-side': side
+  }, points.map((point, index) => circle(point.x, point.y, radius, bp(`hub-spoke-hole-face hub-spoke-hole-face-${side}`, style.hole, {
+    'data-hub-component': 'spoke-hole',
+    'data-spoke-side': side,
+    'data-hub-index': index,
+    opacity: 0
+  }))).join(''));
+}
+
 function renderContiguousHubSideGroup(cx, cy, config) {
   const style = activeStyle(config);
   const old = config.hub.builtInDimension || (config.hub.hubPosition === 'front' ? 100 : 142);
@@ -395,21 +446,27 @@ function renderContiguousHubSideGroup(cx, cy, config) {
   const leftFlangePath = contiguousPath(xLeftFlange1, xLeftFlange2, cy, leftFlangeRadius, Math.min(1.2, flangeThickness / 3));
   const rightFlangePath = contiguousPath(xRightFlange1, xRightFlange2, cy, rightFlangeRadius, Math.min(1.2, flangeThickness / 3));
   const brakePath = contiguousPath(xBrakeStart, xBrakeEnd, cy, brakeCoreRadius, 1.2);
+  const yBrakeTop = cy - brakeCoreRadius;
+  const yLeftAttachTop = cy - leftAttachRadius;
+  const yCenterTop = cy - centerRadius;
+  const yRightAttachTop = cy - rightAttachRadius;
+  const yRightFlangeTop = cy - rightFlangeRadius;
+  const yFreehubTop = cy - freehubRadius;
   const shellPath = [
-    `M ${xBrakeEnd} ${cy - brakeCoreRadius}`,
-    `C ${xBrakeEnd + 4} ${cy - brakeCoreRadius} ${xLeftFlange1 - 5} ${cy - leftAttachRadius} ${xLeftFlange1} ${cy - leftAttachRadius}`,
-    `L ${xLeftFlange2} ${cy - leftAttachRadius}`,
-    `C ${cpLeftX1} ${cy - leftAttachRadius} ${cpLeftX2} ${cy - centerRadius} ${cx} ${cy - centerRadius}`,
-    `C ${cpRightX1} ${cy - centerRadius} ${cpRightX2} ${cy - rightAttachRadius} ${xRightFlange1} ${cy - rightAttachRadius}`,
-    `L ${xRightFlange2} ${cy - rightAttachRadius}`,
-    `C ${xRightFlange2 + 4} ${cy - rightFlangeRadius} ${xFreehubStart - 4} ${cy - freehubRadius} ${xFreehubStart} ${cy - freehubRadius}`,
-    `L ${xFreehubStart} ${cy + freehubRadius}`,
-    `C ${xFreehubStart - 4} ${cy + freehubRadius} ${xRightFlange2 + 4} ${cy + rightFlangeRadius} ${xRightFlange2} ${cy + rightFlangeRadius}`,
-    `L ${xRightFlange1} ${cy + rightAttachRadius}`,
-    `C ${cpRightX2} ${cy + rightAttachRadius} ${cpRightX1} ${cy + centerRadius} ${cx} ${cy + centerRadius}`,
-    `C ${cpLeftX2} ${cy + centerRadius} ${cpLeftX1} ${cy + leftAttachRadius} ${xLeftFlange2} ${cy + leftAttachRadius}`,
-    `L ${xLeftFlange1} ${cy + leftAttachRadius}`,
-    `C ${xLeftFlange1 - 5} ${cy + leftAttachRadius} ${xBrakeEnd + 4} ${cy + brakeCoreRadius} ${xBrakeEnd} ${cy + brakeCoreRadius}`,
+    `M ${xBrakeEnd} ${yBrakeTop}`,
+    `C ${xBrakeEnd + 4} ${yBrakeTop} ${xLeftFlange1 - 5} ${yLeftAttachTop} ${xLeftFlange1} ${yLeftAttachTop}`,
+    `L ${xLeftFlange2} ${yLeftAttachTop}`,
+    `C ${cpLeftX1} ${yLeftAttachTop} ${cpLeftX2} ${yCenterTop} ${cx} ${yCenterTop}`,
+    `C ${cpRightX1} ${yCenterTop} ${cpRightX2} ${yRightAttachTop} ${xRightFlange1} ${yRightAttachTop}`,
+    `L ${xRightFlange2} ${yRightAttachTop}`,
+    `C ${xRightFlange2 + 4} ${yRightFlangeTop} ${xFreehubStart - 4} ${yFreehubTop} ${xFreehubStart} ${yFreehubTop}`,
+    `L ${xFreehubStart} ${mirrorY(cy, yFreehubTop)}`,
+    `C ${xFreehubStart - 4} ${mirrorY(cy, yFreehubTop)} ${xRightFlange2 + 4} ${mirrorY(cy, yRightFlangeTop)} ${xRightFlange2} ${mirrorY(cy, yRightAttachTop)}`,
+    `L ${xRightFlange1} ${mirrorY(cy, yRightAttachTop)}`,
+    `C ${cpRightX2} ${mirrorY(cy, yRightAttachTop)} ${cpRightX1} ${mirrorY(cy, yCenterTop)} ${cx} ${mirrorY(cy, yCenterTop)}`,
+    `C ${cpLeftX2} ${mirrorY(cy, yCenterTop)} ${cpLeftX1} ${mirrorY(cy, yLeftAttachTop)} ${xLeftFlange2} ${mirrorY(cy, yLeftAttachTop)}`,
+    `L ${xLeftFlange1} ${mirrorY(cy, yLeftAttachTop)}`,
+    `C ${xLeftFlange1 - 5} ${mirrorY(cy, yLeftAttachTop)} ${xBrakeEnd + 4} ${mirrorY(cy, yBrakeTop)} ${xBrakeEnd} ${mirrorY(cy, yBrakeTop)}`,
     'Z'
   ].join(' ');
   const freehubPath = isXd
@@ -441,15 +498,24 @@ function renderContiguousHubSideGroup(cx, cy, config) {
     ].join(' ');
   const maskId = `hub-mask-${String(config.hub.preset || 'custom').replaceAll(/[^a-z0-9-]/gi, '-')}-${config.style.hubRenderStyle || 'blueprint'}`;
   const components = [
-    path(leftEndcapPath, bp('hub-endcap', style.endcap)),
-    hasBrakeMount ? path(brakePath, bp(`hub-brake-mount hub-${config.hub.brakeType}-side`, style.mount)) : '',
-    path(shellPath, bp('hub-cylinder hub-shell-body', style.shell)),
-    path(leftFlangePath, bp('hub-flange-left hub-flange-plate', style.flangeLeft)),
-    path(rightFlangePath, bp('hub-flange-right hub-flange-plate', style.flangeRight)),
-    path(freehubPath, bp(`hub-cylinder-freehub hub-freehub-${freehubType}`, style.freehub)),
-    path(rightEndcapPath, bp('hub-endcap', style.endcap))
+    path(leftEndcapPath, bp('hub-endcap', style.endcap, componentAttr('left-endcap'))),
+    hasBrakeMount
+      ? path(brakePath, bp(`hub-brake-mount hub-${config.hub.brakeType}-side`, style.mount, componentAttr('brake-mount')))
+      : '',
+    path(shellPath, bp('hub-cylinder hub-shell-body', style.shell, componentAttr('shell'))),
+    path(leftFlangePath, bp('hub-flange-left hub-flange-plate', style.flangeLeft, componentAttr('left-flange'))),
+    path(rightFlangePath, bp('hub-flange-right hub-flange-plate', style.flangeRight, componentAttr('right-flange'))),
+    path(freehubPath, bp(`hub-cylinder-freehub hub-freehub-${freehubType}`, style.freehub, componentAttr('freehub'))),
+    path(rightEndcapPath, bp('hub-endcap', style.endcap, componentAttr('right-endcap')))
   ];
   const details = [];
+  details.push(renderMeasurementGuides(cx, cy, {
+    leftEndX,
+    rightEndX,
+    leftFlangeX,
+    rightFlangeX,
+    guideRadius: Math.max(endcapRadius, brakeCoreRadius, freehubRadius, leftFlangeRadius, rightFlangeRadius)
+  }));
 
   if (config.style.hubRenderStyle === 'realistic') {
     details.push(tag('defs', {}, tag('clipPath', { id: maskId }, [
@@ -498,12 +564,11 @@ function renderContiguousHubSideGroup(cx, cy, config) {
       details.push(line(xFreehubStart, y, xRightEndcapStart - 1, y, bp('hub-freehub-spline', style.detail, { opacity: 0.7, 'stroke-width': 0.75 })));
     });
   }
-  if (isBlueprint(config)) {
-    details.push(line(leftEndX, cy + 55, leftEndX, cy + 65, bp('hub-blueprint-line', style.line)));
-    details.push(line(rightEndX, cy + 55, rightEndX, cy + 65, bp('hub-blueprint-line', style.line)));
-  }
-
-  return tag('g', { class: hubProfileClass(config), 'data-hub-preset': config.hub.preset }, [...components, ...details].join(''));
+  return tag('g', {
+    class: hubProfileClass(config),
+    'data-hub-component': 'hub-side',
+    'data-hub-preset': config.hub.preset
+  }, [...components, ...details].join(''));
 }
 
 export function renderHubSideGroup(cx, cy, config) {
@@ -520,6 +585,7 @@ export class HubSVGGenerator {
     const backSide = isLeft ? 'right' : 'left';
     const frontRadius = isLeft ? config.hub.leftFlangeDia / 2 : config.hub.rightFlangeDia / 2;
     const backRadius = isLeft ? config.hub.rightFlangeDia / 2 : config.hub.leftFlangeDia / 2;
+    const showBackFlange = config.view.hubFaceFlangeMode !== 'single';
     const spokesPerSide = config.wheel.spokeCount / 2;
     const hubStep = (2 * Math.PI) / spokesPerSide;
     const frontHoles = [];
@@ -539,18 +605,26 @@ export class HubSVGGenerator {
 
     const content = [];
     if (!isLeft && config.hub.brakeType === '6bolt') {
-      content.push(path(create6BoltPath(center, center), bp('hub-brake-mount', style.mount)));
+      content.push(path(create6BoltPath(center, center), bp('hub-brake-mount', style.mount, componentAttr('brake-mount'))));
     } else if (!isLeft && config.hub.brakeType === 'centerlock') {
-      content.push(renderCenterlockFaceRings(center, center, style));
+      content.push(tag('g', componentAttr('brake-mount'), renderCenterlockFaceRings(center, center, style)));
     }
 
     if (config.hub.hubType === 'straightpull') {
-      content.push(path(createStraightPullFlangePath(center, center, backRadius, backHoles), bp(sideFaceClass(backSide), sideFacePaint(style, backSide))));
-      content.push(path(createStraightPullFlangePath(center, center, frontRadius, frontHoles), bp(sideFaceClass(frontSide), sideFacePaint(style, frontSide))));
+      if (showBackFlange) {
+        content.push(path(createStraightPullFlangePath(center, center, backRadius, backHoles), bp(sideFaceClass(backSide), sideFacePaint(style, backSide), componentAttr(`${backSide}-flange`))));
+      }
+      content.push(path(createStraightPullFlangePath(center, center, frontRadius, frontHoles), bp(sideFaceClass(frontSide), sideFacePaint(style, frontSide), componentAttr(`${frontSide}-flange`))));
     } else {
       const showHoles = config.hub.showHubHoles === 'visible';
-      content.push(path(createJBendFlangePath(center, center, backRadius + 4, backHoles, showHoles), bp(sideFaceClass(backSide), sideFacePaint(style, backSide))));
-      content.push(path(createJBendFlangePath(center, center, frontRadius + 4, frontHoles, showHoles), bp(sideFaceClass(frontSide), sideFacePaint(style, frontSide))));
+      if (showBackFlange) {
+        content.push(path(createJBendFlangePath(center, center, backRadius + 4, backHoles, showHoles), bp(sideFaceClass(backSide), sideFacePaint(style, backSide), componentAttr(`${backSide}-flange`))));
+      }
+      content.push(path(createJBendFlangePath(center, center, frontRadius + 4, frontHoles, showHoles), bp(sideFaceClass(frontSide), sideFacePaint(style, frontSide), componentAttr(`${frontSide}-flange`))));
+      if (showBackFlange) {
+        content.push(renderFaceSpokeHoleMarkers(backHoles, backSide, config, style));
+      }
+      content.push(renderFaceSpokeHoleMarkers(frontHoles, frontSide, config, style));
       if (config.hub.flangeCutoutStyle === 'scalloped') {
         const scallopCount = Math.max(6, Math.floor(spokesPerSide / 2));
         for (let index = 0; index < scallopCount; index += 1) {
@@ -561,16 +635,17 @@ export class HubSVGGenerator {
     }
 
     if (config.hub.hubPosition === 'rear' && !isLeft) {
-      content.push(renderFreehubFace(center, center, config, style));
+      content.push(tag('g', componentAttr('freehub'), renderFreehubFace(center, center, config, style)));
     }
     if (isLeft && config.hub.brakeType === '6bolt') {
-      content.push(path(create6BoltPath(center, center), bp('hub-brake-mount', style.mount)));
+      content.push(path(create6BoltPath(center, center), bp('hub-brake-mount', style.mount, componentAttr('brake-mount'))));
     } else if (isLeft && config.hub.brakeType === 'centerlock') {
-      content.push(renderCenterlockFaceRings(center, center, style));
+      content.push(tag('g', componentAttr('brake-mount'), renderCenterlockFaceRings(center, center, style)));
     }
 
     return svgDocument(150, 150, '0 0 150 150', tag('g', {
-      class: `hub-face-group hub-brand-${config.hub.brandStyle || 'generic'} hub-render-${config.style.hubRenderStyle || 'blueprint'}`
+      class: `hub-face-group hub-brand-${config.hub.brandStyle || 'generic'} hub-render-${config.style.hubRenderStyle || 'blueprint'}`,
+      'data-hub-component': 'hub-face'
     }, content.join('')), visualizerStyle(config.style), {
       class: 'hub-svg'
     });
