@@ -1,0 +1,642 @@
+{
+  "note": "Reference spoke lengths for the spoke calculator (docs/spoke-calculator-v2/reference-builds.md). expected = DT Swiss calculator formula (dt-swiss) or spokecalc.io formula (spokecalc.io), each re-implemented independently from its published client code on 2026-11-11, rounded to 0.1 mm like DT. before = this calculator before v2.",
+  "builds": [
+    {
+      "name": "DT Swiss 240 148 mm DBCL BOOST straightpull EXP 2020+ + XM 431 27.5, 28h 3x",
+      "source": "dt-swiss",
+      "dtHubId": 14388,
+      "dtRimId": 8902,
+      "inputs": {
+        "spokeType": "straight-pull",
+        "wheelPosition": "rear",
+        "erd": 564,
+        "spokeCount": 28,
+        "crossPattern": 3,
+        "leftFlangeDia": 35.9,
+        "rightFlangeDia": 42.8,
+        "leftFlangeCenter": 35.8,
+        "rightFlangeCenter": 21.5,
+        "spokeHoleDia": 2.5,
+        "spokeOffsetNds": 0.45,
+        "spokeOffsetDs": 1.5,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 142
+      },
+      "expected": {
+        "left": 285.3,
+        "right": 285.1
+      },
+      "before": {
+        "left": 285.3,
+        "right": 285.1
+      }
+    },
+    {
+      "name": "DT Swiss 240 110 mm DBCL BOOST straightpull 2020+ + XM 431 27.5, 28h 3x",
+      "source": "dt-swiss",
+      "dtHubId": 14384,
+      "dtRimId": 8902,
+      "inputs": {
+        "spokeType": "straight-pull",
+        "wheelPosition": "front",
+        "erd": 564,
+        "spokeCount": 28,
+        "crossPattern": 3,
+        "leftFlangeDia": 35.5,
+        "rightFlangeDia": 35.5,
+        "leftFlangeCenter": 26.5,
+        "rightFlangeCenter": 39.7,
+        "spokeHoleDia": 2.5,
+        "spokeOffsetNds": 1.4,
+        "spokeOffsetDs": 0.15,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 100
+      },
+      "expected": {
+        "left": 285.2,
+        "right": 285.5
+      },
+      "before": {
+        "left": 285.2,
+        "right": 285.5
+      }
+    },
+    {
+      "name": "DT Swiss 240 135/142 mm DBCL straightpull EXP 2020+ + RR 440, 28h 3x",
+      "source": "dt-swiss",
+      "dtHubId": 14382,
+      "dtRimId": 8967,
+      "inputs": {
+        "spokeType": "straight-pull",
+        "wheelPosition": "rear",
+        "erd": 599,
+        "spokeCount": 28,
+        "crossPattern": 3,
+        "leftFlangeDia": 35.9,
+        "rightFlangeDia": 42.8,
+        "leftFlangeCenter": 32.8,
+        "rightFlangeCenter": 18.5,
+        "spokeHoleDia": 2.5,
+        "spokeOffsetNds": 0.45,
+        "spokeOffsetDs": 1.5,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 142
+      },
+      "expected": {
+        "left": 302.3,
+        "right": 302.3
+      },
+      "before": {
+        "left": 302.3,
+        "right": 302.3
+      }
+    },
+    {
+      "name": "DT Swiss 180 142 mm DBCL Road 24h 9/10/11-speed EXP straightpull + RR 585, 24h 2x",
+      "source": "dt-swiss",
+      "dtHubId": 14480,
+      "dtRimId": 8979,
+      "inputs": {
+        "spokeType": "straight-pull",
+        "wheelPosition": "rear",
+        "erd": 582,
+        "spokeCount": 24,
+        "crossPattern": 2,
+        "leftFlangeDia": 35.7,
+        "rightFlangeDia": 42.3,
+        "leftFlangeCenter": 33.4,
+        "rightFlangeCenter": 17.3,
+        "spokeHoleDia": 2.5,
+        "spokeOffsetNds": 1.4,
+        "spokeOffsetDs": 0.2,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 142
+      },
+      "expected": {
+        "left": 290.2,
+        "right": 287
+      },
+      "before": {
+        "left": 290.2,
+        "right": 287
+      }
+    },
+    {
+      "name": "DT Swiss 180 100mm DBCL Road 24h straightpull + RR 585, 24h 2x",
+      "source": "dt-swiss",
+      "dtHubId": 14478,
+      "dtRimId": 8979,
+      "inputs": {
+        "spokeType": "straight-pull",
+        "wheelPosition": "front",
+        "erd": 582,
+        "spokeCount": 24,
+        "crossPattern": 2,
+        "leftFlangeDia": 35.7,
+        "rightFlangeDia": 35.1,
+        "leftFlangeCenter": 21.8,
+        "rightFlangeCenter": 35.1,
+        "spokeHoleDia": 2.5,
+        "spokeOffsetNds": 1.5,
+        "spokeOffsetDs": 1.75,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 100
+      },
+      "expected": {
+        "left": 289.2,
+        "right": 290.8
+      },
+      "before": {
+        "left": 289.2,
+        "right": 290.8
+      }
+    },
+    {
+      "name": "DT Swiss 240 100 mm non disc radial straightpull 2020+ + RR 440, 20h 0x",
+      "source": "dt-swiss",
+      "dtHubId": 14483,
+      "dtRimId": 8967,
+      "inputs": {
+        "spokeType": "straight-pull",
+        "wheelPosition": "front",
+        "erd": 599,
+        "spokeCount": 20,
+        "crossPattern": 0,
+        "leftFlangeDia": 30.6,
+        "rightFlangeDia": 30.6,
+        "leftFlangeCenter": 38.3,
+        "rightFlangeCenter": 38.3,
+        "spokeHoleDia": 2.5,
+        "spokeOffsetNds": 0,
+        "spokeOffsetDs": 0,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 100
+      },
+      "expected": {
+        "left": 286.8,
+        "right": 286.8
+      },
+      "before": {
+        "left": 286.8,
+        "right": 286.8
+      }
+    },
+    {
+      "name": "DT Swiss 350 135/142 mm DBCL straightpull + 533d 27.5, 28h 3x",
+      "source": "dt-swiss",
+      "dtHubId": 14407,
+      "dtRimId": 8942,
+      "inputs": {
+        "spokeType": "straight-pull",
+        "wheelPosition": "rear",
+        "erd": 564,
+        "spokeCount": 28,
+        "crossPattern": 3,
+        "leftFlangeDia": 38.5,
+        "rightFlangeDia": 45.5,
+        "leftFlangeCenter": 33,
+        "rightFlangeCenter": 20.2,
+        "spokeHoleDia": 2.5,
+        "spokeOffsetNds": 1.15,
+        "spokeOffsetDs": 1.6,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 142
+      },
+      "expected": {
+        "left": 285.7,
+        "right": 285.2
+      },
+      "before": {
+        "left": 285.7,
+        "right": 285.2
+      }
+    },
+    {
+      "name": "DT Swiss 240 130 mm non disc 9/10/11-speed EXP straightpull 2020+ + RR 440, 24h 2x",
+      "source": "dt-swiss",
+      "dtHubId": 14485,
+      "dtRimId": 8967,
+      "inputs": {
+        "spokeType": "straight-pull",
+        "wheelPosition": "rear",
+        "erd": 599,
+        "spokeCount": 24,
+        "crossPattern": 2,
+        "leftFlangeDia": 37.2,
+        "rightFlangeDia": 44.1,
+        "leftFlangeCenter": 33.4,
+        "rightFlangeCenter": 15.7,
+        "spokeHoleDia": 2.5,
+        "spokeOffsetNds": 1.8,
+        "spokeOffsetDs": 0.4,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 142
+      },
+      "expected": {
+        "left": 298.9,
+        "right": 295.4
+      },
+      "before": {
+        "left": 298.9,
+        "right": 295.4
+      }
+    },
+    {
+      "name": "DT Swiss 350 100 mm DBCL + XRC 300, 32h 3x",
+      "source": "dt-swiss",
+      "dtHubId": 14295,
+      "dtRimId": 8862,
+      "inputs": {
+        "spokeType": "j-bend",
+        "wheelPosition": "front",
+        "erd": 541,
+        "spokeCount": 32,
+        "crossPattern": 3,
+        "leftFlangeDia": 44,
+        "rightFlangeDia": 44,
+        "leftFlangeCenter": 22.4,
+        "rightFlangeCenter": 35,
+        "spokeHoleDia": 2.6,
+        "spokeOffsetNds": 0,
+        "spokeOffsetDs": 0,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 100
+      },
+      "expected": {
+        "left": 262.5,
+        "right": 263.9
+      },
+      "before": {
+        "left": 262.5,
+        "right": 263.9
+      }
+    },
+    {
+      "name": "DT Swiss 350 135/142 mm DBCL + RR 440, 32h 3x",
+      "source": "dt-swiss",
+      "dtHubId": 14300,
+      "dtRimId": 8967,
+      "inputs": {
+        "spokeType": "j-bend",
+        "wheelPosition": "rear",
+        "erd": 599,
+        "spokeCount": 32,
+        "crossPattern": 3,
+        "leftFlangeDia": 46,
+        "rightFlangeDia": 46,
+        "leftFlangeCenter": 33,
+        "rightFlangeCenter": 20.2,
+        "spokeHoleDia": 2.6,
+        "spokeOffsetNds": 0,
+        "spokeOffsetDs": 0,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 142
+      },
+      "expected": {
+        "left": 292,
+        "right": 290.9
+      },
+      "before": {
+        "left": 292,
+        "right": 290.9
+      }
+    },
+    {
+      "name": "DT Swiss 240 148 mm DBIS BOOST EXP 2020+ + XM 431 27.5, 28h 3x",
+      "source": "dt-swiss",
+      "dtHubId": 14254,
+      "dtRimId": 8902,
+      "inputs": {
+        "spokeType": "j-bend",
+        "wheelPosition": "rear",
+        "erd": 564,
+        "spokeCount": 28,
+        "crossPattern": 3,
+        "leftFlangeDia": 57.9,
+        "rightFlangeDia": 50.4,
+        "leftFlangeCenter": 37.1,
+        "rightFlangeCenter": 22.6,
+        "spokeHoleDia": 2.6,
+        "spokeOffsetNds": 0,
+        "spokeOffsetDs": 0,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 142
+      },
+      "expected": {
+        "left": 278.2,
+        "right": 277.1
+      },
+      "before": {
+        "left": 278.2,
+        "right": 277.1
+      }
+    },
+    {
+      "name": "DT Swiss 240 100 mm DBIS 2020+ + G 540 700C, 28h 2x",
+      "source": "dt-swiss",
+      "dtHubId": 14245,
+      "dtRimId": 8993,
+      "inputs": {
+        "spokeType": "j-bend",
+        "wheelPosition": "front",
+        "erd": 592,
+        "spokeCount": 28,
+        "crossPattern": 2,
+        "leftFlangeDia": 57.8,
+        "rightFlangeDia": 49.4,
+        "leftFlangeCenter": 22.3,
+        "rightFlangeCenter": 36,
+        "spokeHoleDia": 2.55,
+        "spokeOffsetNds": 0,
+        "spokeOffsetDs": 0,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 100
+      },
+      "expected": {
+        "left": 278.5,
+        "right": 282.3
+      },
+      "before": {
+        "left": 278.5,
+        "right": 282.3
+      }
+    },
+    {
+      "name": "DT Swiss 350 100 mm DBCL 2021+ + RR 440, 28h 0x",
+      "source": "dt-swiss",
+      "dtHubId": 14296,
+      "dtRimId": 8967,
+      "inputs": {
+        "spokeType": "j-bend",
+        "wheelPosition": "front",
+        "erd": 599,
+        "spokeCount": 28,
+        "crossPattern": 0,
+        "leftFlangeDia": 44,
+        "rightFlangeDia": 44,
+        "leftFlangeCenter": 22.4,
+        "rightFlangeCenter": 35,
+        "spokeHoleDia": 2.6,
+        "spokeOffsetNds": 0,
+        "spokeOffsetDs": 0,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 100
+      },
+      "expected": {
+        "left": 277.1,
+        "right": 278.4
+      },
+      "before": {
+        "left": 277.1,
+        "right": 278.4
+      }
+    },
+    {
+      "name": "DT Swiss 240 135/142 mm DBIS EXP 2020+ + RR 585, 32h 3x",
+      "source": "dt-swiss",
+      "dtHubId": 14247,
+      "dtRimId": 8979,
+      "inputs": {
+        "spokeType": "j-bend",
+        "wheelPosition": "rear",
+        "erd": 582,
+        "spokeCount": 32,
+        "crossPattern": 3,
+        "leftFlangeDia": 57,
+        "rightFlangeDia": 49.9,
+        "leftFlangeCenter": 34.1,
+        "rightFlangeCenter": 19.6,
+        "spokeHoleDia": 2.55,
+        "spokeOffsetNds": 0,
+        "spokeOffsetDs": 0,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 142
+      },
+      "expected": {
+        "left": 282.1,
+        "right": 281.8
+      },
+      "before": {
+        "left": 282.1,
+        "right": 281.8
+      }
+    },
+    {
+      "name": "DT Swiss 240 148 mm DBCL BOOST straightpull EXP 2020+ + XM 431 27.5, 28h 2x",
+      "source": "dt-swiss",
+      "dtHubId": 14388,
+      "dtRimId": 8902,
+      "inputs": {
+        "spokeType": "straight-pull",
+        "wheelPosition": "rear",
+        "erd": 564,
+        "spokeCount": 28,
+        "crossPattern": 2,
+        "leftFlangeDia": 35.9,
+        "rightFlangeDia": 42.8,
+        "leftFlangeCenter": 35.8,
+        "rightFlangeCenter": 21.5,
+        "spokeHoleDia": 2.5,
+        "spokeOffsetNds": 0.45,
+        "spokeOffsetDs": 1.5,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 142
+      },
+      "expected": {
+        "left": 285.3,
+        "right": 285.1
+      },
+      "before": {
+        "left": 277.5,
+        "right": 275.7
+      }
+    },
+    {
+      "name": "Rear, spoke bed 3 mm toward the non-drive side",
+      "source": "spokecalc.io",
+      "inputs": {
+        "spokeType": "j-bend",
+        "erd": 599,
+        "spokeCount": 28,
+        "crossPattern": 3,
+        "leftFlangeDia": 46,
+        "rightFlangeDia": 46,
+        "leftFlangeCenter": 33,
+        "rightFlangeCenter": 20.2,
+        "spokeHoleDia": 2.6,
+        "spokeOffsetNds": 0,
+        "spokeOffsetDs": 0,
+        "rimOffset": -3,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 142,
+        "wheelPosition": "rear",
+        "rimWidth": 30
+      },
+      "expected": {
+        "left": 295.5,
+        "right": 294.8
+      },
+      "before": {
+        "left": 295.5,
+        "right": 294.8
+      }
+    },
+    {
+      "name": "Front disc, spoke bed 2 mm toward the drive side",
+      "source": "spokecalc.io",
+      "inputs": {
+        "spokeType": "j-bend",
+        "erd": 599,
+        "spokeCount": 28,
+        "crossPattern": 3,
+        "leftFlangeDia": 44,
+        "rightFlangeDia": 44,
+        "leftFlangeCenter": 22.4,
+        "rightFlangeCenter": 35,
+        "spokeHoleDia": 2.6,
+        "spokeOffsetNds": 0,
+        "spokeOffsetDs": 0,
+        "rimOffset": 2,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 100,
+        "wheelPosition": "front",
+        "rimWidth": 30
+      },
+      "expected": {
+        "left": 295.1,
+        "right": 295.9
+      },
+      "before": {
+        "left": 295.1,
+        "right": 295.9
+      }
+    },
+    {
+      "name": "Width between holes 4 mm",
+      "source": "spokecalc.io",
+      "inputs": {
+        "spokeType": "j-bend",
+        "erd": 599,
+        "spokeCount": 28,
+        "crossPattern": 3,
+        "leftFlangeDia": 46,
+        "rightFlangeDia": 46,
+        "leftFlangeCenter": 33,
+        "rightFlangeCenter": 20.2,
+        "spokeHoleDia": 2.6,
+        "spokeOffsetNds": 0,
+        "spokeOffsetDs": 0,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 4,
+        "lengthAdjustment": 0,
+        "hubWidth": 142,
+        "wheelPosition": "rear",
+        "rimWidth": 30
+      },
+      "expected": {
+        "left": 295.6,
+        "right": 294.5
+      },
+      "before": {
+        "left": 295.6,
+        "right": 294.5
+      }
+    },
+    {
+      "name": "Width between holes 4 mm, spokes cross the centreline",
+      "source": "spokecalc.io",
+      "inputs": {
+        "spokeType": "j-bend",
+        "erd": 599,
+        "spokeCount": 28,
+        "crossPattern": 3,
+        "leftFlangeDia": 46,
+        "rightFlangeDia": 46,
+        "leftFlangeCenter": 33,
+        "rightFlangeCenter": 20.2,
+        "spokeHoleDia": 2.6,
+        "spokeOffsetNds": 0,
+        "spokeOffsetDs": 0,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 4,
+        "lengthAdjustment": 0,
+        "hubWidth": 142,
+        "wheelPosition": "rear",
+        "rimWidth": 30,
+        "holeRows": "crossed"
+      },
+      "expected": {
+        "left": 296,
+        "right": 294.8
+      },
+      "before": {
+        "left": 295.6,
+        "right": 294.5
+      }
+    },
+    {
+      "name": "Paired-hole hub, 10 degree pairs",
+      "source": "spokecalc.io",
+      "inputs": {
+        "spokeType": "j-bend",
+        "erd": 599,
+        "spokeCount": 28,
+        "crossPattern": 3,
+        "leftFlangeDia": 46,
+        "rightFlangeDia": 46,
+        "leftFlangeCenter": 33,
+        "rightFlangeCenter": 20.2,
+        "spokeHoleDia": 2.6,
+        "spokeOffsetNds": 0,
+        "spokeOffsetDs": 0,
+        "rimOffset": 0,
+        "rimHoleStaggerWidth": 0,
+        "lengthAdjustment": 0,
+        "hubWidth": 142,
+        "wheelPosition": "rear",
+        "rimWidth": 30,
+        "pairedHoleAngle": 10
+      },
+      "expected": {
+        "left": 298.9,
+        "right": 297.8
+      },
+      "before": {
+        "left": 295.8,
+        "right": 294.6
+      }
+    }
+  ]
+}

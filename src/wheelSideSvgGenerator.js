@@ -1,4 +1,4 @@
-import { lacingMap, normalizeOptions } from './math.js';
+import { lacingMap, maxRimOffset, normalizeOptions } from './math.js';
 import { renderHubSideGroup, } from './hubSvgGenerator.js';
 import { circle, line, path, svgDocument, tag, visualizerStyle } from './svg.js';
 import { spokeNipple } from './paths.js';
@@ -8,7 +8,24 @@ export class WheelSideSVGGenerator {
     const config = normalizeOptions(options);
     const cx = 100;
     const cy = 375;
-    const rimCenter = cx + config.wheel.rimOffset;
+    // The rim stays centred over the hub (a dished wheel). An offset spoke
+    // bed only moves the bed's flat and its nipple holes; the clamp keeps
+    // the bed inside the rim walls, as maxRimOffset says a real rim must.
+    const width = config.wheel.rimWidth;
+    const stagger = Number.isFinite(config.wheel.holeStagger) ? Math.max(0, config.wheel.holeStagger) : 0;
+    const bedHalf = Math.max(width / 6, (stagger / 2) + 1);
+    const offsetLimit = Math.max(0, Math.min(maxRimOffset(width, stagger), (width / 2) - bedHalf));
+    const rawOffset = Number.isFinite(config.wheel.rimOffset) ? config.wheel.rimOffset : 0;
+    const bedOffset = Math.max(-offsetLimit, Math.min(offsetLimit, rawOffset));
+    const bedCenter = cx + bedOffset;
+    const halfRow = stagger / 2;
+    const crossed = config.wheel.holeRows === 'crossed';
+    // Each side's spokes reach its own row of holes, or the far row when
+    // they cross the centreline.
+    const rowX = (side) => {
+      const own = side === 'left' ? -halfRow : halfRow;
+      return bedCenter + (crossed ? -own : own);
+    };
     const outerRadius = config.wheel.outerDia / 2;
     const innerRadius = config.wheel.erd / 2;
     const leftHubRadius = config.hub.leftFlangeDia / 2;
@@ -16,7 +33,6 @@ export class WheelSideSVGGenerator {
     const leftHubX = cx - config.hub.leftFlangeCenter;
     const rightHubX = cx + config.hub.rightFlangeCenter;
     const rimDepth = (config.wheel.outerDia - config.wheel.erd) / 2;
-    const width = config.wheel.rimWidth;
     const yOuterTop = cy - outerRadius;
     const yInnerTop = cy - innerRadius;
     const yMidTop = yOuterTop + (rimDepth / 2);
@@ -24,26 +40,33 @@ export class WheelSideSVGGenerator {
     const yInnerBottom = cy + innerRadius;
     const yMidBottom = yOuterBottom - (rimDepth / 2);
     const topPath = [
-      `M ${rimCenter - (width / 2)} ${yOuterTop}`,
-      `L ${rimCenter + (width / 2)} ${yOuterTop}`,
-      `L ${rimCenter + (width / 2)} ${yMidTop}`,
-      `L ${rimCenter + (width / 6)} ${yInnerTop}`,
-      `L ${rimCenter - (width / 6)} ${yInnerTop}`,
-      `L ${rimCenter - (width / 2)} ${yMidTop}`,
+      `M ${cx - (width / 2)} ${yOuterTop}`,
+      `L ${cx + (width / 2)} ${yOuterTop}`,
+      `L ${cx + (width / 2)} ${yMidTop}`,
+      `L ${bedCenter + bedHalf} ${yInnerTop}`,
+      `L ${bedCenter - bedHalf} ${yInnerTop}`,
+      `L ${cx - (width / 2)} ${yMidTop}`,
       'Z'
     ].join(' ');
     const bottomPath = [
-      `M ${rimCenter - (width / 6)} ${yInnerBottom}`,
-      `L ${rimCenter + (width / 6)} ${yInnerBottom}`,
-      `L ${rimCenter + (width / 2)} ${yMidBottom}`,
-      `L ${rimCenter + (width / 2)} ${yOuterBottom}`,
-      `L ${rimCenter - (width / 2)} ${yOuterBottom}`,
-      `L ${rimCenter - (width / 2)} ${yMidBottom}`,
+      `M ${bedCenter - bedHalf} ${yInnerBottom}`,
+      `L ${bedCenter + bedHalf} ${yInnerBottom}`,
+      `L ${cx + (width / 2)} ${yMidBottom}`,
+      `L ${cx + (width / 2)} ${yOuterBottom}`,
+      `L ${cx - (width / 2)} ${yOuterBottom}`,
+      `L ${cx - (width / 2)} ${yMidBottom}`,
       'Z'
     ].join(' ');
+    const sheen = config.style.shading === 'soft'
+      ? [
+        line(cx - (width / 2) + 1.5, yOuterTop + 1.2, cx + (width / 2) - 1.5, yOuterTop + 1.2, { class: 'rim-sheen' }),
+        line(cx - (width / 2) + 1.5, yOuterBottom - 1.2, cx + (width / 2) - 1.5, yOuterBottom - 1.2, { class: 'rim-sheen' })
+      ].join('')
+      : '';
     const rimGroup = tag('g', { id: 'rimGroup' }, [
       path(topPath, { class: 'rim-body' }),
-      path(bottomPath, { class: 'rim-body' })
+      path(bottomPath, { class: 'rim-body' }),
+      sheen
     ].join(''));
     const hubGroup = renderHubSideGroup(cx, cy, config);
 
@@ -60,10 +83,10 @@ export class WheelSideSVGGenerator {
           nippleDots.push(circle(rimPoint.x, rimPoint.y, 1.7, { class: 'spoke-nipple-dot' }));
         }
       };
-      draw({ x: leftHubX, y: cy - leftHubRadius }, { x: rimCenter, y: yInnerTop }, 'left');
-      draw({ x: rightHubX, y: cy - rightHubRadius }, { x: rimCenter, y: yInnerTop }, 'right');
-      draw({ x: leftHubX, y: cy + leftHubRadius }, { x: rimCenter, y: yInnerBottom }, 'left');
-      draw({ x: rightHubX, y: cy + rightHubRadius }, { x: rimCenter, y: yInnerBottom }, 'right');
+      draw({ x: leftHubX, y: cy - leftHubRadius }, { x: rowX('left'), y: yInnerTop }, 'left');
+      draw({ x: rightHubX, y: cy - rightHubRadius }, { x: rowX('right'), y: yInnerTop }, 'right');
+      draw({ x: leftHubX, y: cy + leftHubRadius }, { x: rowX('left'), y: yInnerBottom }, 'left');
+      draw({ x: rightHubX, y: cy + rightHubRadius }, { x: rowX('right'), y: yInnerBottom }, 'right');
       return svgDocument(200, 750, '0 0 200 750', [
         tag('g', { class: `spoke-theme-${config.style.spokeColor}` }, spokes.join('')),
         hubGroup,
@@ -93,7 +116,7 @@ export class WheelSideSVGGenerator {
       const hubAngle = (-Math.PI / 2) + (rimStep / 2) + (spoke.hubIndex * hubStep) + hubAngleOffset + (isLeft ? 0 : hubStep / 2);
       const rimAngle = (-Math.PI / 2) + (rimStep / 2) + (spoke.rimIndex * rimStep);
       const hubPoint = { x: hubX, y: cy + (hubRadius * Math.sin(hubAngle)) };
-      const rimPoint = { x: rimCenter, y: cy + (innerRadius * Math.sin(rimAngle)) };
+      const rimPoint = { x: rowX(spoke.side), y: cy + (innerRadius * Math.sin(rimAngle)) };
       const isFront = (innerRadius * Math.cos(rimAngle)) >= 0;
       const spokeSvg = line(hubPoint.x, hubPoint.y, rimPoint.x, rimPoint.y, {
         class: `spoke spoke-${spoke.side} spoke-${spoke.type}`

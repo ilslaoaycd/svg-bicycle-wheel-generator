@@ -5,6 +5,7 @@ const BASE_PALETTE = {
   rimStroke: '#212529',
   rimOutlineStroke: '#111111',
   rimHighlightStroke: 'rgba(255,255,255,.15)',
+  rimSheenStroke: 'rgba(255,255,255,.22)',
   rimHoleFill: '#111111',
   rimHoleStroke: '#343a40',
   valveFill: '#ffffff',
@@ -47,7 +48,247 @@ const BASE_PALETTE = {
   hubHighlightStroke: '#111111'
 };
 
+// Mechanic-friendly presets (v1.1). Every one has a transparent background
+// so the page behind it shows through; light parts carry a dark outline so
+// they still read on white. The older presets (drawing, technical,
+// realistic, light) below are kept for existing users.
+const MECHANIC_LEFT = '#1d6fe0';
+const MECHANIC_RIGHT = '#e8590c';
+
 export const STYLE_PRESETS = {
+  mechanic: {
+    name: 'Mechanic',
+    hubRenderStyle: 'realistic',
+    wheel: { valveType: 'presta' },
+    hub: { showHubHoles: 'hidden' },
+    style: {
+      spokeColor: 'color',
+      nippleStyle: 'nipples',
+      nippleColor: 'silver',
+      spokeLayering: '3d',
+      rimHoles: 'auto',
+      spokeWidth: 1.6,
+      outlineWidth: 1.4,
+      spokeLine: { left: 'solid', right: 'solid' },
+      shading: 'flat'
+    },
+    palette: {
+      ...BASE_PALETTE,
+      svgBackground: 'transparent',
+      rimFaceFill: '#d5dbe1',
+      rimSideFill: '#d5dbe1',
+      rimStroke: '#3b4248',
+      rimOutlineStroke: '#3b4248',
+      rimHighlightStroke: 'rgba(255,255,255,.5)',
+      rimHoleFill: '#3b4248',
+      rimHoleStroke: '#3b4248',
+      valveFill: '#ffd43b',
+      valveStroke: '#343a40',
+      spokeLeftPulling: MECHANIC_LEFT,
+      spokeLeftTrailing: '#7fb0f5',
+      spokeRightPulling: MECHANIC_RIGHT,
+      spokeRightTrailing: '#f9a66c',
+      nippleSilver: '#6c757d',
+      nippleDotFill: '#6c757d',
+      nippleDotStroke: '#343a40',
+      hubAxleFill: '#e9ecef',
+      hubAxleStroke: '#343a40',
+      hubEndcapFill: '#adb5bd',
+      hubEndcapStroke: '#343a40',
+      hubShellFill: '#dee2e6',
+      hubShellStroke: '#495057',
+      hubShellDtSwissFill: '#dee2e6',
+      hubShellIndustryNineFill: '#dee2e6',
+      hubFlangeLeftFill: '#d6e6fd',
+      hubFlangeLeftStroke: MECHANIC_LEFT,
+      hubFlangeRightFill: '#fde3d3',
+      hubFlangeRightStroke: MECHANIC_RIGHT,
+      hubMountFill: '#adb5bd',
+      hubMountStroke: '#343a40',
+      hubFreehubFill: '#ced4da',
+      hubFreehubStroke: '#343a40',
+      hubBearingFill: '#868e96',
+      hubBearingStroke: '#343a40',
+      hubCutoutFill: '#f8f9fa',
+      hubCutoutStroke: '#495057',
+      hubHoleFill: '#343a40',
+      hubDetailStroke: '#343a40',
+      hubBlueprintStroke: '#868e96',
+      hubFluteStroke: '#868e96',
+      hubHighlightStroke: '#ffffff'
+    }
+  },
+  'realistic-black': {
+    name: 'Realistic black',
+    hubRenderStyle: 'realistic',
+    wheel: { valveType: 'presta' },
+    hub: { showHubHoles: 'hidden' },
+    style: {
+      spokeColor: 'color',
+      nippleStyle: 'nipples',
+      nippleColor: 'silver',
+      spokeLayering: '3d',
+      rimHoles: 'auto',
+      spokeWidth: 1.5,
+      outlineWidth: 1.2,
+      spokeLine: { left: 'solid', right: 'solid' },
+      shading: 'soft'
+    },
+    palette: {
+      ...BASE_PALETTE,
+      svgBackground: 'transparent',
+      rimFaceFill: '#1d1f22',
+      rimSideFill: '#1d1f22',
+      rimStroke: '#0b0c0d',
+      rimOutlineStroke: '#0b0c0d',
+      rimHighlightStroke: 'rgba(255,255,255,.12)',
+      rimSheenStroke: 'rgba(255,255,255,.16)',
+      rimHoleFill: '#0b0c0d',
+      rimHoleStroke: '#0b0c0d',
+      valveFill: '#2f3438',
+      valveStroke: '#0b0c0d',
+      spokeLeftPulling: '#1f2226',
+      spokeLeftTrailing: '#1f2226',
+      spokeRightPulling: '#1f2226',
+      spokeRightTrailing: '#1f2226',
+      nippleSilver: '#141516',
+      nippleDotFill: '#141516',
+      nippleDotStroke: '#000000',
+      hubAxleFill: '#5c636a',
+      hubAxleStroke: '#0b0c0d',
+      hubEndcapFill: '#3a3f44',
+      hubEndcapStroke: '#0b0c0d',
+      hubShellFill: '#2b2f33',
+      hubShellStroke: '#0b0c0d',
+      hubShellDtSwissFill: '#2b2f33',
+      hubShellIndustryNineFill: '#2b2f33',
+      hubFlangeLeftFill: '#33383d',
+      hubFlangeLeftStroke: '#0b0c0d',
+      hubFlangeRightFill: '#33383d',
+      hubFlangeRightStroke: '#0b0c0d',
+      hubMountFill: '#3a3f44',
+      hubMountStroke: '#0b0c0d',
+      hubFreehubFill: '#6c757d',
+      hubFreehubStroke: '#212529',
+      hubBearingFill: '#495057',
+      hubBearingStroke: '#0b0c0d',
+      hubCutoutFill: '#1d1f22',
+      hubCutoutStroke: '#0b0c0d',
+      hubHoleFill: '#0b0c0d',
+      hubDetailStroke: '#0b0c0d',
+      hubBlueprintStroke: '#495057',
+      hubFluteStroke: '#5c636a',
+      hubHighlightStroke: 'rgba(255,255,255,.35)'
+    }
+  },
+  'realistic-silver': {
+    name: 'Realistic silver',
+    hubRenderStyle: 'realistic',
+    wheel: { valveType: 'presta' },
+    hub: { showHubHoles: 'hidden' },
+    style: {
+      spokeColor: 'color',
+      nippleStyle: 'nipples',
+      nippleColor: 'silver',
+      spokeLayering: '3d',
+      rimHoles: 'auto',
+      spokeWidth: 1.5,
+      outlineWidth: 1.2,
+      spokeLine: { left: 'solid', right: 'solid' },
+      shading: 'soft'
+    },
+    palette: {
+      ...BASE_PALETTE,
+      svgBackground: 'transparent',
+      rimFaceFill: '#c9ced3',
+      rimSideFill: '#c9ced3',
+      rimStroke: '#5c636a',
+      rimOutlineStroke: '#5c636a',
+      rimHighlightStroke: 'rgba(255,255,255,.6)',
+      rimSheenStroke: 'rgba(255,255,255,.55)',
+      rimHoleFill: '#495057',
+      rimHoleStroke: '#495057',
+      valveFill: '#adb5bd',
+      valveStroke: '#495057',
+      spokeLeftPulling: '#8f979e',
+      spokeLeftTrailing: '#8f979e',
+      spokeRightPulling: '#8f979e',
+      spokeRightTrailing: '#8f979e',
+      nippleSilver: '#adb5bd',
+      nippleDotFill: '#adb5bd',
+      nippleDotStroke: '#495057',
+      hubAxleFill: '#e9ecef',
+      hubAxleStroke: '#495057',
+      hubEndcapFill: '#adb5bd',
+      hubEndcapStroke: '#495057',
+      hubShellFill: '#d3d7db',
+      hubShellStroke: '#5c636a',
+      hubShellDtSwissFill: '#d3d7db',
+      hubShellIndustryNineFill: '#d3d7db',
+      hubFlangeLeftFill: '#dee2e6',
+      hubFlangeLeftStroke: '#5c636a',
+      hubFlangeRightFill: '#ced4da',
+      hubFlangeRightStroke: '#5c636a',
+      hubMountFill: '#adb5bd',
+      hubMountStroke: '#495057',
+      hubFreehubFill: '#ced4da',
+      hubFreehubStroke: '#495057',
+      hubBearingFill: '#868e96',
+      hubBearingStroke: '#495057',
+      hubCutoutFill: '#f1f3f5',
+      hubCutoutStroke: '#5c636a',
+      hubHoleFill: '#343a40',
+      hubDetailStroke: '#495057',
+      hubBlueprintStroke: '#868e96',
+      hubFluteStroke: '#868e96',
+      hubHighlightStroke: '#ffffff'
+    }
+  },
+  print: {
+    name: 'Print',
+    hubRenderStyle: 'blueprint',
+    wheel: { valveType: 'presta' },
+    hub: { showHubHoles: 'visible' },
+    style: {
+      spokeColor: 'color',
+      nippleStyle: 'dots',
+      nippleColor: 'black',
+      spokeLayering: '3d',
+      rimHoles: 'auto',
+      spokeWidth: 1.6,
+      trailingWidthRatio: 0.6,
+      outlineWidth: 1.4,
+      spokeLine: { left: 'solid', right: 'dashed' },
+      shading: 'flat'
+    },
+    palette: {
+      ...BASE_PALETTE,
+      svgBackground: 'transparent',
+      rimFaceFill: '#ffffff',
+      rimSideFill: '#ffffff',
+      rimStroke: '#000000',
+      rimOutlineStroke: '#000000',
+      rimHighlightStroke: 'transparent',
+      rimHoleFill: '#000000',
+      rimHoleStroke: '#000000',
+      valveFill: '#ffffff',
+      valveStroke: '#000000',
+      spokeLeftPulling: '#000000',
+      spokeLeftTrailing: '#000000',
+      spokeRightPulling: '#000000',
+      spokeRightTrailing: '#000000',
+      nippleDotFill: '#ffffff',
+      nippleDotStroke: '#000000',
+      nippleSilver: '#000000',
+      hubFlangeLeftFill: '#ffffff',
+      hubFlangeLeftStroke: '#000000',
+      hubFlangeRightFill: '#ffffff',
+      hubFlangeRightStroke: '#000000',
+      hubHoleFill: '#000000',
+      hubDetailStroke: '#000000',
+      hubBlueprintStroke: '#000000'
+    }
+  },
   drawing: {
     name: 'Drawing',
     hubRenderStyle: 'blueprint',
@@ -79,10 +320,13 @@ export const STYLE_PRESETS = {
       spokeColor: 'color',
       nippleStyle: 'dots',
       nippleColor: 'black',
-      spokeLayering: '3d'
+      spokeLayering: '3d',
+      rimHoles: 'auto',
+      spokeLine: { left: 'solid', right: 'dashed' }
     },
     palette: {
       ...BASE_PALETTE,
+      svgBackground: 'transparent',
       rimFaceFill: '#111111',
       rimSideFill: '#111111',
       rimStroke: '#111111',
@@ -216,6 +460,29 @@ function compact(object) {
   return Object.fromEntries(Object.entries(object || {}).filter(([, value]) => value !== undefined));
 }
 
+function positive(value, fallback) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : fallback;
+}
+
+export const SPOKE_LINE_STYLES = ['solid', 'dashed', 'dotted'];
+
+function lineStyle(value, fallback) {
+  return SPOKE_LINE_STYLES.includes(value) ? value : fallback;
+}
+
+const DASH = { solid: 'none', dashed: '4 4', dotted: '1 3' };
+
+// Whether the face view draws the rim's spoke holes: 'auto' only when
+// nothing else marks them (no nipples or dots), so holes and nipples never
+// pile up on top of each other.
+export function showRimHoles(style = {}) {
+  const resolved = resolveStyleOptions(style);
+  if (resolved.rimHoles === 'show') return true;
+  if (resolved.rimHoles === 'hide') return false;
+  return resolved.nippleStyle !== 'nipples' && resolved.nippleStyle !== 'dots';
+}
+
 export function defineStylePreset(name, preset = {}) {
   return {
     name,
@@ -233,12 +500,22 @@ export function resolveStyleOptions(style = {}) {
   const presetStyle = preset.style || {};
   const hubRenderStyle = style.hubRenderStyle || preset.hubRenderStyle || 'blueprint';
 
+  const merged = { ...presetStyle, ...style };
+  const defaultLine = merged.spokeColor === 'color' ? { left: 'solid', right: 'dashed' } : { left: 'solid', right: 'solid' };
   return {
-    ...presetStyle,
-    ...style,
+    ...merged,
     theme: themeName,
     hubRenderStyle,
     paintMode: style.paintMode || presetStyle.paintMode || 'hybrid',
+    rimHoles: ['auto', 'show', 'hide'].includes(merged.rimHoles) ? merged.rimHoles : 'auto',
+    spokeWidth: positive(merged.spokeWidth, 1.5),
+    trailingWidthRatio: positive(merged.trailingWidthRatio, 1),
+    outlineWidth: positive(merged.outlineWidth, 1.5),
+    spokeLine: {
+      left: lineStyle(merged.spokeLine?.left, defaultLine.left),
+      right: lineStyle(merged.spokeLine?.right, defaultLine.right)
+    },
+    shading: merged.shading === 'soft' ? 'soft' : 'flat',
     palette: {
       ...BASE_PALETTE,
       ...compact(preset.palette),
@@ -313,6 +590,10 @@ export function hubPaintStyles(style = {}) {
   };
 }
 
+function round2(value) {
+  return Math.round(value * 100) / 100;
+}
+
 function rule(selector, declarations) {
   return `${selector}{${Object.entries(declarations)
     .filter(([, value]) => value !== undefined && value !== null)
@@ -325,11 +606,14 @@ function v(token, palette) {
 }
 
 export function createVisualizerStyle(style = {}) {
-  const { palette } = resolveStyleOptions(style);
+  const resolved = resolveStyleOptions(style);
+  const { palette } = resolved;
+  const width = resolved.spokeWidth;
   return [
     rule('.wheel-svg,.hub-svg', { background: v('svgBackground', palette) }),
     rule('.rim-body', { fill: v('rimSideFill', palette), stroke: v('rimStroke', palette), 'stroke-width': 1, 'fill-rule': 'evenodd' }),
-    rule('.rim-outline', { fill: 'none', stroke: v('rimOutlineStroke', palette), 'stroke-width': 1.5 }),
+    rule('.rim-outline', { fill: 'none', stroke: v('rimOutlineStroke', palette), 'stroke-width': resolved.outlineWidth }),
+    rule('.rim-sheen', { fill: 'none', stroke: v('rimSheenStroke', palette), 'stroke-linecap': 'round' }),
     rule('.rim-highlight', { fill: 'none', stroke: v('rimHighlightStroke', palette), 'stroke-width': 1 }),
     rule('.rim-hole', { fill: v('rimHoleFill', palette), stroke: v('rimHoleStroke', palette), 'stroke-width': 0.5 }),
     rule('.valve-hole-marker', { fill: v('valveFill', palette) }),
@@ -340,14 +624,17 @@ export function createVisualizerStyle(style = {}) {
     rule('.spoke-nipple-dot', { fill: v('nippleDotFill', palette), stroke: v('nippleDotStroke', palette), 'stroke-width': 1 }),
     rule('.nipple-theme-silver .spoke-nipple', { stroke: v('nippleSilver', palette) }),
     rule('.nipple-theme-black .spoke-nipple', { stroke: v('nippleBlack', palette) }),
-    rule('.spoke', { 'stroke-width': 1.5, 'stroke-linecap': 'round' }),
+    rule('.spoke', { 'stroke-width': width, 'stroke-linecap': 'round' }),
+    rule('.spoke.spoke-trailing', { 'stroke-width': round2(width * resolved.trailingWidthRatio) }),
+    rule('.spoke.spoke-left', { 'stroke-dasharray': DASH[resolved.spokeLine.left] }),
+    rule('.spoke.spoke-right', { 'stroke-dasharray': DASH[resolved.spokeLine.right] }),
     rule('.spoke-theme-color .spoke-left.spoke-pulling', { stroke: v('spokeLeftPulling', palette) }),
     rule('.spoke-theme-color .spoke-left.spoke-trailing', { stroke: v('spokeLeftTrailing', palette) }),
-    rule('.spoke-theme-color .spoke-right.spoke-pulling', { stroke: v('spokeRightPulling', palette), 'stroke-dasharray': '4 4' }),
-    rule('.spoke-theme-color .spoke-right.spoke-trailing', { stroke: v('spokeRightTrailing', palette), 'stroke-dasharray': '4 4' }),
+    rule('.spoke-theme-color .spoke-right.spoke-pulling', { stroke: v('spokeRightPulling', palette) }),
+    rule('.spoke-theme-color .spoke-right.spoke-trailing', { stroke: v('spokeRightTrailing', palette) }),
     rule('.spoke-theme-black .spoke', { stroke: v('spokeBlack', palette) }),
     rule('.spoke-theme-silver .spoke', { stroke: v('spokeSilver', palette) }),
-    rule('.straight-pull-wheel-spoke', { 'stroke-width': 2, 'stroke-linecap': 'butt' }),
+    rule('.straight-pull-wheel-spoke', { 'stroke-width': round2(width * 1.3), 'stroke-linecap': 'butt' }),
     rule('.straight-pull-spoke-head,.spoke-theme-color .straight-pull-spoke-head,.spoke-theme-black .straight-pull-spoke-head,.spoke-theme-silver .straight-pull-spoke-head', { stroke: 'none !important', 'stroke-width': '0 !important' }),
     rule('.spoke-theme-color .straight-pull-spoke-head.spoke-left.spoke-pulling', { fill: v('spokeLeftPulling', palette) }),
     rule('.spoke-theme-color .straight-pull-spoke-head.spoke-left.spoke-trailing', { fill: v('spokeLeftTrailing', palette) }),

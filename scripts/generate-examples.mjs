@@ -40,7 +40,18 @@ const examples = {
   'wheel-rear-drive-hg.svg': renderWheelFaceSvg({ ...rearWheel, view: { wheelFaceSide: 'right' } }),
   'wheel-front-straightpull.svg': renderWheelFaceSvg({ ...frontRadial, view: { wheelFaceSide: 'left' } }),
   'wheel-side-projection.svg': renderWheelSideSvg(rearWheel),
-  'wheel-side-cross-section.svg': renderWheelSideSvg({ ...rearWheel, style: { ...rearWheel.style, spokeLayering: 'flat' } })
+  'wheel-side-cross-section.svg': renderWheelSideSvg({ ...rearWheel, style: { ...rearWheel.style, spokeLayering: 'flat' } }),
+  // v1.1 presets, and an offset spoke bed with two rows of holes (the rim
+  // stays centred; only the bed, holes and spokes move).
+  ...Object.fromEntries(['mechanic', 'realistic-black', 'realistic-silver', 'print'].map((theme) => [
+    `wheel-preset-${theme}.svg`,
+    renderWheelFaceSvg({ ...rearWheel, view: { wheelFaceSide: 'right' }, style: { theme } })
+  ])),
+  'wheel-side-offset-bed.svg': renderWheelSideSvg({
+    ...rearWheel,
+    wheel: { ...rearWheel.wheel, rimWidth: 30, rimOffset: -4, holeStagger: 4 },
+    style: { theme: 'mechanic', spokeLayering: 'flat' }
+  })
 };
 
 await Promise.all(Object.entries(examples).map(([file, svg]) => writeFile(`examples/svg/${file}`, `${svg}\n`, 'utf8')));

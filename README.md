@@ -92,9 +92,40 @@ renderHubSideSvg(options);
 
 The package also exports `WheelFaceSVGGenerator`, `WheelSideSVGGenerator`,
 `HubSVGGenerator`, `calculateSpokeLength`, `calculateWheelBuild`,
-`rimHolePositions`, `hubHolePositions`, `lacingMap`, `normalizeOptions`,
-`validateWheelBuild`, `STYLE_PRESETS`, `defineStylePreset`, and
+`effectiveCross`, `lateralSpokeDistance`, `maxRimOffset`,
+`straightPullDesignedCross`, `isStraightPull`, `rimHolePositions`,
+`hubHolePositions`, `lacingMap`, `normalizeOptions`, `validateWheelBuild`,
+`STYLE_PRESETS`, `SPOKE_LINE_STYLES`, `showRimHoles`, `defineStylePreset`, and
 `resolveStyleOptions`.
+
+## Spoke Length
+
+`calculateWheelBuild(options)` takes the same options as the renderers and
+returns `{ left, right, roundedLeft, roundedRight, leftBracingAngle,
+rightBracingAngle, leftLateralDistance, rightLateralDistance, effectiveCross }`
+in millimetres and degrees.
+
+```text
+L = sqrt( (r sin a)^2 + (R - r cos a)^2 + W^2 ) + end correction
+R = ERD / 2, r = flange PCD / 2, a = 4 * PI * X / spoke count
+W = lateral distance from the flange to that side's row of rim holes
+```
+
+- **J-bend:** X is the cross pattern. Hubs drilled in pairs add
+  `((720 / N - pairedHoleAngle) / 2) / (720 / N)`. The end correction is
+  minus half the spoke hole diameter.
+- **Straight pull:** follows the DT Swiss spoke calculator. X is 2.5 up to 24
+  spokes and 3.5 above (radial: 0), whatever cross was asked for, and the end
+  correction is plus the hub's spoke offset (`spokeOffsetNds` / `spokeOffsetDs`,
+  as DT Swiss publishes them).
+- **Rim:** `rimOffset` moves the spoke bed (+ toward the right / drive side).
+  `holeStagger` is the width between two rows of holes: each side's spokes go to
+  its own row (`holeRows: 'same-side'`) or cross the centreline to the far row
+  (`holeRows: 'crossed'`). `maxRimOffset(rimWidth, holeStagger)` is the furthest
+  the bed can sit off centre and keep the holes on it.
+
+`test/fixtures/spoke-reference-builds.json` checks this against DT Swiss hub
+data and spokecalc.io's formula.
 
 ## Options
 
@@ -107,7 +138,9 @@ renderWheelFaceSvg({
     outerDia: 634,
     erd: 601,
     rimWidth: 25,
-    rimOffset: 0,
+    rimOffset: 0, // spoke-bed offset, + toward the right / drive side
+    holeStagger: 0, // width between two rows of rim holes
+    holeRows: 'same-side', // or "crossed"
     spokeCount: 32,
     valveType: 'presta' // "presta", "schrader", or "marker"
   },
@@ -121,10 +154,15 @@ renderWheelFaceSvg({
     leftFlangeDia: 58,
     rightFlangeDia: 52,
     leftFlangeCenter: 36.6,
-    rightFlangeCenter: 23.3
+    rightFlangeCenter: 23.3,
+    spokeHoleDia: 2.6,
+    spokeOffsetNds: 0, // straight pull only
+    spokeOffsetDs: 0,
+    pairedHoleAngle: 0 // J-bend hubs drilled in pairs
   },
   lacing: {
-    crossPattern: 3
+    crossPattern: 3,
+    lengthAdjustment: 0
   },
   view: {
     wheelFaceSide: 'left',
@@ -135,9 +173,15 @@ renderWheelFaceSvg({
     spokeColor: 'color', // "color", "black", or "silver"
     nippleStyle: 'nipples', // "nipples", "dots", or "none"
     nippleColor: 'silver',
-    theme: 'drawing', // "drawing", "technical", "realistic", or "light"
+    theme: 'mechanic', // see Styling
     hubRenderStyle: 'blueprint', // optional override: "blueprint" or "realistic"
     paintMode: 'hybrid', // "hybrid", "css", or "inline"
+    rimHoles: 'auto', // "auto" (only when nipples are hidden), "show", "hide"
+    spokeWidth: 1.5,
+    trailingWidthRatio: 1, // < 1 draws trailing spokes thinner
+    outlineWidth: 1.5,
+    spokeLine: { left: 'solid', right: 'dashed' }, // "solid", "dashed", "dotted"
+    shading: 'flat', // "flat" or "soft" (rim sheen)
     palette: {
       hubShellFill: '#eaf1f8',
       hubShellStroke: '#1f4b72',
@@ -168,10 +212,18 @@ The built-in style presets are:
 
 | Preset | Best for | Built-in behavior |
 | --- | --- | --- |
+| `mechanic` | building a wheel: telling parts and sides apart | Left spokes blue and right orange, trailing spokes lighter, flanges tinted by side, light grey rim with a dark outline, small grey nipples, highlighted valve, transparent background. |
+| `realistic-black` | showing a black build | Black anodised rim with a soft sheen, black spokes and nipples, shaded dark hub, transparent background. |
+| `realistic-silver` | showing a silver build | Polished silver rim, spokes, nipples and hub, transparent background. |
+| `print` | paper and black-and-white printers | Black ink only: left spokes solid, right dashed, trailing spokes thinner, rim dots. |
 | `drawing` | clean technical drawings on white backgrounds | Black strokes, white fills, black spokes, real nipples hidden under the rim, no hub spoke-hole dots, hollow side rim, light technical wheel-face rim, and a white presta valve. |
-| `technical` | inspecting spoke side/type relationships | Colored spokes by side, patterned leading/trailing spokes, rim dots instead of nipples, visible hub holes, lightly colored flanges by side, white component fills, and a black rim. |
+| `technical` | inspecting spoke side/type relationships | Colored spokes by side, patterned leading/trailing spokes, rim dots instead of nipples, visible hub holes, lightly colored flanges by side, white component fills, a black rim and a transparent background. |
 | `realistic` | neutral product-style previews | Greys and blacks, black spokes/rim/nipples hidden under the rim, no extra connection indicators, and a dark presta valve. |
 | `light` | dark or black host backgrounds | A light-on-dark version of realistic with light rim, hub, spoke, nipple, and valve colors. |
+
+The rim's spoke holes are only drawn when nothing else marks them
+(`rimHoles: 'auto'`), so holes and nipples never pile up. `drawing`,
+`realistic` and `light` are kept from 1.0.
 
 Use a preset directly with `style.theme`:
 

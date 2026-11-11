@@ -5,6 +5,8 @@ export const DEFAULT_WHEEL = {
   erd: 601,
   rimWidth: 25,
   rimOffset: 0,
+  holeStagger: 0,
+  holeRows: 'same-side',
   spokeCount: 32,
   valveType: 'presta'
 };
@@ -22,6 +24,7 @@ export const DEFAULT_HUB = {
   spokeHoleDia: 2.6,
   spokeOffsetNds: 0,
   spokeOffsetDs: 0,
+  pairedHoleAngle: 0,
   brandStyle: 'generic',
   shellStyle: 'tapered',
   shellWaistDia: 24,
@@ -156,7 +159,8 @@ export const HUB_PRESETS = {
 };
 
 export const DEFAULT_LACING = {
-  crossPattern: 3
+  crossPattern: 3,
+  lengthAdjustment: 0
 };
 
 export const DEFAULT_VIEW = {
@@ -201,6 +205,8 @@ export function normalizeOptions(options = {}) {
     erd: options.erd,
     rimWidth: options.rimWidth,
     rimOffset: options.rimOffset,
+    holeStagger: options.holeStagger,
+    holeRows: options.holeRows,
     spokeCount: options.spokeCount,
     valveType: options.valveType
   };
@@ -216,6 +222,9 @@ export function normalizeOptions(options = {}) {
     leftFlangeCenter: options.leftFlangeCenter,
     rightFlangeCenter: options.rightFlangeCenter,
     spokeHoleDia: options.spokeHoleDia,
+    spokeOffsetNds: options.spokeOffsetNds,
+    spokeOffsetDs: options.spokeOffsetDs,
+    pairedHoleAngle: options.pairedHoleAngle,
     brandStyle: options.brandStyle,
     shellStyle: options.shellStyle,
     shellWaistDia: options.shellWaistDia,
@@ -258,42 +267,145 @@ export function normalizeOptions(options = {}) {
   };
 }
 
-export function calculateSpokeLength(params) {
-  const theta = (4 * Math.PI * params.crossPattern) / params.spokeCount;
-  const erdRadius = params.erd / 2;
-  const flangeRadius = params.flangeDia / 2;
-  const planarDistance = Math.sqrt(
-    (erdRadius ** 2) +
-      (flangeRadius ** 2) -
-      (2 * erdRadius * flangeRadius * Math.cos(theta))
-  );
+// ---------------------------------------------------------------------------
+// Spoke length
+//
+// The model follows the DT Swiss spoke calculator (spokes-calculator.dtswiss.com,
+// its client-side formula read 2026-11-11), with the rim spoke-bed offset,
+// width between holes and paired-hole hubs handled the way spokecalc.io does:
+//
+//   L = sqrt( (r sin a)^2 + (R - r cos a)^2 + W^2 ) + end correction
+//
+//   R  = ERD / 2                 r = flange pitch-circle diameter / 2
+//   a  = 4 * PI * X / N          the angle between hub hole and rim hole
+//   W  = lateral distance from the flange to that side's rim holes
+//
+// J-bend: X is the cross pattern (plus the paired-hole correction for hubs
+// drilled in pairs) and the end correction is -(spoke hole diameter / 2).
+// Straight pull: DT sets X by spoke count, not by the pattern asked for --
+// 2.5 up to 24 spokes, 3.5 above (2x / 3x plus the half-hole the paired
+// spoke pockets add), 0 for radial -- and the end correction is +(the hub's
+// published spoke offset).
+// ---------------------------------------------------------------------------
 
-  return Math.sqrt((planarDistance ** 2) + (params.flangeCenter ** 2)) -
-    ((params.spokeHoleDia || 2.6) / 2) +
-    (params.lengthAdjustment || 0);
+export const SPOKE_TYPES = { jbend: 'jbend', straightpull: 'straightpull' };
+
+export function isStraightPull(type) {
+  const value = String(type || '').toLowerCase().replace(/[^a-z]/g, '');
+  return value === 'straightpull';
 }
 
+// The cross pattern a straight-pull hub is laced in, as DT Swiss assumes it:
+// 2x up to 24 spokes, 3x above, radial when radial was asked for.
+export function straightPullDesignedCross(spokeCount, crossPattern) {
+  if (!(crossPattern > 0)) return 0;
+  return spokeCount <= 24 ? 2 : 3;
+}
+
+// The lacing value X the length formula uses (see above).
+export function effectiveCross({ spokeType, spokeCount, crossPattern, pairedHoleAngle }) {
+  if (isStraightPull(spokeType)) {
+    const designed = straightPullDesignedCross(spokeCount, crossPattern);
+    return designed === 0 ? 0 : designed + 0.5;
+  }
+  const cross = Number.isFinite(crossPattern) ? crossPattern : 0;
+  const pitch = 720 / spokeCount;
+  if (pairedHoleAngle > 0 && Number.isFinite(pitch)) {
+    return cross + ((pitch - pairedHoleAngle) / 2) / pitch;
+  }
+  return cross;
+}
+
+// Lateral distance from one flange to that side's row of rim holes.
+// Coordinates: x along the axle, + toward the right/drive side. rimOffset is
+// the spoke-bed offset (+ = toward the right). holeStagger is the width
+// between the two rows of holes; normally each side's holes sit on its own
+// side of the rim (spokes shorten), unless the spokes cross the centreline
+// to reach the far row (holeRows 'crossed', spokes lengthen).
+export function lateralSpokeDistance({ side, flangeCenter, rimOffset = 0, holeStagger = 0, holeRows = 'same-side' }) {
+  const offset = Number.isFinite(rimOffset) ? rimOffset : 0;
+  const half = Number.isFinite(holeStagger) ? holeStagger / 2 : 0;
+  const rowShift = holeRows === 'crossed' ? half : -half;
+  return side === 'left'
+    ? flangeCenter + offset + rowShift
+    : flangeCenter - offset + rowShift;
+}
+
+export function calculateSpokeLength(params) {
+  const straightPull = isStraightPull(params.spokeType);
+  const x = effectiveCross(params);
+  const angle = (4 * Math.PI * x) / params.spokeCount;
+  const erdRadius = params.erd / 2;
+  const flangeRadius = params.flangeDia / 2;
+  const lateral = Number.isFinite(params.lateralDistance) ? params.lateralDistance : params.flangeCenter;
+  const run = Math.sqrt(
+    ((flangeRadius * Math.sin(angle)) ** 2) +
+      ((erdRadius - (flangeRadius * Math.cos(angle))) ** 2) +
+      (lateral ** 2)
+  );
+  const holeDia = Number.isFinite(params.spokeHoleDia) ? params.spokeHoleDia : 2.6;
+  const spokeOffset = Number.isFinite(params.spokeOffset) ? params.spokeOffset : 0;
+  const endCorrection = straightPull ? spokeOffset : -(holeDia / 2);
+  return run + endCorrection + (Number.isFinite(params.lengthAdjustment) ? params.lengthAdjustment : 0);
+}
+
+// Spoke lengths, bracing angles and the lacing the formula used, for a whole
+// wheel. Accepts the same options as the renderers.
 export function calculateWheelBuild(options = {}) {
   const config = normalizeOptions(options);
   const { wheel, hub, lacing } = config;
-  const left = calculateSpokeLength({
-    erd: wheel.erd,
-    flangeDia: hub.leftFlangeDia,
-    flangeCenter: hub.leftFlangeCenter,
-    spokeHoleDia: hub.spokeHoleDia,
-    spokeCount: wheel.spokeCount,
-    crossPattern: lacing.crossPattern
-  });
-  const right = calculateSpokeLength({
-    erd: wheel.erd,
-    flangeDia: hub.rightFlangeDia,
-    flangeCenter: hub.rightFlangeCenter,
-    spokeHoleDia: hub.spokeHoleDia,
-    spokeCount: wheel.spokeCount,
-    crossPattern: lacing.crossPattern
-  });
+  const side = (which) => {
+    const left = which === 'left';
+    const lateralDistance = lateralSpokeDistance({
+      side: which,
+      flangeCenter: left ? hub.leftFlangeCenter : hub.rightFlangeCenter,
+      rimOffset: wheel.rimOffset,
+      holeStagger: wheel.holeStagger,
+      holeRows: wheel.holeRows
+    });
+    const length = calculateSpokeLength({
+      erd: wheel.erd,
+      flangeDia: left ? hub.leftFlangeDia : hub.rightFlangeDia,
+      lateralDistance,
+      spokeHoleDia: hub.spokeHoleDia,
+      spokeOffset: left ? hub.spokeOffsetNds : hub.spokeOffsetDs,
+      spokeCount: wheel.spokeCount,
+      crossPattern: lacing.crossPattern,
+      pairedHoleAngle: hub.pairedHoleAngle,
+      spokeType: hub.hubType,
+      lengthAdjustment: lacing.lengthAdjustment
+    });
+    const bracingAngle = Math.asin(Math.min(1, Math.abs(lateralDistance) / length)) * (180 / Math.PI);
+    return { length, lateralDistance, bracingAngle };
+  };
+  const l = side('left');
+  const r = side('right');
 
-  return { left, right, roundedLeft: round(left, 1), roundedRight: round(right, 1) };
+  return {
+    left: l.length,
+    right: r.length,
+    roundedLeft: round(l.length, 1),
+    roundedRight: round(r.length, 1),
+    leftBracingAngle: l.bracingAngle,
+    rightBracingAngle: r.bracingAngle,
+    leftLateralDistance: l.lateralDistance,
+    rightLateralDistance: r.lateralDistance,
+    effectiveCross: effectiveCross({
+      spokeType: hub.hubType,
+      spokeCount: wheel.spokeCount,
+      crossPattern: lacing.crossPattern,
+      pairedHoleAngle: hub.pairedHoleAngle
+    })
+  };
+}
+
+// The furthest the spoke bed can sit off the rim's centre and still keep the
+// nipple holes on it: half the rim width, less the half stagger and a 2 mm
+// margin. Never negative.
+export function maxRimOffset(rimWidth, holeStagger = 0) {
+  if (!Number.isFinite(rimWidth)) return Infinity;
+  const half = Number.isFinite(holeStagger) ? holeStagger / 2 : 0;
+  return Math.max(0, (rimWidth / 2) - half - 2);
 }
 
 export function calculateRearHubMount(options = {}) {

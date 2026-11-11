@@ -23,6 +23,7 @@ var BicycleWheelSVG = (() => {
     BicycleWheelSVG: () => BicycleWheelSVG,
     HUB_PRESETS: () => HUB_PRESETS,
     HubSVGGenerator: () => HubSVGGenerator,
+    SPOKE_LINE_STYLES: () => SPOKE_LINE_STYLES,
     STYLE_PRESETS: () => STYLE_PRESETS,
     WheelFaceSVGGenerator: () => WheelFaceSVGGenerator,
     WheelSideSVGGenerator: () => WheelSideSVGGenerator,
@@ -31,9 +32,13 @@ var BicycleWheelSVG = (() => {
     calculateWheelBuild: () => calculateWheelBuild,
     default: () => index_default,
     defineStylePreset: () => defineStylePreset,
+    effectiveCross: () => effectiveCross,
     hubHolePositions: () => hubHolePositions,
     hubPaintStyles: () => hubPaintStyles,
+    isStraightPull: () => isStraightPull,
     lacingMap: () => lacingMap,
+    lateralSpokeDistance: () => lateralSpokeDistance,
+    maxRimOffset: () => maxRimOffset,
     normalizeFreehubType: () => normalizeFreehubType,
     normalizeOptions: () => normalizeOptions,
     renderHubFaceSvg: () => renderHubFaceSvg,
@@ -45,6 +50,8 @@ var BicycleWheelSVG = (() => {
     renderWheelSvg: () => renderWheelSvg,
     resolveStyleOptions: () => resolveStyleOptions,
     rimHolePositions: () => rimHolePositions,
+    showRimHoles: () => showRimHoles,
+    straightPullDesignedCross: () => straightPullDesignedCross,
     validateWheelBuild: () => validateWheelBuild
   });
 
@@ -56,6 +63,7 @@ var BicycleWheelSVG = (() => {
     rimStroke: "#212529",
     rimOutlineStroke: "#111111",
     rimHighlightStroke: "rgba(255,255,255,.15)",
+    rimSheenStroke: "rgba(255,255,255,.22)",
     rimHoleFill: "#111111",
     rimHoleStroke: "#343a40",
     valveFill: "#ffffff",
@@ -97,7 +105,242 @@ var BicycleWheelSVG = (() => {
     hubFluteStroke: "#111111",
     hubHighlightStroke: "#111111"
   };
+  var MECHANIC_LEFT = "#1d6fe0";
+  var MECHANIC_RIGHT = "#e8590c";
   var STYLE_PRESETS = {
+    mechanic: {
+      name: "Mechanic",
+      hubRenderStyle: "realistic",
+      wheel: { valveType: "presta" },
+      hub: { showHubHoles: "hidden" },
+      style: {
+        spokeColor: "color",
+        nippleStyle: "nipples",
+        nippleColor: "silver",
+        spokeLayering: "3d",
+        rimHoles: "auto",
+        spokeWidth: 1.6,
+        outlineWidth: 1.4,
+        spokeLine: { left: "solid", right: "solid" },
+        shading: "flat"
+      },
+      palette: {
+        ...BASE_PALETTE,
+        svgBackground: "transparent",
+        rimFaceFill: "#d5dbe1",
+        rimSideFill: "#d5dbe1",
+        rimStroke: "#3b4248",
+        rimOutlineStroke: "#3b4248",
+        rimHighlightStroke: "rgba(255,255,255,.5)",
+        rimHoleFill: "#3b4248",
+        rimHoleStroke: "#3b4248",
+        valveFill: "#ffd43b",
+        valveStroke: "#343a40",
+        spokeLeftPulling: MECHANIC_LEFT,
+        spokeLeftTrailing: "#7fb0f5",
+        spokeRightPulling: MECHANIC_RIGHT,
+        spokeRightTrailing: "#f9a66c",
+        nippleSilver: "#6c757d",
+        nippleDotFill: "#6c757d",
+        nippleDotStroke: "#343a40",
+        hubAxleFill: "#e9ecef",
+        hubAxleStroke: "#343a40",
+        hubEndcapFill: "#adb5bd",
+        hubEndcapStroke: "#343a40",
+        hubShellFill: "#dee2e6",
+        hubShellStroke: "#495057",
+        hubShellDtSwissFill: "#dee2e6",
+        hubShellIndustryNineFill: "#dee2e6",
+        hubFlangeLeftFill: "#d6e6fd",
+        hubFlangeLeftStroke: MECHANIC_LEFT,
+        hubFlangeRightFill: "#fde3d3",
+        hubFlangeRightStroke: MECHANIC_RIGHT,
+        hubMountFill: "#adb5bd",
+        hubMountStroke: "#343a40",
+        hubFreehubFill: "#ced4da",
+        hubFreehubStroke: "#343a40",
+        hubBearingFill: "#868e96",
+        hubBearingStroke: "#343a40",
+        hubCutoutFill: "#f8f9fa",
+        hubCutoutStroke: "#495057",
+        hubHoleFill: "#343a40",
+        hubDetailStroke: "#343a40",
+        hubBlueprintStroke: "#868e96",
+        hubFluteStroke: "#868e96",
+        hubHighlightStroke: "#ffffff"
+      }
+    },
+    "realistic-black": {
+      name: "Realistic black",
+      hubRenderStyle: "realistic",
+      wheel: { valveType: "presta" },
+      hub: { showHubHoles: "hidden" },
+      style: {
+        spokeColor: "color",
+        nippleStyle: "nipples",
+        nippleColor: "silver",
+        spokeLayering: "3d",
+        rimHoles: "auto",
+        spokeWidth: 1.5,
+        outlineWidth: 1.2,
+        spokeLine: { left: "solid", right: "solid" },
+        shading: "soft"
+      },
+      palette: {
+        ...BASE_PALETTE,
+        svgBackground: "transparent",
+        rimFaceFill: "#1d1f22",
+        rimSideFill: "#1d1f22",
+        rimStroke: "#0b0c0d",
+        rimOutlineStroke: "#0b0c0d",
+        rimHighlightStroke: "rgba(255,255,255,.12)",
+        rimSheenStroke: "rgba(255,255,255,.16)",
+        rimHoleFill: "#0b0c0d",
+        rimHoleStroke: "#0b0c0d",
+        valveFill: "#2f3438",
+        valveStroke: "#0b0c0d",
+        spokeLeftPulling: "#1f2226",
+        spokeLeftTrailing: "#1f2226",
+        spokeRightPulling: "#1f2226",
+        spokeRightTrailing: "#1f2226",
+        nippleSilver: "#141516",
+        nippleDotFill: "#141516",
+        nippleDotStroke: "#000000",
+        hubAxleFill: "#5c636a",
+        hubAxleStroke: "#0b0c0d",
+        hubEndcapFill: "#3a3f44",
+        hubEndcapStroke: "#0b0c0d",
+        hubShellFill: "#2b2f33",
+        hubShellStroke: "#0b0c0d",
+        hubShellDtSwissFill: "#2b2f33",
+        hubShellIndustryNineFill: "#2b2f33",
+        hubFlangeLeftFill: "#33383d",
+        hubFlangeLeftStroke: "#0b0c0d",
+        hubFlangeRightFill: "#33383d",
+        hubFlangeRightStroke: "#0b0c0d",
+        hubMountFill: "#3a3f44",
+        hubMountStroke: "#0b0c0d",
+        hubFreehubFill: "#6c757d",
+        hubFreehubStroke: "#212529",
+        hubBearingFill: "#495057",
+        hubBearingStroke: "#0b0c0d",
+        hubCutoutFill: "#1d1f22",
+        hubCutoutStroke: "#0b0c0d",
+        hubHoleFill: "#0b0c0d",
+        hubDetailStroke: "#0b0c0d",
+        hubBlueprintStroke: "#495057",
+        hubFluteStroke: "#5c636a",
+        hubHighlightStroke: "rgba(255,255,255,.35)"
+      }
+    },
+    "realistic-silver": {
+      name: "Realistic silver",
+      hubRenderStyle: "realistic",
+      wheel: { valveType: "presta" },
+      hub: { showHubHoles: "hidden" },
+      style: {
+        spokeColor: "color",
+        nippleStyle: "nipples",
+        nippleColor: "silver",
+        spokeLayering: "3d",
+        rimHoles: "auto",
+        spokeWidth: 1.5,
+        outlineWidth: 1.2,
+        spokeLine: { left: "solid", right: "solid" },
+        shading: "soft"
+      },
+      palette: {
+        ...BASE_PALETTE,
+        svgBackground: "transparent",
+        rimFaceFill: "#c9ced3",
+        rimSideFill: "#c9ced3",
+        rimStroke: "#5c636a",
+        rimOutlineStroke: "#5c636a",
+        rimHighlightStroke: "rgba(255,255,255,.6)",
+        rimSheenStroke: "rgba(255,255,255,.55)",
+        rimHoleFill: "#495057",
+        rimHoleStroke: "#495057",
+        valveFill: "#adb5bd",
+        valveStroke: "#495057",
+        spokeLeftPulling: "#8f979e",
+        spokeLeftTrailing: "#8f979e",
+        spokeRightPulling: "#8f979e",
+        spokeRightTrailing: "#8f979e",
+        nippleSilver: "#adb5bd",
+        nippleDotFill: "#adb5bd",
+        nippleDotStroke: "#495057",
+        hubAxleFill: "#e9ecef",
+        hubAxleStroke: "#495057",
+        hubEndcapFill: "#adb5bd",
+        hubEndcapStroke: "#495057",
+        hubShellFill: "#d3d7db",
+        hubShellStroke: "#5c636a",
+        hubShellDtSwissFill: "#d3d7db",
+        hubShellIndustryNineFill: "#d3d7db",
+        hubFlangeLeftFill: "#dee2e6",
+        hubFlangeLeftStroke: "#5c636a",
+        hubFlangeRightFill: "#ced4da",
+        hubFlangeRightStroke: "#5c636a",
+        hubMountFill: "#adb5bd",
+        hubMountStroke: "#495057",
+        hubFreehubFill: "#ced4da",
+        hubFreehubStroke: "#495057",
+        hubBearingFill: "#868e96",
+        hubBearingStroke: "#495057",
+        hubCutoutFill: "#f1f3f5",
+        hubCutoutStroke: "#5c636a",
+        hubHoleFill: "#343a40",
+        hubDetailStroke: "#495057",
+        hubBlueprintStroke: "#868e96",
+        hubFluteStroke: "#868e96",
+        hubHighlightStroke: "#ffffff"
+      }
+    },
+    print: {
+      name: "Print",
+      hubRenderStyle: "blueprint",
+      wheel: { valveType: "presta" },
+      hub: { showHubHoles: "visible" },
+      style: {
+        spokeColor: "color",
+        nippleStyle: "dots",
+        nippleColor: "black",
+        spokeLayering: "3d",
+        rimHoles: "auto",
+        spokeWidth: 1.6,
+        trailingWidthRatio: 0.6,
+        outlineWidth: 1.4,
+        spokeLine: { left: "solid", right: "dashed" },
+        shading: "flat"
+      },
+      palette: {
+        ...BASE_PALETTE,
+        svgBackground: "transparent",
+        rimFaceFill: "#ffffff",
+        rimSideFill: "#ffffff",
+        rimStroke: "#000000",
+        rimOutlineStroke: "#000000",
+        rimHighlightStroke: "transparent",
+        rimHoleFill: "#000000",
+        rimHoleStroke: "#000000",
+        valveFill: "#ffffff",
+        valveStroke: "#000000",
+        spokeLeftPulling: "#000000",
+        spokeLeftTrailing: "#000000",
+        spokeRightPulling: "#000000",
+        spokeRightTrailing: "#000000",
+        nippleDotFill: "#ffffff",
+        nippleDotStroke: "#000000",
+        nippleSilver: "#000000",
+        hubFlangeLeftFill: "#ffffff",
+        hubFlangeLeftStroke: "#000000",
+        hubFlangeRightFill: "#ffffff",
+        hubFlangeRightStroke: "#000000",
+        hubHoleFill: "#000000",
+        hubDetailStroke: "#000000",
+        hubBlueprintStroke: "#000000"
+      }
+    },
     drawing: {
       name: "Drawing",
       hubRenderStyle: "blueprint",
@@ -129,10 +372,13 @@ var BicycleWheelSVG = (() => {
         spokeColor: "color",
         nippleStyle: "dots",
         nippleColor: "black",
-        spokeLayering: "3d"
+        spokeLayering: "3d",
+        rimHoles: "auto",
+        spokeLine: { left: "solid", right: "dashed" }
       },
       palette: {
         ...BASE_PALETTE,
+        svgBackground: "transparent",
         rimFaceFill: "#111111",
         rimSideFill: "#111111",
         rimStroke: "#111111",
@@ -263,6 +509,21 @@ var BicycleWheelSVG = (() => {
   function compact(object) {
     return Object.fromEntries(Object.entries(object || {}).filter(([, value]) => value !== void 0));
   }
+  function positive(value, fallback) {
+    const number = Number(value);
+    return Number.isFinite(number) && number > 0 ? number : fallback;
+  }
+  var SPOKE_LINE_STYLES = ["solid", "dashed", "dotted"];
+  function lineStyle(value, fallback) {
+    return SPOKE_LINE_STYLES.includes(value) ? value : fallback;
+  }
+  var DASH = { solid: "none", dashed: "4 4", dotted: "1 3" };
+  function showRimHoles(style = {}) {
+    const resolved = resolveStyleOptions(style);
+    if (resolved.rimHoles === "show") return true;
+    if (resolved.rimHoles === "hide") return false;
+    return resolved.nippleStyle !== "nipples" && resolved.nippleStyle !== "dots";
+  }
   function defineStylePreset(name, preset = {}) {
     return {
       name,
@@ -278,12 +539,22 @@ var BicycleWheelSVG = (() => {
     const preset = STYLE_PRESETS[themeName] || STYLE_PRESETS.drawing;
     const presetStyle = preset.style || {};
     const hubRenderStyle = style.hubRenderStyle || preset.hubRenderStyle || "blueprint";
+    const merged = { ...presetStyle, ...style };
+    const defaultLine = merged.spokeColor === "color" ? { left: "solid", right: "dashed" } : { left: "solid", right: "solid" };
     return {
-      ...presetStyle,
-      ...style,
+      ...merged,
       theme: themeName,
       hubRenderStyle,
       paintMode: style.paintMode || presetStyle.paintMode || "hybrid",
+      rimHoles: ["auto", "show", "hide"].includes(merged.rimHoles) ? merged.rimHoles : "auto",
+      spokeWidth: positive(merged.spokeWidth, 1.5),
+      trailingWidthRatio: positive(merged.trailingWidthRatio, 1),
+      outlineWidth: positive(merged.outlineWidth, 1.5),
+      spokeLine: {
+        left: lineStyle(merged.spokeLine?.left, defaultLine.left),
+        right: lineStyle(merged.spokeLine?.right, defaultLine.right)
+      },
+      shading: merged.shading === "soft" ? "soft" : "flat",
       palette: {
         ...BASE_PALETTE,
         ...compact(preset.palette),
@@ -351,6 +622,9 @@ var BicycleWheelSVG = (() => {
       }
     };
   }
+  function round2(value) {
+    return Math.round(value * 100) / 100;
+  }
   function rule(selector, declarations) {
     return `${selector}{${Object.entries(declarations).filter(([, value]) => value !== void 0 && value !== null).map(([property, value]) => `${property}:${value}`).join(";")}}`;
   }
@@ -358,11 +632,14 @@ var BicycleWheelSVG = (() => {
     return cssVar(token, palette[token] || BASE_PALETTE[token]);
   }
   function createVisualizerStyle(style = {}) {
-    const { palette } = resolveStyleOptions(style);
+    const resolved = resolveStyleOptions(style);
+    const { palette } = resolved;
+    const width = resolved.spokeWidth;
     return [
       rule(".wheel-svg,.hub-svg", { background: v("svgBackground", palette) }),
       rule(".rim-body", { fill: v("rimSideFill", palette), stroke: v("rimStroke", palette), "stroke-width": 1, "fill-rule": "evenodd" }),
-      rule(".rim-outline", { fill: "none", stroke: v("rimOutlineStroke", palette), "stroke-width": 1.5 }),
+      rule(".rim-outline", { fill: "none", stroke: v("rimOutlineStroke", palette), "stroke-width": resolved.outlineWidth }),
+      rule(".rim-sheen", { fill: "none", stroke: v("rimSheenStroke", palette), "stroke-linecap": "round" }),
       rule(".rim-highlight", { fill: "none", stroke: v("rimHighlightStroke", palette), "stroke-width": 1 }),
       rule(".rim-hole", { fill: v("rimHoleFill", palette), stroke: v("rimHoleStroke", palette), "stroke-width": 0.5 }),
       rule(".valve-hole-marker", { fill: v("valveFill", palette) }),
@@ -373,14 +650,17 @@ var BicycleWheelSVG = (() => {
       rule(".spoke-nipple-dot", { fill: v("nippleDotFill", palette), stroke: v("nippleDotStroke", palette), "stroke-width": 1 }),
       rule(".nipple-theme-silver .spoke-nipple", { stroke: v("nippleSilver", palette) }),
       rule(".nipple-theme-black .spoke-nipple", { stroke: v("nippleBlack", palette) }),
-      rule(".spoke", { "stroke-width": 1.5, "stroke-linecap": "round" }),
+      rule(".spoke", { "stroke-width": width, "stroke-linecap": "round" }),
+      rule(".spoke.spoke-trailing", { "stroke-width": round2(width * resolved.trailingWidthRatio) }),
+      rule(".spoke.spoke-left", { "stroke-dasharray": DASH[resolved.spokeLine.left] }),
+      rule(".spoke.spoke-right", { "stroke-dasharray": DASH[resolved.spokeLine.right] }),
       rule(".spoke-theme-color .spoke-left.spoke-pulling", { stroke: v("spokeLeftPulling", palette) }),
       rule(".spoke-theme-color .spoke-left.spoke-trailing", { stroke: v("spokeLeftTrailing", palette) }),
-      rule(".spoke-theme-color .spoke-right.spoke-pulling", { stroke: v("spokeRightPulling", palette), "stroke-dasharray": "4 4" }),
-      rule(".spoke-theme-color .spoke-right.spoke-trailing", { stroke: v("spokeRightTrailing", palette), "stroke-dasharray": "4 4" }),
+      rule(".spoke-theme-color .spoke-right.spoke-pulling", { stroke: v("spokeRightPulling", palette) }),
+      rule(".spoke-theme-color .spoke-right.spoke-trailing", { stroke: v("spokeRightTrailing", palette) }),
       rule(".spoke-theme-black .spoke", { stroke: v("spokeBlack", palette) }),
       rule(".spoke-theme-silver .spoke", { stroke: v("spokeSilver", palette) }),
-      rule(".straight-pull-wheel-spoke", { "stroke-width": 2, "stroke-linecap": "butt" }),
+      rule(".straight-pull-wheel-spoke", { "stroke-width": round2(width * 1.3), "stroke-linecap": "butt" }),
       rule(".straight-pull-spoke-head,.spoke-theme-color .straight-pull-spoke-head,.spoke-theme-black .straight-pull-spoke-head,.spoke-theme-silver .straight-pull-spoke-head", { stroke: "none !important", "stroke-width": "0 !important" }),
       rule(".spoke-theme-color .straight-pull-spoke-head.spoke-left.spoke-pulling", { fill: v("spokeLeftPulling", palette) }),
       rule(".spoke-theme-color .straight-pull-spoke-head.spoke-left.spoke-trailing", { fill: v("spokeLeftTrailing", palette) }),
@@ -420,6 +700,8 @@ var BicycleWheelSVG = (() => {
     erd: 601,
     rimWidth: 25,
     rimOffset: 0,
+    holeStagger: 0,
+    holeRows: "same-side",
     spokeCount: 32,
     valveType: "presta"
   };
@@ -436,6 +718,7 @@ var BicycleWheelSVG = (() => {
     spokeHoleDia: 2.6,
     spokeOffsetNds: 0,
     spokeOffsetDs: 0,
+    pairedHoleAngle: 0,
     brandStyle: "generic",
     shellStyle: "tapered",
     shellWaistDia: 24,
@@ -568,7 +851,8 @@ var BicycleWheelSVG = (() => {
     }
   };
   var DEFAULT_LACING = {
-    crossPattern: 3
+    crossPattern: 3,
+    lengthAdjustment: 0
   };
   var DEFAULT_VIEW = {
     wheelFaceSide: "left",
@@ -598,6 +882,8 @@ var BicycleWheelSVG = (() => {
       erd: options.erd,
       rimWidth: options.rimWidth,
       rimOffset: options.rimOffset,
+      holeStagger: options.holeStagger,
+      holeRows: options.holeRows,
       spokeCount: options.spokeCount,
       valveType: options.valveType
     };
@@ -613,6 +899,9 @@ var BicycleWheelSVG = (() => {
       leftFlangeCenter: options.leftFlangeCenter,
       rightFlangeCenter: options.rightFlangeCenter,
       spokeHoleDia: options.spokeHoleDia,
+      spokeOffsetNds: options.spokeOffsetNds,
+      spokeOffsetDs: options.spokeOffsetDs,
+      pairedHoleAngle: options.pairedHoleAngle,
       brandStyle: options.brandStyle,
       shellStyle: options.shellStyle,
       shellWaistDia: options.shellWaistDia,
@@ -650,35 +939,97 @@ var BicycleWheelSVG = (() => {
       style: resolveStyleOptions(styleInput)
     };
   }
+  function isStraightPull(type) {
+    const value = String(type || "").toLowerCase().replace(/[^a-z]/g, "");
+    return value === "straightpull";
+  }
+  function straightPullDesignedCross(spokeCount, crossPattern) {
+    if (!(crossPattern > 0)) return 0;
+    return spokeCount <= 24 ? 2 : 3;
+  }
+  function effectiveCross({ spokeType, spokeCount, crossPattern, pairedHoleAngle }) {
+    if (isStraightPull(spokeType)) {
+      const designed = straightPullDesignedCross(spokeCount, crossPattern);
+      return designed === 0 ? 0 : designed + 0.5;
+    }
+    const cross = Number.isFinite(crossPattern) ? crossPattern : 0;
+    const pitch = 720 / spokeCount;
+    if (pairedHoleAngle > 0 && Number.isFinite(pitch)) {
+      return cross + (pitch - pairedHoleAngle) / 2 / pitch;
+    }
+    return cross;
+  }
+  function lateralSpokeDistance({ side, flangeCenter, rimOffset = 0, holeStagger = 0, holeRows = "same-side" }) {
+    const offset = Number.isFinite(rimOffset) ? rimOffset : 0;
+    const half = Number.isFinite(holeStagger) ? holeStagger / 2 : 0;
+    const rowShift = holeRows === "crossed" ? half : -half;
+    return side === "left" ? flangeCenter + offset + rowShift : flangeCenter - offset + rowShift;
+  }
   function calculateSpokeLength(params) {
-    const theta = 4 * Math.PI * params.crossPattern / params.spokeCount;
+    const straightPull = isStraightPull(params.spokeType);
+    const x = effectiveCross(params);
+    const angle = 4 * Math.PI * x / params.spokeCount;
     const erdRadius = params.erd / 2;
     const flangeRadius = params.flangeDia / 2;
-    const planarDistance = Math.sqrt(
-      erdRadius ** 2 + flangeRadius ** 2 - 2 * erdRadius * flangeRadius * Math.cos(theta)
+    const lateral = Number.isFinite(params.lateralDistance) ? params.lateralDistance : params.flangeCenter;
+    const run = Math.sqrt(
+      (flangeRadius * Math.sin(angle)) ** 2 + (erdRadius - flangeRadius * Math.cos(angle)) ** 2 + lateral ** 2
     );
-    return Math.sqrt(planarDistance ** 2 + params.flangeCenter ** 2) - (params.spokeHoleDia || 2.6) / 2 + (params.lengthAdjustment || 0);
+    const holeDia = Number.isFinite(params.spokeHoleDia) ? params.spokeHoleDia : 2.6;
+    const spokeOffset = Number.isFinite(params.spokeOffset) ? params.spokeOffset : 0;
+    const endCorrection = straightPull ? spokeOffset : -(holeDia / 2);
+    return run + endCorrection + (Number.isFinite(params.lengthAdjustment) ? params.lengthAdjustment : 0);
   }
   function calculateWheelBuild(options = {}) {
     const config = normalizeOptions(options);
     const { wheel, hub, lacing } = config;
-    const left = calculateSpokeLength({
-      erd: wheel.erd,
-      flangeDia: hub.leftFlangeDia,
-      flangeCenter: hub.leftFlangeCenter,
-      spokeHoleDia: hub.spokeHoleDia,
-      spokeCount: wheel.spokeCount,
-      crossPattern: lacing.crossPattern
-    });
-    const right = calculateSpokeLength({
-      erd: wheel.erd,
-      flangeDia: hub.rightFlangeDia,
-      flangeCenter: hub.rightFlangeCenter,
-      spokeHoleDia: hub.spokeHoleDia,
-      spokeCount: wheel.spokeCount,
-      crossPattern: lacing.crossPattern
-    });
-    return { left, right, roundedLeft: round(left, 1), roundedRight: round(right, 1) };
+    const side = (which) => {
+      const left = which === "left";
+      const lateralDistance = lateralSpokeDistance({
+        side: which,
+        flangeCenter: left ? hub.leftFlangeCenter : hub.rightFlangeCenter,
+        rimOffset: wheel.rimOffset,
+        holeStagger: wheel.holeStagger,
+        holeRows: wheel.holeRows
+      });
+      const length = calculateSpokeLength({
+        erd: wheel.erd,
+        flangeDia: left ? hub.leftFlangeDia : hub.rightFlangeDia,
+        lateralDistance,
+        spokeHoleDia: hub.spokeHoleDia,
+        spokeOffset: left ? hub.spokeOffsetNds : hub.spokeOffsetDs,
+        spokeCount: wheel.spokeCount,
+        crossPattern: lacing.crossPattern,
+        pairedHoleAngle: hub.pairedHoleAngle,
+        spokeType: hub.hubType,
+        lengthAdjustment: lacing.lengthAdjustment
+      });
+      const bracingAngle = Math.asin(Math.min(1, Math.abs(lateralDistance) / length)) * (180 / Math.PI);
+      return { length, lateralDistance, bracingAngle };
+    };
+    const l = side("left");
+    const r = side("right");
+    return {
+      left: l.length,
+      right: r.length,
+      roundedLeft: round(l.length, 1),
+      roundedRight: round(r.length, 1),
+      leftBracingAngle: l.bracingAngle,
+      rightBracingAngle: r.bracingAngle,
+      leftLateralDistance: l.lateralDistance,
+      rightLateralDistance: r.lateralDistance,
+      effectiveCross: effectiveCross({
+        spokeType: hub.hubType,
+        spokeCount: wheel.spokeCount,
+        crossPattern: lacing.crossPattern,
+        pairedHoleAngle: hub.pairedHoleAngle
+      })
+    };
+  }
+  function maxRimOffset(rimWidth, holeStagger = 0) {
+    if (!Number.isFinite(rimWidth)) return Infinity;
+    const half = Number.isFinite(holeStagger) ? holeStagger / 2 : 0;
+    return Math.max(0, rimWidth / 2 - half - 2);
   }
   function calculateRearHubMount(options = {}) {
     const config = normalizeOptions(options);
@@ -1458,7 +1809,7 @@ var BicycleWheelSVG = (() => {
     return Number.isFinite(raw) ? raw : 0;
   }
   function straightPullSpokeHead(hubPoint, rimPoint, spoke, config) {
-    const offsetPoint = pointAlongSpoke(hubPoint, rimPoint, straightPullOffset(config, spoke.side));
+    const offsetPoint = pointAlongSpoke(hubPoint, rimPoint, -straightPullOffset(config, spoke.side));
     const angle = Math.atan2(hubPoint.y - rimPoint.y, hubPoint.x - rimPoint.x) * (180 / Math.PI);
     const spokeWidth = 2;
     const halfWidth = spokeWidth / 2;
@@ -1557,7 +1908,7 @@ var BicycleWheelSVG = (() => {
       lacing.forEach((spoke, spokeOrder) => {
         const hubPoint = hubHoles[spoke.side][spoke.hubIndex];
         const rimPoint = rimHoles[spoke.rimIndex];
-        const spokeStart = config.hub.hubType === "straightpull" ? pointAlongSpoke(hubPoint, rimPoint, straightPullOffset(config, spoke.side)) : hubPoint;
+        const spokeStart = config.hub.hubType === "straightpull" ? pointAlongSpoke(hubPoint, rimPoint, -straightPullOffset(config, spoke.side)) : hubPoint;
         const isBackFlange = spoke.side === "left" && !isLeftView || spoke.side === "right" && isLeftView;
         const isFront = config.style.spokeLayering === "flat" ? true : !isBackFlange;
         const spokeSvg = line(spokeStart.x, spokeStart.y, rimPoint.x, rimPoint.y, {
@@ -1643,9 +1994,10 @@ var BicycleWheelSVG = (() => {
         }),
         circle(center, center, outerRadius, { class: "rim-outline" }),
         circle(center, center, innerRadius, { class: "rim-outline" }),
-        circle(center, center, innerRadius + 1, { class: "rim-highlight" })
+        circle(center, center, innerRadius + 1, { class: "rim-highlight" }),
+        config.style.shading === "soft" ? circle(center, center, innerRadius + rimThickness * 0.62, { class: "rim-sheen", "stroke-width": Math.max(1, rimThickness * 0.28) }) : ""
       ].join(""));
-      const rimHoleSvg = tag("g", { class: "rim-holes-group" }, rimHoles.map((point) => circle(point.x, point.y, 2.2, { class: "rim-hole" })).join(""));
+      const rimHoleSvg = showRimHoles(config.style) ? tag("g", { class: "rim-holes-group" }, rimHoles.map((point) => circle(point.x, point.y, 2.2, { class: "rim-hole" })).join("")) : "";
       const foregroundHubHeads = config.hub.hubType === "jbend" && config.hub.showHubHoles === "visible" ? frontHoles.map((point) => circle(point.x + 0.4, point.y + 0.4, 1.4, {
         fill: config.style.spokeColor === "black" ? paintValue(config.style, "spokeBlack") : paintValue(config.style, "spokeSilver")
       })).join("") : "";
@@ -1675,7 +2027,19 @@ var BicycleWheelSVG = (() => {
       const config = normalizeOptions(options);
       const cx = 100;
       const cy = 375;
-      const rimCenter = cx + config.wheel.rimOffset;
+      const width = config.wheel.rimWidth;
+      const stagger = Number.isFinite(config.wheel.holeStagger) ? Math.max(0, config.wheel.holeStagger) : 0;
+      const bedHalf = Math.max(width / 6, stagger / 2 + 1);
+      const offsetLimit = Math.max(0, Math.min(maxRimOffset(width, stagger), width / 2 - bedHalf));
+      const rawOffset = Number.isFinite(config.wheel.rimOffset) ? config.wheel.rimOffset : 0;
+      const bedOffset = Math.max(-offsetLimit, Math.min(offsetLimit, rawOffset));
+      const bedCenter = cx + bedOffset;
+      const halfRow = stagger / 2;
+      const crossed = config.wheel.holeRows === "crossed";
+      const rowX = (side) => {
+        const own = side === "left" ? -halfRow : halfRow;
+        return bedCenter + (crossed ? -own : own);
+      };
       const outerRadius = config.wheel.outerDia / 2;
       const innerRadius = config.wheel.erd / 2;
       const leftHubRadius = config.hub.leftFlangeDia / 2;
@@ -1683,7 +2047,6 @@ var BicycleWheelSVG = (() => {
       const leftHubX = cx - config.hub.leftFlangeCenter;
       const rightHubX = cx + config.hub.rightFlangeCenter;
       const rimDepth = (config.wheel.outerDia - config.wheel.erd) / 2;
-      const width = config.wheel.rimWidth;
       const yOuterTop = cy - outerRadius;
       const yInnerTop = cy - innerRadius;
       const yMidTop = yOuterTop + rimDepth / 2;
@@ -1691,26 +2054,31 @@ var BicycleWheelSVG = (() => {
       const yInnerBottom = cy + innerRadius;
       const yMidBottom = yOuterBottom - rimDepth / 2;
       const topPath = [
-        `M ${rimCenter - width / 2} ${yOuterTop}`,
-        `L ${rimCenter + width / 2} ${yOuterTop}`,
-        `L ${rimCenter + width / 2} ${yMidTop}`,
-        `L ${rimCenter + width / 6} ${yInnerTop}`,
-        `L ${rimCenter - width / 6} ${yInnerTop}`,
-        `L ${rimCenter - width / 2} ${yMidTop}`,
+        `M ${cx - width / 2} ${yOuterTop}`,
+        `L ${cx + width / 2} ${yOuterTop}`,
+        `L ${cx + width / 2} ${yMidTop}`,
+        `L ${bedCenter + bedHalf} ${yInnerTop}`,
+        `L ${bedCenter - bedHalf} ${yInnerTop}`,
+        `L ${cx - width / 2} ${yMidTop}`,
         "Z"
       ].join(" ");
       const bottomPath = [
-        `M ${rimCenter - width / 6} ${yInnerBottom}`,
-        `L ${rimCenter + width / 6} ${yInnerBottom}`,
-        `L ${rimCenter + width / 2} ${yMidBottom}`,
-        `L ${rimCenter + width / 2} ${yOuterBottom}`,
-        `L ${rimCenter - width / 2} ${yOuterBottom}`,
-        `L ${rimCenter - width / 2} ${yMidBottom}`,
+        `M ${bedCenter - bedHalf} ${yInnerBottom}`,
+        `L ${bedCenter + bedHalf} ${yInnerBottom}`,
+        `L ${cx + width / 2} ${yMidBottom}`,
+        `L ${cx + width / 2} ${yOuterBottom}`,
+        `L ${cx - width / 2} ${yOuterBottom}`,
+        `L ${cx - width / 2} ${yMidBottom}`,
         "Z"
       ].join(" ");
+      const sheen = config.style.shading === "soft" ? [
+        line(cx - width / 2 + 1.5, yOuterTop + 1.2, cx + width / 2 - 1.5, yOuterTop + 1.2, { class: "rim-sheen" }),
+        line(cx - width / 2 + 1.5, yOuterBottom - 1.2, cx + width / 2 - 1.5, yOuterBottom - 1.2, { class: "rim-sheen" })
+      ].join("") : "";
       const rimGroup = tag("g", { id: "rimGroup" }, [
         path(topPath, { class: "rim-body" }),
-        path(bottomPath, { class: "rim-body" })
+        path(bottomPath, { class: "rim-body" }),
+        sheen
       ].join(""));
       const hubGroup = renderHubSideGroup(cx, cy, config);
       if (config.style.spokeLayering === "flat") {
@@ -1726,10 +2094,10 @@ var BicycleWheelSVG = (() => {
             nippleDots.push(circle(rimPoint.x, rimPoint.y, 1.7, { class: "spoke-nipple-dot" }));
           }
         };
-        draw({ x: leftHubX, y: cy - leftHubRadius }, { x: rimCenter, y: yInnerTop }, "left");
-        draw({ x: rightHubX, y: cy - rightHubRadius }, { x: rimCenter, y: yInnerTop }, "right");
-        draw({ x: leftHubX, y: cy + leftHubRadius }, { x: rimCenter, y: yInnerBottom }, "left");
-        draw({ x: rightHubX, y: cy + rightHubRadius }, { x: rimCenter, y: yInnerBottom }, "right");
+        draw({ x: leftHubX, y: cy - leftHubRadius }, { x: rowX("left"), y: yInnerTop }, "left");
+        draw({ x: rightHubX, y: cy - rightHubRadius }, { x: rowX("right"), y: yInnerTop }, "right");
+        draw({ x: leftHubX, y: cy + leftHubRadius }, { x: rowX("left"), y: yInnerBottom }, "left");
+        draw({ x: rightHubX, y: cy + rightHubRadius }, { x: rowX("right"), y: yInnerBottom }, "right");
         return svgDocument(200, 750, "0 0 200 750", [
           tag("g", { class: `spoke-theme-${config.style.spokeColor}` }, spokes.join("")),
           hubGroup,
@@ -1757,7 +2125,7 @@ var BicycleWheelSVG = (() => {
         const hubAngle = -Math.PI / 2 + rimStep / 2 + spoke.hubIndex * hubStep + hubAngleOffset + (isLeft ? 0 : hubStep / 2);
         const rimAngle = -Math.PI / 2 + rimStep / 2 + spoke.rimIndex * rimStep;
         const hubPoint = { x: hubX, y: cy + hubRadius * Math.sin(hubAngle) };
-        const rimPoint = { x: rimCenter, y: cy + innerRadius * Math.sin(rimAngle) };
+        const rimPoint = { x: rowX(spoke.side), y: cy + innerRadius * Math.sin(rimAngle) };
         const isFront = innerRadius * Math.cos(rimAngle) >= 0;
         const spokeSvg = line(hubPoint.x, hubPoint.y, rimPoint.x, rimPoint.y, {
           class: `spoke spoke-${spoke.side} spoke-${spoke.type}`

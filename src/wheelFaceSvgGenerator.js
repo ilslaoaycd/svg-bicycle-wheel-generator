@@ -12,7 +12,7 @@ import {
   spokeNipple
 } from './paths.js';
 import { line, svgDocument, tag, visualizerStyle } from './svg.js';
-import { paintValue } from './styles.js';
+import { paintValue, showRimHoles } from './styles.js';
 
 function pointAlongSpoke(hubPoint, rimPoint, distance) {
   const dx = rimPoint.x - hubPoint.x;
@@ -31,8 +31,10 @@ function straightPullOffset(config, side) {
   return Number.isFinite(raw) ? raw : 0;
 }
 
+// The spoke offset is added to the length (DT Swiss): the head sits that far
+// behind the pitch-circle point, away from the rim.
 function straightPullSpokeHead(hubPoint, rimPoint, spoke, config) {
-  const offsetPoint = pointAlongSpoke(hubPoint, rimPoint, straightPullOffset(config, spoke.side));
+  const offsetPoint = pointAlongSpoke(hubPoint, rimPoint, -straightPullOffset(config, spoke.side));
   const angle = Math.atan2(hubPoint.y - rimPoint.y, hubPoint.x - rimPoint.x) * (180 / Math.PI);
   const spokeWidth = 2;
   const halfWidth = spokeWidth / 2;
@@ -137,7 +139,7 @@ export class WheelFaceSVGGenerator {
       const hubPoint = hubHoles[spoke.side][spoke.hubIndex];
       const rimPoint = rimHoles[spoke.rimIndex];
       const spokeStart = config.hub.hubType === 'straightpull'
-        ? pointAlongSpoke(hubPoint, rimPoint, straightPullOffset(config, spoke.side))
+        ? pointAlongSpoke(hubPoint, rimPoint, -straightPullOffset(config, spoke.side))
         : hubPoint;
       const isBackFlange = (spoke.side === 'left' && !isLeftView) || (spoke.side === 'right' && isLeftView);
       const isFront = config.style.spokeLayering === 'flat' ? true : !isBackFlange;
@@ -228,11 +230,16 @@ export class WheelFaceSVGGenerator {
       }),
       circle(center, center, outerRadius, { class: 'rim-outline' }),
       circle(center, center, innerRadius, { class: 'rim-outline' }),
-      circle(center, center, innerRadius + 1, { class: 'rim-highlight' })
+      circle(center, center, innerRadius + 1, { class: 'rim-highlight' }),
+      config.style.shading === 'soft'
+        ? circle(center, center, innerRadius + (rimThickness * 0.62), { class: 'rim-sheen', 'stroke-width': Math.max(1, rimThickness * 0.28) })
+        : ''
     ].join(''));
-    const rimHoleSvg = tag('g', { class: 'rim-holes-group' }, rimHoles.map((point) => (
-      circle(point.x, point.y, 2.2, { class: 'rim-hole' })
-    )).join(''));
+    const rimHoleSvg = showRimHoles(config.style)
+      ? tag('g', { class: 'rim-holes-group' }, rimHoles.map((point) => (
+        circle(point.x, point.y, 2.2, { class: 'rim-hole' })
+      )).join(''))
+      : '';
     const foregroundHubHeads = config.hub.hubType === 'jbend' && config.hub.showHubHoles === 'visible'
       ? frontHoles.map((point) => circle(point.x + 0.4, point.y + 0.4, 1.4, {
         fill: config.style.spokeColor === 'black' ? paintValue(config.style, 'spokeBlack') : paintValue(config.style, 'spokeSilver')

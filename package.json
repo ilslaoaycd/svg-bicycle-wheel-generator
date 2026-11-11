@@ -1,6 +1,6 @@
 {
   "name": "svg-bicycle-wheel-generator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Pure JavaScript SVG generator for bicycle wheels, hubs, spoke lacing, and wheel visualizer previews.",
   "homepage": "https://github.com/ilslaoaycd/svg-bicycle-wheel-generator#readme",
   "repository": {
